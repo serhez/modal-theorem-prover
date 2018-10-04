@@ -1,7 +1,7 @@
 This is my final year project. A Modal Logic Theorem Prover.
 
 --------
-SYNTAX
+GRAMMAR
 --------
 
 This theorem prover uses standard Modal Logic syntax; it is recursively defined as the following:
@@ -9,13 +9,23 @@ This theorem prover uses standard Modal Logic syntax; it is recursively defined 
  prop = {a : a is a string} \ {b: a string such that any of its substrings are "~", "[]", "<>", "&", "|", "->", "<->", ";", ",", ")" or "("}
  fmla = prop | ¬fmla | (fmla ∧ fmla) | (fmla ∨ fmla) | (fmla → fmla) | (fmla ↔ fmla) | □fmla | ◊fmla
 
+Please, make sure you are making use of parentheses correctly, as specified above.
+
+
+--------
+SYNTAX
+--------
+
 The syntax you must use when writing your formulas is the following (format: "what you want to write" = "how you should write it"):
 
- - ¬A = ~A
- - □A = []A
- - ◊A = <>A
- - (A ∧ B) = (A & B)
- - (A ∨ B) = (A | B)
- - (A → B) = (A -> B)
- - (A ↔ B) = (A <-> B)
+ ¬A = ~A
+ □A = []A
+ ◊A = <>A
+ (A ∧ B) = (A & B)
+ (A ∨ B) = (A | B)
+ (A → B) = (A -> B)
+ (A ↔ B) = (A <-> B)
+
+You must also note that formulas in a theorem are separated by commas (",") and different theorems to prove are separated by semicolons (";"). The last formula in a given theorem will be considered as the formula intended to be proven, and all previous formulas of the theorem will be considered as axioms. Also, the use of spaces, new tabs, new lines, etc. is irrelevant (but surely helpful for the reader).
+
 
