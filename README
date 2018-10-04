@@ -1,1 +1,21 @@
 This is my final year project. A Modal Logic Theorem Prover.
+
+--------
+SYNTAX
+--------
+
+This theorem prover uses standard Modal Logic syntax; it is recursively defined as the following:
+
+ prop = {a : a is a string} \ {b: a string such that any of its substrings are "~", "[]", "<>", "&", "|", "->", "<->", ";", ",", ")" or "("}
+ fmla = prop | ¬fmla | (fmla ∧ fmla) | (fmla ∨ fmla) | (fmla → fmla) | (fmla ↔ fmla) | □fmla | ◊fmla
+
+The syntax you must use when writing your formulas is the following (format: "what you want to write" = "how you should write it"):
+
+ - ¬A = ~A
+ - □A = []A
+ - ◊A = <>A
+ - (A ∧ B) = (A & B)
+ - (A ∨ B) = (A | B)
+ - (A → B) = (A -> B)
+ - (A ↔ B) = (A <-> B)
+
