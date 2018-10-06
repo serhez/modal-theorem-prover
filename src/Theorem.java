@@ -1,3 +1,4 @@
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -9,20 +10,30 @@ public class Theorem {
     public Theorem(String theoremString) {
         this.theoremString = theoremString;
         this.formulas = new ArrayList<Formula>();
-        parseFormulas();
+        parse();
     }
 
-    // Populate the "formulas" variable with Formula objects extracted from the theoremString
-    public void parseFormulas() {
+    // Populate the "formulas" variable with Formula objects extracted from the theoremString, and return false if any formula is invalid
+    public boolean parse() {
+
+        boolean validInput = true; // This variable allows the program to keep looking for invalid formulas once one has been found, for ease of debugging
 
         ArrayList<String> formulaStrings = new ArrayList(Arrays.asList(theoremString.split(",", 0)));
         for (int i = 0; i < formulaStrings.size(); i++) {
+            Formula currentFormula;
             if (i == formulaStrings.size() - 1) {
-                formulas.add(new Formula(formulaStrings.get(i), false));
+                currentFormula = new Formula(formulaStrings.get(i), false);
             } else {
-                formulas.add(new Formula(formulaStrings.get(i), true));
+                currentFormula = new Formula(formulaStrings.get(i), true);
             }
+            if (!currentFormula.parse()) {
+                System.out.println("The formula " + currentFormula + " is not valid");
+                validInput = false;
+            }
+            formulas.add(currentFormula);
         }
+
+        return validInput;
     }
 
     public ArrayList<Formula> getFormulas() {

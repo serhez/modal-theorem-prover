@@ -1,23 +1,21 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Formula {
 
     private String formulaString;
-    private final boolean isAxiom;  // Subformulas are declared as axioms, since they do not need to be
+    private final boolean isAxiom;
     private final ArrayList<Formula> subformulas;
     private Operator operator;
-    private boolean isValid;  // Initialised by the analise() method
-
 
     public Formula(String formulaString, boolean isAxiom) {
         this.formulaString = formulaString;
-        this.isAxiom = isAxiom;
+        this.isAxiom = isAxiom; // TODO: I DON'T LIKE THIS
         this.subformulas = new ArrayList<Formula>();
         preprocess();
-        analise();
+        parse();
     }
 
+    // TODO: possibly convert all ands, conditions and biconditions into normal form
     // Preprocesses the formulaString and eliminates all vacuous elements
     public void preprocess() {
 
@@ -45,11 +43,49 @@ public class Formula {
         }
     }
 
-    public void analise() {
+    // Analise the formula and return false if itself or any of its subformulas is not valid
+    public boolean parse() {
+
+        // Find the main operator of the formula and report any invalid syntactical structure on the current formula
+        if (!analise()) {
+            return false;
+        }
+
+        // In the case that this formula is a proposition
+        if (operator == Operator.NONE) {
+            if (!validProposition()) {
+                return false;
+            }
+        }
+
+        // In the case this formula is a negated proposition
+        if (operator == Operator.NOT) {
+            if (!validProposition(subformulas.get(0).formulaString)) {
+                return false;
+            }
+        }
+
+        for (Formula subformula : subformulas) {
+            if (!subformula.parse()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // Check if a proposition is valid
+    private boolean validProposition(String formula) {
+        for (int i = 0; i < formula.length(); i++) {
+
+        }
+        return true;
+    }
+
+    // Determine the core operator and its subformulas, as well as returning false if found any invalid structures
+    private boolean analise() {
 
         int end = formulaString.length();
-
-        // Find the main operator of the formula
 
         // []
         if (formulaString.substring(0,2) == "[]") {
@@ -60,9 +96,44 @@ public class Formula {
         // <>
         else if (formulaString.substring(0,2) == "<>") {
             operator = Operator.POSSIBLY;
+            subformulas.add(new Formula(formulaString.substring(2, end), true));
         }
 
-        isValid = true;
+        // Binary operators
+        else if (formulaString.charAt(0) == '(') {
+            // Check for non-matching parenthesis
+            if (formulaString.charAt(end-1) != ')') {
+                return false;
+            }
+            operator = findBinaryOperator(formulaString);
+            if (operator == null) {
+                return false;
+            }
+        }
+
+        // ~
+        else if (formulaString.charAt(0) == '~') {
+            Formula negatedFormula = new Formula(formulaString.substring(1, end), true);
+            negatedFormula.operator = findBinaryOperator(negatedFormula.formulaString);
+            if (negatedOperator == Operator.NONE) {
+                negatedFormula.operator = Operator.NONE;
+            } else if (negatedOperator == Operator.NOTAND) {
+
+            } else if (negatedOperator == Operator.NOTOR) {
+
+            } else if (negatedOperator == Operator.NOTCONDITION) {
+
+            } else if (negatedOperator == Operator.NOTBICONDITION) {
+
+            } else if (negatedOperator == Operator.NOTNECESSARILY) {
+
+            } else if (negatedOperator == Operator.NOTPOSSIBLY) {
+
+            }
+            subformulas.add(negatedFormula);
+        }
+
+        return true;
     }
 
     // Negate this formula
@@ -71,10 +142,10 @@ public class Formula {
         int end = formulaString.length();
 
         /*
-        A reduction of repetition here (in the statements modifying formulaString) would increase code compactness
-        and readability, but would incorporate more logic checks, slowing down the program. Hence I have compromised on
-        the first to benefit the latter.
-         */
+        A reduction of repetition in the statements modifying formulaString would increase code compactness and
+        readability, but would incorporate more logic checks, slowing down the program. Hence I have compromised
+        on the first to benefit the latter.
+        */
         if (operator == Operator.NONE) {
             formulaString = "~" + formulaString;
             operator = Operator.NOT;
@@ -122,10 +193,6 @@ public class Formula {
 
     public boolean isAxiom() {
         return isAxiom;
-    }
-
-    public boolean isValid() {
-        return isValid;
     }
 
     public ArrayList<Formula> getSubformulas() {
