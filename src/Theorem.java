@@ -20,9 +20,10 @@ public class Theorem {
         for (int i = 0; i < formulaStrings.size(); i++) {
             Formula currentFormula;
             if (i == formulaStrings.size() - 1) {
-                currentFormula = new Formula(formulaStrings.get(i), false);
+                currentFormula = new Formula(formulaStrings.get(i));
+                currentFormula.negate();
             } else {
-                currentFormula = new Formula(formulaStrings.get(i), true);
+                currentFormula = new Formula(formulaStrings.get(i));
             }
             currentFormula.preprocess();
             if (!currentFormula.parse()) {

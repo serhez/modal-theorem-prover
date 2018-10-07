@@ -3,14 +3,12 @@ import java.util.ArrayList;
 public class Formula {
 
     private String formulaString;
-    private final boolean isAxiom;
     private final ArrayList<Formula> subformulas;
     private Operator operator;
     private int operatorIndex; // In case of a negated operator, the index will indicate the operator, not the negation
 
-    public Formula(String formulaString, boolean isAxiom) {
+    public Formula(String formulaString) {
         this.formulaString = formulaString;
-        this.isAxiom = isAxiom; // TODO: I DON'T LIKE THIS
         this.subformulas = new ArrayList<>();
     }
 
@@ -19,11 +17,6 @@ public class Formula {
     public void preprocess() {
 
         int end = formulaString.length();
-
-        // Negate the formula if it is not an axiom
-        if (!isAxiom) {
-            negate();
-        }
 
         // Eliminate all spaces, tabs and new lines
         formulaString = formulaString.replaceAll(" ","");
@@ -125,7 +118,7 @@ public class Formula {
 
         // ~
         if (end > 0 && formulaString.charAt(0) == '~') {
-            Formula subformula = new Formula(formulaString.substring(1, end), true);
+            Formula subformula = new Formula(formulaString.substring(1, end));
             subformulas.add(subformula);
             operator = Operator.NOT;
             operatorIndex = 0;
@@ -150,8 +143,8 @@ public class Formula {
             } else if (operator == Operator.BICONDITION) {
                 operatorLength = 3;
             }
-            Formula firstSubformula = new Formula(formulaString.substring(1, operatorIndex), true);
-            Formula secondSubformula = new Formula(formulaString.substring(operatorIndex+operatorLength, end-1), true);
+            Formula firstSubformula = new Formula(formulaString.substring(1, operatorIndex));
+            Formula secondSubformula = new Formula(formulaString.substring(operatorIndex+operatorLength, end-1));
             subformulas.add(firstSubformula);
             subformulas.add(secondSubformula);
         }
@@ -160,14 +153,14 @@ public class Formula {
         else if (end > 2 && formulaString.substring(0,2).equals("[]")) {
             operator = Operator.NECESSARILY;
             operatorIndex = 0;
-            subformulas.add(new Formula(formulaString.substring(2, end), true));
+            subformulas.add(new Formula(formulaString.substring(2, end)));
         }
 
         // <>
         else if (end > 2 && formulaString.substring(0,2).equals("<>")) {
             operator = Operator.POSSIBLY;
             operatorIndex = 0;
-            subformulas.add(new Formula(formulaString.substring(2, end), true));
+            subformulas.add(new Formula(formulaString.substring(2, end)));
         }
 
         // Proposition
@@ -219,10 +212,6 @@ public class Formula {
         } else {
             formulaString = "~" + formulaString;
         }
-    }
-
-    public boolean isAxiom() {
-        return isAxiom;
     }
 
     public ArrayList<Formula> getSubformulas() {
