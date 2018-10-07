@@ -20,8 +20,8 @@ public class Formula {
 
         // Eliminate all spaces, tabs and new lines
         formulaString = formulaString.replaceAll(" ","");
-        formulaString = formulaString.replaceAll("\n","");
         formulaString = formulaString.replaceAll("\t","");
+        formulaString = formulaString.replaceAll("\n","");
 
         // Eliminate double negations
         for (int i = 0; i < formulaString.length(); i++) {

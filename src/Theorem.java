@@ -18,12 +18,9 @@ public class Theorem {
 
         ArrayList<String> formulaStrings = new ArrayList(Arrays.asList(theoremString.split(",", 0)));
         for (int i = 0; i < formulaStrings.size(); i++) {
-            Formula currentFormula;
+            Formula currentFormula = new Formula(formulaStrings.get(i));;
             if (i == formulaStrings.size() - 1) {
-                currentFormula = new Formula(formulaStrings.get(i));
                 currentFormula.negate();
-            } else {
-                currentFormula = new Formula(formulaStrings.get(i));
             }
             currentFormula.preprocess();
             if (!currentFormula.parse()) {
