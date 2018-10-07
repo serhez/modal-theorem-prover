@@ -1,8 +1,8 @@
 --------
-GRAMMAR
+ GRAMMAR
 --------
 
-This theorem prover uses standard Modal Logic syntax; it is recursively defined as the following:
+This theorem prover uses standard Modal Logic syntax. It is recursively defined as the following:
 
  prop = {a : a is a string} \ {b: b is a string such that any of its substrings are "~", "[]", "<>", "&", "|", "->", "<->", ";", ",", ")" or "("}
  fmla = prop | ¬fmla | (fmla ∧ fmla) | (fmla ∨ fmla) | (fmla → fmla) | (fmla ↔ fmla) | □fmla | ◊fmla
@@ -11,7 +11,7 @@ Please, make sure you are making use of parentheses correctly, as specified abov
 
 
 --------
-SYNTAX
+ SYNTAX
 --------
 
 The syntax you must use when writing your formulas is the following (format: "what you want to write" = "how you should write it"):
@@ -24,6 +24,14 @@ The syntax you must use when writing your formulas is the following (format: "wh
  (A → B) = (A -> B)
  (A ↔ B) = (A <-> B)
 
-You must also note that formulas in a theorem are separated by commas (",") and different theorems to prove are separated by semicolons (";"). The last formula in a given theorem will be considered as the formula intended to be proven, and all previous formulas of the theorem will be considered as axioms. Also, the use of spaces, new tabs, new lines, etc. is irrelevant (but surely helpful for the reader).
+You must also note that formulas in a theorem are separated by commas (",") and different theorems to prove are separated by semicolons (";").
+The last formula in a given theorem will be considered as the formula intended to be proven, and all previous formulas of the theorem will be considered as axioms.
+Also, the use of spaces, new tabs, new lines, etc. is irrelevant (but surely helpful for the reader).
 
 
+--------
+  USE
+--------
+
+Create a file called "input.txt" and locate it within the folder "input". In it, write your theorems as specified above. Next, run the Java program. Finally, find your results in the file "output.txt" in the folder named "output".
+If a formula is deemed as "not recognized", you should check that particular formula as it is not following the syntax and/or grammar specified above. If you are confident your formula is correct, please report any bugs.
