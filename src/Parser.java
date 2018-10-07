@@ -4,32 +4,34 @@ import java.util.Arrays;
 public class Parser {
 
     private final String input;
-    ArrayList<Theorem> theorems;
+    private ArrayList<Theorem> theorems;
+    private ArrayList<Integer> invalidTheorems;
 
 
     public Parser(String input) {
         this.input = input;
-        theorems = new ArrayList<Theorem>();
+        theorems = new ArrayList<>();
+        invalidTheorems = new ArrayList<>();
     }
 
-    // Takes the input string extracted from the input file and populates the variable theorems; it returns false if any formula is invalid
-    public boolean parse() {
-
-        boolean validInput = true; // This variable allows the program to keep looking for invalid formulas once one has been found, for ease of debugging
+    // Takes the input string extracted from the input file and populates the variable theorems
+    public void parse() {
 
         ArrayList<String> theoremStrings = new ArrayList(Arrays.asList(input.split(";", 0)));
-        for (String theoremString : theoremStrings) {
-            Theorem currentTheorem = new Theorem(theoremString);
-            if (!currentTheorem.parse()) {
-                validInput = false;
-            }
+        for (int i = 0; i < theoremStrings.size(); i++) {
+            Theorem currentTheorem = new Theorem(theoremStrings.get(i));
             theorems.add(currentTheorem);
-    }
-
-        return validInput;
+            if (!currentTheorem.parse()) {
+                invalidTheorems.add(i);
+            }
+        }
     }
 
     public ArrayList<Theorem> getTheorems() {
         return theorems;
+    }
+
+    public ArrayList<Integer> getInvalidTheorems() {
+        return invalidTheorems;
     }
 }

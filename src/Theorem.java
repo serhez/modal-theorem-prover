@@ -1,4 +1,3 @@
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -9,8 +8,7 @@ public class Theorem {
 
     public Theorem(String theoremString) {
         this.theoremString = theoremString;
-        this.formulas = new ArrayList<Formula>();
-        parse();
+        this.formulas = new ArrayList<>();
     }
 
     // Populate the "formulas" variable with Formula objects extracted from the theoremString, and return false if any formula is invalid
@@ -26,8 +24,9 @@ public class Theorem {
             } else {
                 currentFormula = new Formula(formulaStrings.get(i), true);
             }
+            currentFormula.preprocess();
             if (!currentFormula.parse()) {
-                System.out.println("The formula " + currentFormula + " is not valid");
+                System.out.println("The formula " + currentFormula.getFormulaString() + " is not valid");
                 validInput = false;
             }
             formulas.add(currentFormula);
