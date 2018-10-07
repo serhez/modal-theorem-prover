@@ -26,7 +26,7 @@ public class Theorem {
             }
             currentFormula.preprocess();
             if (!currentFormula.parse()) {
-                System.out.println("The formula " + currentFormula.getFormulaString() + " is not valid");
+                System.out.println("The formula " + currentFormula.getFormulaString() + " has not been recognized");
                 validInput = false;
             }
             formulas.add(currentFormula);
