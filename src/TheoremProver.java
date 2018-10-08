@@ -19,8 +19,16 @@ public class TheoremProver {
         Parser parser = new Parser(inputString);
         parser.parse();
         theorems = parser.getTheorems();
-        invalidTheorems = parser.getInvalidTheorems();
         printTheorems(theorems);
+        invalidTheorems = parser.getInvalidTheorems();
+
+        // Only prove syntactically/grammatically valid theorems
+        ArrayList<Theorem> validTheorems = new ArrayList<>();
+        for (int i = 0; i < theorems.size(); i++) {
+            if (!invalidTheorems.contains(i)) {
+                validTheorems.add(theorems.get(i));
+            }
+        }
 
         // Prove
 
