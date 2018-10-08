@@ -39,7 +39,7 @@ public class TheoremProver {
             System.out.println();
             System.out.println("----------------------------------------------------------------------");
             System.out.println("----------------------------------------------------------------------");
-            System.out.println("THEOREM " + (i+1));
+            System.out.println("   THEOREM " + (i+1));
             System.out.println("----------------------------------------------------------------------");
             System.out.println("----------------------------------------------------------------------");
             System.out.println();
