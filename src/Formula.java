@@ -5,7 +5,7 @@ public class Formula {
     private String formulaString;
     private final ArrayList<Formula> subformulas;
     private Operator operator;
-    private int operatorIndex; // In case of a negated operator, the index will indicate the operator, not the negation
+    private int operatorIndex; // In case of a negated operator, the index will indicate the location of the operator, not of the negation
 
     public Formula(String formulaString) {
         this.formulaString = formulaString;
@@ -13,10 +13,9 @@ public class Formula {
     }
 
     // TODO: possibly convert all ands, conditions and biconditions into normal form
+    // TODO: move all negations forward (<>~p should be ~<>p)
     // Preprocesses the formulaString and eliminates all vacuous elements
     public void preprocess() {
-
-        int end = formulaString.length();
 
         // Eliminate all spaces, tabs and new lines
         formulaString = formulaString.replaceAll(" ","");
@@ -24,13 +23,15 @@ public class Formula {
         formulaString = formulaString.replaceAll("\n","");
 
         // Eliminate double negations
-        for (int i = 0; i < formulaString.length(); i++) {
-            if (formulaString.length() > i+1) {
-                break;
-            }
+        eliminateDoubleNegations();
+    }
+
+    private void eliminateDoubleNegations() {
+        for (int i = 0; (i+1) < formulaString.length(); i++) {
             if ((formulaString.charAt(i) == '~') && (formulaString.charAt(i) == formulaString.charAt(i+1))) {
-                formulaString = formulaString.substring(0, i) + formulaString.substring(i+1, end);
-                formulaString = formulaString.substring(0, i) + formulaString.substring(i+1, end);
+                formulaString = formulaString.substring(0, i) + formulaString.substring(i+2, formulaString.length());
+                eliminateDoubleNegations();
+                break;
             }
         }
     }

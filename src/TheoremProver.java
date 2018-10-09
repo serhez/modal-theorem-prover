@@ -19,7 +19,6 @@ public class TheoremProver {
         Parser parser = new Parser(inputString);
         parser.parse();
         theorems = parser.getTheorems();
-        printTheorems(theorems);
         invalidTheorems = parser.getInvalidTheorems();
 
         // Only prove syntactically/grammatically valid theorems
@@ -30,6 +29,9 @@ public class TheoremProver {
             }
         }
 
+        // Debugging
+        printTheorems(validTheorems);
+
         // Prove
 
     }
@@ -37,12 +39,12 @@ public class TheoremProver {
     private static void printTheorems(ArrayList<Theorem> theorems) {
         for (int i = 0; i < theorems.size(); i++) {
             System.out.println();
-            System.out.println("----------------------------------------------------------------------");
-            System.out.println("----------------------------------------------------------------------");
-            System.out.println("   THEOREM " + (i+1));
-            System.out.println("----------------------------------------------------------------------");
-            System.out.println("----------------------------------------------------------------------");
             System.out.println();
+            System.out.println("----------------------------------------------------------------------");
+            System.out.println("----------------------------------------------------------------------");
+            System.out.println("\t\t\t\t\t\t\t  THEOREM " + (i+1));
+            System.out.println("----------------------------------------------------------------------");
+            System.out.println("----------------------------------------------------------------------");
             for (Formula formula : theorems.get(i).getFormulas()) {
                 printFormula(formula, 0);
             }
@@ -54,7 +56,7 @@ public class TheoremProver {
         for (int i = 0; i < indentation; i++) {
             System.out.print(" ");
         }
-        System.out.println(formula.getFormulaString() + "  ;  " + formula.getOperator() + "  ;  " + formula.getOperatorIndex());
+        System.out.println(formula.getFormulaString() + "  ;  Operator = " + formula.getOperator() + "  ;  Op. Index = " + formula.getOperatorIndex());
         for (Formula subformula : formula.getSubformulas()) {
             printFormula(subformula, indentation+2);
         }
