@@ -1,34 +1,59 @@
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class World {
 
-    private HashSet<String> propositions;
-    private HashSet<String> negatedPropositions;
+    private ArrayList<Formula> formulas;
 
-    public World() {
-        this.propositions = new HashSet<>();
-        this.negatedPropositions = new HashSet<>();
+    public World(ArrayList<Formula> formulas) {
+        this.formulas = cloneFormulas(formulas);
     }
 
-    public void addProposition(String p) {
-        propositions.add(p);
-    }
-
-    public void addNegatedProposition(String p) {
-        negatedPropositions.add(p);
-    }
-
-    public boolean hasProposition(String p) {
-        if (propositions.contains(p)) {
-            return true;
+    // We clone the formulas so changes to a formula in one world are not made also in the rest of worlds
+    private ArrayList<Formula> cloneFormulas(ArrayList<Formula> formulas) {
+        ArrayList<Formula> clonedFormulas = new ArrayList<>();
+        for (Formula formula : formulas) {
+            clonedFormulas.add(formula.clone());
         }
-        return false;
+        return clonedFormulas;
     }
 
-    public boolean hasNegatedProposition(String p) {
-        if (negatedPropositions.contains(p)) {
-            return true;
-        }
-        return false;
+    public ArrayList<Formula> getFormulas() {
+        return formulas;
     }
+
+    public boolean hasContradiction() {
+
+        HashSet<String> propositions = new HashSet<>();
+        HashSet<String> negatedPropositions = new HashSet<>();
+
+        for (Formula formula : formulas) {
+            if (formula.getOperator() == Operator.NONE) {
+                propositions.add(formula.getString());
+            } else if (formula.getOperator() == Operator.NOT) {
+                negatedPropositions.add(formula.getString().substring(1));
+            }
+        }
+
+        propositions.retainAll(negatedPropositions);  // Calculate the intersection of both sets, now stored in "propositions"
+        if (!propositions.isEmpty()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void addFormula(Formula formula) {
+        formulas.add(formula.clone());
+    }
+
+    public void eliminateFormula(Formula deadFormula) {
+        for (Formula formula : formulas) {
+            if (formula.getString().equals(deadFormula.getString())) {
+                formulas.remove(formula);
+                break;
+            }
+        }
+    }
+
 }

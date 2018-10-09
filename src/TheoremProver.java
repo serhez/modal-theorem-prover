@@ -56,7 +56,7 @@ public class TheoremProver {
         for (int i = 0; i < indentation; i++) {
             System.out.print(" ");
         }
-        System.out.println(formula.getFormulaString() + "  ;  Operator = " + formula.getOperator() + "  ;  Op. Index = " + formula.getOperatorIndex());
+        System.out.println(formula.getString() + "  ;  Operator = " + formula.getOperator() + "  ;  Op. Index = " + formula.getOperatorIndex());
         for (Formula subformula : formula.getSubformulas()) {
             printFormula(subformula, indentation+2);
         }

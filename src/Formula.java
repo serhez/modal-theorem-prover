@@ -2,34 +2,32 @@ import java.util.ArrayList;
 
 public class Formula {
 
-    private String formulaString;
+    private String string;
     private final ArrayList<Formula> subformulas;
     private Operator operator;
     private int operatorIndex; // In case of a negated operator, the index will indicate the location of the operator, not of the negation
 
     public Formula(String formulaString) {
-        this.formulaString = formulaString;
+        this.string = formulaString;
         this.subformulas = new ArrayList<>();
     }
 
-    // TODO: possibly convert all ands, conditions and biconditions into normal form
-    // TODO: move all negations forward (<>~p should be ~<>p)
     // Preprocesses the formulaString and eliminates all vacuous elements
     public void preprocess() {
 
         // Eliminate all spaces, tabs and new lines
-        formulaString = formulaString.replaceAll(" ","");
-        formulaString = formulaString.replaceAll("\t","");
-        formulaString = formulaString.replaceAll("\n","");
+        string = string.replaceAll(" ","");
+        string = string.replaceAll("\t","");
+        string = string.replaceAll("\n","");
 
         // Eliminate double negations
         eliminateDoubleNegations();
     }
 
     private void eliminateDoubleNegations() {
-        for (int i = 0; (i+1) < formulaString.length(); i++) {
-            if ((formulaString.charAt(i) == '~') && (formulaString.charAt(i) == formulaString.charAt(i+1))) {
-                formulaString = formulaString.substring(0, i) + formulaString.substring(i+2, formulaString.length());
+        for (int i = 0; (i+1) < string.length(); i++) {
+            if ((string.charAt(i) == '~') && (string.charAt(i) == string.charAt(i+1))) {
+                string = string.substring(0, i) + string.substring(i+2, string.length());
                 eliminateDoubleNegations();
                 break;
             }
@@ -46,7 +44,7 @@ public class Formula {
 
         // In the case that this formula is a proposition
         if (operator == Operator.NONE) {
-            if (!validProposition(formulaString)) {
+            if (!validProposition(string)) {
                 return false;
             }
             return true;
@@ -115,53 +113,63 @@ public class Formula {
     // Determine the core operator and its subformulas (but for negations), as well as returning false if found any invalid structures
     private boolean analise() {
 
-        int end = formulaString.length();
+        int end = string.length();
 
         // ~
-        if (end > 0 && formulaString.charAt(0) == '~') {
-            Formula subformula = new Formula(formulaString.substring(1, end));
+        if (end > 0 && string.charAt(0) == '~') {
+            Formula subformula = new Formula(string.substring(1, end));
             subformulas.add(subformula);
             operator = Operator.NOT;
             operatorIndex = 0;
         }
 
         // Binary operators
-        else if (end > 3 && formulaString.charAt(0) == '(') {
+        else if (end > 3 && string.charAt(0) == '(') {
 
             // Check for non-matching parenthesis
-            if (formulaString.charAt(end-1) != ')') {
+            if (string.charAt(end-1) != ')') {
                 return false;
             }
             if (!findBinaryOperator(this)) {
                 return false;
             }
 
-            int operatorLength = 0; // Should always change value
-            if (operator == Operator.AND || operator == Operator.OR) {
-                operatorLength = 1;
-            } else if (operator == Operator.CONDITION) {
-                operatorLength = 2;
-            } else if (operator == Operator.BICONDITION) {
-                operatorLength = 3;
+            // In the case of a bicondition, we treat it as a conjunction (&) of conditions
+            if (operator == Operator.BICONDITION) {
+                String firstOperand = string.substring(1, operatorIndex);
+                String secondOperand = string.substring(operatorIndex+3, end-1);
+                Formula firstSubformula = new Formula("(" + firstOperand + "->" + secondOperand + ")");
+                Formula secondSubformula = new Formula("(" + secondOperand + "->" + firstOperand + ")");
+                subformulas.add(firstSubformula);
+                subformulas.add(secondSubformula);
             }
-            Formula firstSubformula = new Formula(formulaString.substring(1, operatorIndex));
-            Formula secondSubformula = new Formula(formulaString.substring(operatorIndex+operatorLength, end-1));
-            subformulas.add(firstSubformula);
-            subformulas.add(secondSubformula);
+
+            else {
+                int operatorLength = 0; // Should always change value
+                if (operator == Operator.AND || operator == Operator.OR) {
+                    operatorLength = 1;
+                } else if (operator == Operator.CONDITION) {
+                    operatorLength = 2;
+                }
+                Formula firstSubformula = new Formula(string.substring(1, operatorIndex));
+                Formula secondSubformula = new Formula(string.substring(operatorIndex+operatorLength, end-1));
+                subformulas.add(firstSubformula);
+                subformulas.add(secondSubformula);
+            }
         }
 
         // []
-        else if (end > 2 && formulaString.substring(0,2).equals("[]")) {
+        else if (end > 2 && string.substring(0,2).equals("[]")) {
             operator = Operator.NECESSARILY;
             operatorIndex = 0;
-            subformulas.add(new Formula(formulaString.substring(2, end)));
+            subformulas.add(new Formula(string.substring(2, end)));
         }
 
         // <>
-        else if (end > 2 && formulaString.substring(0,2).equals("<>")) {
+        else if (end > 2 && string.substring(0,2).equals("<>")) {
             operator = Operator.POSSIBLY;
             operatorIndex = 0;
-            subformulas.add(new Formula(formulaString.substring(2, end)));
+            subformulas.add(new Formula(string.substring(2, end)));
         }
 
         // Proposition
@@ -175,7 +183,7 @@ public class Formula {
     // Finds and sets the operator and operatorIndex of the formula given, and returns false if no operator is found
     private boolean findBinaryOperator(Formula formula) {
 
-        String formulaString = formula.formulaString;
+        String formulaString = formula.string;
         int countSubformulas = -1; // -1 because we want to ignore the initial parenthesis
 
         for (int i = 0; i < formulaString.length(); i++) {
@@ -208,10 +216,36 @@ public class Formula {
 
     // Negate this formula
     public void negate() {
-        if (formulaString.charAt(0) == '~') {
-            formulaString = formulaString.substring(1, formulaString.length());
+        if (string.charAt(0) == '~') {
+            string = string.substring(1, string.length());
         } else {
-            formulaString = "~" + formulaString;
+            string = "~" + string;
+        }
+    }
+
+    @Override
+    public Formula clone() {
+        Formula clone = new Formula(string);
+        clone.setOperator(operator);
+        clone.setOperatorIndex(operatorIndex);
+        clone.setSubformulas(subformulas);
+        return clone;
+    }
+
+    // Only used for cloning
+    private void setOperator(Operator operator) {
+        this.operator = operator;
+    }
+
+    // Only used for cloning
+    private void setOperatorIndex(int operatorIndex) {
+        this.operatorIndex = operatorIndex;
+    }
+
+    // Only used for cloning
+    private void setSubformulas(ArrayList<Formula> subformulas) {
+        for (Formula subformula : subformulas) {
+            this.subformulas.add(subformula.clone());
         }
     }
 
@@ -219,8 +253,8 @@ public class Formula {
         return subformulas;
     }
 
-    public String getFormulaString() {
-        return formulaString;
+    public String getString() {
+        return string;
     }
 
     public Operator getOperator() {

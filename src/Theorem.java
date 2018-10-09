@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 
 public class Theorem {
 
@@ -18,13 +19,10 @@ public class Theorem {
 
         ArrayList<String> formulaStrings = new ArrayList(Arrays.asList(theoremString.split(",", 0)));
         for (int i = 0; i < formulaStrings.size(); i++) {
-            Formula currentFormula = new Formula(formulaStrings.get(i));;
-            if (i == formulaStrings.size() - 1) {
-                currentFormula.negate();
-            }
+            Formula currentFormula = new Formula(formulaStrings.get(i));
             currentFormula.preprocess();
             if (!currentFormula.parse()) {
-                System.out.println("The formula " + currentFormula.getFormulaString() + " has not been recognized");
+                System.out.println("The formula " + currentFormula.getString() + " has not been recognized");
                 validInput = false;
             }
             formulas.add(currentFormula);
