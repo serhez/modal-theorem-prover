@@ -11,6 +11,8 @@ public class TheoremProver {
 
         // Important variables
         ArrayList<Theorem> theorems;
+        ArrayList<Theorem> validTheorems = new ArrayList<>();
+        ArrayList<Integer> validTheoremsIndeces = new ArrayList<>();
         ArrayList<Integer> invalidTheorems;
         String inputPath = "input/input.txt";
         String inputString = (Files.lines(Paths.get(inputPath), StandardCharsets.UTF_8)).collect(Collectors.joining());
@@ -22,18 +24,27 @@ public class TheoremProver {
         invalidTheorems = parser.getInvalidTheorems();
 
         // Only prove syntactically/grammatically valid theorems
-        ArrayList<Theorem> validTheorems = new ArrayList<>();
         for (int i = 0; i < theorems.size(); i++) {
             if (!invalidTheorems.contains(i)) {
                 validTheorems.add(theorems.get(i));
+                validTheoremsIndeces.add(i);
             }
         }
 
-        // Debugging
-        printTheorems(validTheorems);
+        // Debug
+        // printTheorems(validTheorems);
 
         // Prove
-
+        for (Theorem theorem : validTheorems) {
+            Tableau tableau = new Tableau(theorem);
+            if (tableau.run()) {
+                System.out.println("Theorem " + (validTheoremsIndeces.get(0)+1) + " is valid.");
+                validTheoremsIndeces.remove(0);
+            } else {
+                System.out.println("Theorem " + (validTheoremsIndeces.get(0)+1) + " is not valid.");
+                validTheoremsIndeces.remove(0);
+            }
+        }
     }
 
     private static void printTheorems(ArrayList<Theorem> theorems) {

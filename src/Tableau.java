@@ -1,4 +1,5 @@
 import java.util.HashSet;
+import java.util.Iterator;
 
 public class Tableau {
 
@@ -13,14 +14,12 @@ public class Tableau {
     // Returns true if the theorem is valid, false otherwise
     public boolean run() {
 
-        // Negate last formula of the theorem
-        theorem.getFormulas().get(theorem.getFormulas().size()-1).negate();
-
         boolean allFormulasExpanded = false;
         frames.add(new Frame(theorem.getFormulas(), this));
         while (!allFormulasExpanded) {
             allFormulasExpanded = true;
-            for (Frame frame : frames) {
+            for (Iterator<Frame> iterator = frames.iterator(); iterator.hasNext();) {
+                Frame frame = iterator.next();
                 if (frame.expandNextFormula()) {
                     allFormulasExpanded = false;
                 }
