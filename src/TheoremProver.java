@@ -3,6 +3,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 public class TheoremProver {
@@ -35,8 +36,10 @@ public class TheoremProver {
         // printTheorems(validTheorems);
 
         // Prove
+        ArrayList<Tableau> tableaus = new ArrayList<>();
         for (Theorem theorem : validTheorems) {
             Tableau tableau = new Tableau(theorem);
+            tableaus.add(tableau);
             if (tableau.run()) {
                 System.out.println("Theorem " + (validTheoremsIndeces.get(0)+1) + " is valid.");
                 validTheoremsIndeces.remove(0);
@@ -44,6 +47,38 @@ public class TheoremProver {
                 System.out.println("Theorem " + (validTheoremsIndeces.get(0)+1) + " is not valid.");
                 validTheoremsIndeces.remove(0);
             }
+        }
+
+        // Debug
+        printTableaus(tableaus);
+    }
+
+    private static void printTableaus(ArrayList<Tableau> tableaus) {
+        for (int i = 0; i < tableaus.size(); i++) {
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println("*********************************************************************");
+            System.out.println("\t\t\t\t\t\t\t TABLEAU " + (i+1));
+            System.out.println("*********************************************************************");
+            printTableau(tableaus.get(i));
+        }
+    }
+
+    private static void printTableau(Tableau tableau) {
+        HashSet<Frame> frames = tableau.getFrames();
+        int count = 1;
+        for (Frame frame : frames) {
+            System.out.println();
+            System.out.println();
+            System.out.println("----------------------------------------------------------------------");
+            System.out.println("----------------------------------------------------------------------");
+            System.out.println("\t\t\t\t\t\t\t  Frame " + count);
+            System.out.println("----------------------------------------------------------------------");
+            System.out.println("----------------------------------------------------------------------");
+            count++;
+            frame.print();
         }
     }
 

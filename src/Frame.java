@@ -116,8 +116,8 @@ public class Frame {
             Formula subformula1 = formula.getSubformulas().get(0);
             Formula subformula2 = formula.getSubformulas().get(1);
             world.eliminateFormula(formula);
-            world.addFormula(subformula1);
             Frame disjunctiveFrame = new Frame(this, tableau);
+            world.addFormula(subformula1);
             disjunctiveFrame.addFormula(subformula2);
             tableau.addFrame(disjunctiveFrame);
         } else if (operator == Operator.NOTAND || operator == Operator.NOTBICONDITION) {
@@ -126,8 +126,8 @@ public class Frame {
             world.eliminateFormula(formula);
             subformula1.negate();
             subformula2.negate();
-            world.addFormula(subformula1);
             Frame disjunctiveFrame = new Frame(this, tableau);
+            world.addFormula(subformula1);
             disjunctiveFrame.addFormula(subformula2);
             tableau.addFrame(disjunctiveFrame);
         } else if (operator == Operator.CONDITION) {
@@ -135,8 +135,8 @@ public class Frame {
             Formula subformula2 = formula.getSubformulas().get(1);
             world.eliminateFormula(formula);
             subformula1.negate();
-            world.addFormula(subformula1);
             Frame disjunctiveFrame = new Frame(this, tableau);
+            world.addFormula(subformula1);
             disjunctiveFrame.addFormula(subformula2);
             tableau.addFrame(disjunctiveFrame);
         }
@@ -188,4 +188,14 @@ public class Frame {
         currentWorld.addFormula(formula);
     }
 
+    public void print() {
+        int count = 1;
+        for (World world : worlds) {
+            System.out.println();
+            System.out.println("\t\t\t\t\t\t\t  WORLD " + count);
+            count++;
+            world.print();
+            System.out.println();
+        }
+    }
 }

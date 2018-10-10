@@ -63,4 +63,10 @@ public class World {
     public ArrayList<Formula> getFormulas() {
         return formulas;
     }
+
+    public void print() {
+        for(Formula formula : formulas) {
+            System.out.println(formula.getString());
+        }
+    }
 }

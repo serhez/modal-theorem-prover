@@ -33,6 +33,8 @@ public class Tableau {
             return true;
         }
 
+        System.out.println("I have " + frames.size() + " frames");
+
         return false;
     }
 
@@ -40,4 +42,7 @@ public class Tableau {
         frames.add(frame);
     }
 
+    public HashSet<Frame> getFrames() {
+        return frames;
+    }
 }
