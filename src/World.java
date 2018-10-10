@@ -47,12 +47,23 @@ public class World {
         return clonedFormulas;
     }
 
-    public void addFormula(Formula formula) {
-        formulas.add(formula.clone());
+    public void addFormula(Formula newFormula) {
+
+        // Check for duplicate formulas
+        Iterator<Formula> iterator = formulas.iterator();
+        while(iterator.hasNext()) {
+            Formula formula = iterator.next();
+            if(formula.getString().equals(newFormula.getString())) {
+                return;
+            }
+        }
+
+        formulas.add(newFormula.clone());
     }
 
     public void eliminateFormula(Formula deadFormula) {
-        for (Iterator<Formula> iterator = formulas.iterator(); iterator.hasNext();) {
+        Iterator<Formula> iterator = formulas.iterator();
+        while(iterator.hasNext()) {
             Formula formula = iterator.next();
             if(formula.getString().equals(deadFormula.getString())) {
                 iterator.remove();

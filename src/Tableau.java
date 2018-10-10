@@ -18,7 +18,8 @@ public class Tableau {
         frames.add(new Frame(theorem.getFormulas(), this));
         while (!allFormulasExpanded) {
             allFormulasExpanded = true;
-            for (Iterator<Frame> iterator = frames.iterator(); iterator.hasNext();) {
+            Iterator<Frame> iterator = frames.iterator();
+            while (iterator.hasNext()) {
                 Frame frame = iterator.next();
                 if (frame.expandNextFormula()) {
                     allFormulasExpanded = false;
@@ -32,8 +33,6 @@ public class Tableau {
         if (frames.isEmpty()) {
             return true;
         }
-
-        System.out.println("I have " + frames.size() + " frames");
 
         return false;
     }

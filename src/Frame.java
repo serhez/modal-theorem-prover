@@ -4,22 +4,23 @@ import java.util.HashSet;
 public class Frame {
 
     private final Tableau tableau;
-    private HashSet<World> worlds; // TODO: Make it a queue to make it a fair schedule when searching for a formula to expand
-    private World currentWorld;
+    private ArrayList<World> worlds; // TODO: Make it a queue to make it a fair schedule when searching for a formula to expand
+    private int currentWorld;
     private HashSet<Transition> transitions;
 
     public Frame(ArrayList<Formula> initialFormulas, Tableau tableau) {
         this.tableau = tableau;
-        this.worlds = new HashSet<>();
-        this.currentWorld = new World(initialFormulas);
-        this.worlds.add(currentWorld);
+        this.worlds = new ArrayList<>();
+        this.currentWorld = 0;
+        World initialWorld = new World(initialFormulas);
+        this.worlds.add(initialWorld);
         this.transitions = new HashSet<>();
     }
 
     public Frame(Frame originalFrame, Tableau tableau) {
         this.tableau = tableau;
         this.worlds = originalFrame.cloneWorlds();
-        this.currentWorld = originalFrame.currentWorld.clone();
+        this.currentWorld = originalFrame.currentWorld;
         this.transitions = originalFrame.transitions;
     }
 
@@ -28,35 +29,38 @@ public class Frame {
         // We prioritise expanding alpha formulas, then gamma, then beta and finally delta
         World chosenWorld = null;
         Formula chosenFormula = null;
+
+        // Repetition in the loop is needed to keep chosenWorld and chosenFormula as null objects if no operators are found
         outerLoop:
-        for (World world : worlds) {
-            for (Formula formula : world.getFormulas()) {
+        for (int i = 0; i < worlds.size(); i++) {
+            for (Formula formula : worlds.get(i).getFormulas()) {
                 if (formula.getOperator() == Operator.AND || formula.getOperator() == Operator.BICONDITION || formula.getOperator() == Operator.NOTOR || formula.getOperator() == Operator.NOTCONDITION) {
-                    currentWorld = world;
-                    chosenWorld = world;
+                    currentWorld = i;
+                    chosenWorld = worlds.get(i);
                     chosenFormula = formula;
                     break outerLoop;
                 } else if (formula.getOperator() == Operator.POSSIBLY || formula.getOperator() == Operator.NOTNECESSARILY) {
-                    currentWorld = world;
-                    chosenWorld = world;
+                    currentWorld = i;
+                    chosenWorld = worlds.get(i);
                     chosenFormula = formula;
                     break outerLoop;
                 } else if (formula.getOperator() == Operator.OR || formula.getOperator() == Operator.NOTAND || formula.getOperator() == Operator.CONDITION || formula.getOperator() == Operator.NOTBICONDITION) {
-                    currentWorld = world;
-                    chosenWorld = world;
+                    currentWorld = i;
+                    chosenWorld = worlds.get(i);
                     chosenFormula = formula;
                     break outerLoop;
                 } else if (formula.getOperator() == Operator.NECESSARILY || formula.getOperator() == Operator.NOTPOSSIBLY) {
-                    currentWorld = world;
-                    chosenWorld = world;
-                    chosenFormula = formula;
-                    break outerLoop;
-                } else {
-                    return false;
+                    if (!formula.isTicked()) {
+                        currentWorld = i;
+                        chosenWorld = worlds.get(i);
+                        chosenFormula = formula;
+                        break outerLoop;
+                    }
                 }
             }
         }
 
+        // Only propositions and negated propositions remaining on the frame
         if (chosenWorld == null || chosenFormula == null) {
             return false;
         }
@@ -70,71 +74,28 @@ public class Frame {
 
         Operator operator = formula.getOperator();
 
-        // Alpha Rule // TODO: Change these ifs for switch cases
-        if (operator == Operator.AND || operator == Operator.BICONDITION) {
+        // Alpha Rule
+        if (operator == Operator.AND || operator == Operator.BICONDITION || operator == Operator.NOTOR || operator == Operator.NOTCONDITION) {
             world.addFormula(formula.getSubformulas().get(0));
             world.addFormula(formula.getSubformulas().get(1));
             world.eliminateFormula(formula);
-        } else if (operator == Operator.NOTOR) {
-            Formula subformula1 = formula.getSubformulas().get(0).getSubformulas().get(0);
-            Formula subformula2 = formula.getSubformulas().get(0).getSubformulas().get(1);
-            world.eliminateFormula(formula);
-            subformula1.negate();
-            subformula2.negate();
-            world.addFormula(subformula1);
-            world.addFormula(subformula2);
-        } else if (operator == Operator.NOTCONDITION) {
-            Formula subformula1 = formula.getSubformulas().get(0).getSubformulas().get(0);
-            Formula subformula2 = formula.getSubformulas().get(0).getSubformulas().get(1);
-            world.eliminateFormula(formula);
-            subformula2.negate();
-            world.addFormula(subformula1);
-            world.addFormula(subformula2);
         }
 
         // Gamma Rule
-        else if (operator == Operator.POSSIBLY) {
+        else if (operator == Operator.POSSIBLY || operator == Operator.NOTNECESSARILY) {
             ArrayList<Formula> gammaFormula = new ArrayList<>();
             gammaFormula.add(formula.getSubformulas().get(0));
-            World newWorld = new World(gammaFormula);
-            worlds.add(newWorld);
-            transitions.add(new Transition(world, newWorld));
             world.eliminateFormula(formula);
-        } else if (operator == Operator.NOTNECESSARILY) {
-            ArrayList<Formula> gammaFormula = new ArrayList<>();
-            Formula negatedFormula = formula.getSubformulas().get(0).getSubformulas().get(0);
-            world.eliminateFormula(formula);
-            negatedFormula.negate();
-            gammaFormula.add(negatedFormula);
             World newWorld = new World(gammaFormula);
             worlds.add(newWorld);
             transitions.add(new Transition(world, newWorld));
         }
 
         // Beta Rule
-        else if (operator == Operator.OR) {
+        else if (operator == Operator.OR || operator == Operator.NOTAND || operator == Operator.NOTBICONDITION || operator == Operator.CONDITION) {
             Formula subformula1 = formula.getSubformulas().get(0);
             Formula subformula2 = formula.getSubformulas().get(1);
             world.eliminateFormula(formula);
-            Frame disjunctiveFrame = new Frame(this, tableau);
-            world.addFormula(subformula1);
-            disjunctiveFrame.addFormula(subformula2);
-            tableau.addFrame(disjunctiveFrame);
-        } else if (operator == Operator.NOTAND || operator == Operator.NOTBICONDITION) {
-            Formula subformula1 = formula.getSubformulas().get(0).getSubformulas().get(0);
-            Formula subformula2 = formula.getSubformulas().get(0).getSubformulas().get(1);
-            world.eliminateFormula(formula);
-            subformula1.negate();
-            subformula2.negate();
-            Frame disjunctiveFrame = new Frame(this, tableau);
-            world.addFormula(subformula1);
-            disjunctiveFrame.addFormula(subformula2);
-            tableau.addFrame(disjunctiveFrame);
-        } else if (operator == Operator.CONDITION) {
-            Formula subformula1 = formula.getSubformulas().get(0);
-            Formula subformula2 = formula.getSubformulas().get(1);
-            world.eliminateFormula(formula);
-            subformula1.negate();
             Frame disjunctiveFrame = new Frame(this, tableau);
             world.addFormula(subformula1);
             disjunctiveFrame.addFormula(subformula2);
@@ -142,19 +103,40 @@ public class Frame {
         }
 
         // Delta Rule
-        else if (operator == Operator.NECESSARILY) {
+        else if (operator == Operator.NECESSARILY || operator == Operator.NOTPOSSIBLY) {
             HashSet<World> deltaWorlds = getDeltaWorldsFor(world);
             for (World deltaWorld : deltaWorlds) {
                 deltaWorld.addFormula(formula.getSubformulas().get(0));
             }
-        } else if (operator == Operator.NOTPOSSIBLY) {
-            HashSet<World> deltaWorlds = getDeltaWorldsFor(world);
-            Formula negatedFormula = formula.getSubformulas().get(0).getSubformulas().get(0);
-            negatedFormula.negate();
-            for (World deltaWorld : deltaWorlds) {
-                deltaWorld.addFormula(negatedFormula);
+            if (!expandable()) {
+                formula.ticked();
+            } else {
+                untickAllFormulas();
             }
         }
+    }
+
+    private void untickAllFormulas() {
+        for (World world : worlds) {
+            for (Formula formula : world.getFormulas()) {
+                formula.notTicked();  // No need to only untick [] formulas, as all formulas are unticked by default, plus the tick is irrelevant for non-[] formulas
+            }
+        }
+    }
+
+    // Returns false if only propositions, negated propositions and [] formulas are remaining in the frame, true otherwise
+    private boolean expandable() {
+
+        for (World world : worlds) {
+            for (Formula formula : world.getFormulas()) {
+                Operator operator = formula.getOperator();
+                if (operator != Operator.NOT && operator != Operator.NONE && operator != Operator.NECESSARILY && operator != Operator.NOTPOSSIBLY) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private HashSet<World> getDeltaWorldsFor(World world) {
@@ -176,8 +158,8 @@ public class Frame {
         return true;
     }
 
-    public HashSet<World> cloneWorlds() {
-        HashSet<World> clonedWorlds = new HashSet<>();
+    public ArrayList<World> cloneWorlds() {
+        ArrayList<World> clonedWorlds = new ArrayList<>();
         for (World world : worlds) {
             clonedWorlds.add(world.clone());
         }
@@ -185,7 +167,7 @@ public class Frame {
     }
 
     private void addFormula(Formula formula) {
-        currentWorld.addFormula(formula);
+        worlds.get(currentWorld).addFormula(formula);
     }
 
     public void print() {

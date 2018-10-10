@@ -6,10 +6,12 @@ public class Formula {
     private final ArrayList<Formula> subformulas;
     private Operator operator;
     private int operatorIndex; // In case of a negated operator, the index will indicate the location of the operator, not of the negation
+    private boolean ticked;    // Only used to loop check [] formulas
 
     public Formula(String formulaString) {
         this.string = formulaString;
         this.subformulas = new ArrayList<>();
+        this.ticked = false;
     }
 
     // Preprocesses the formulaString and eliminates all vacuous elements
@@ -57,34 +59,6 @@ public class Formula {
             }
         }
 
-        // Set negated propositions
-        if (operator == Operator.NOT) {
-            Formula subformula = subformulas.get(0);
-            Operator subformulaOperator = subformula.operator;
-            if (subformulaOperator == Operator.NONE) {
-                operator = Operator.NOT;
-                operatorIndex = 0;
-            } else if (subformulaOperator == Operator.AND) {
-                operator = Operator.NOTAND;
-                operatorIndex = subformula.operatorIndex + 1;
-            } else if (subformulaOperator == Operator.OR) {
-                operator = Operator.NOTOR;
-                operatorIndex = subformula.operatorIndex + 1;
-            } else if (subformulaOperator == Operator.CONDITION) {
-                operator = Operator.NOTCONDITION;
-                operatorIndex = subformula.operatorIndex + 1;
-            } else if (subformulaOperator == Operator.BICONDITION) {
-                operator = Operator.NOTBICONDITION;
-                operatorIndex = subformula.operatorIndex + 1;
-            } else if (subformulaOperator == Operator.NECESSARILY) {
-                operator = Operator.NOTNECESSARILY;
-                operatorIndex = subformula.operatorIndex + 1;
-            } else if (subformulaOperator == Operator.POSSIBLY) {
-                operator = Operator.NOTPOSSIBLY;
-                operatorIndex = subformula.operatorIndex + 1;
-            }
-        }
-
         return true;
     }
 
@@ -115,12 +89,70 @@ public class Formula {
 
         int end = string.length();
 
-        // ~
         if (end > 0 && string.charAt(0) == '~') {
-            Formula subformula = new Formula(string.substring(1, end));
-            subformulas.add(subformula);
-            operator = Operator.NOT;
-            operatorIndex = 0;
+            // ~
+            if (!findBinaryOperator(this)) {
+                Formula subformula = new Formula(string.substring(1, end));
+                subformulas.add(subformula);
+                operator = Operator.NOT;
+                operatorIndex = 0;
+            } else {
+                // ~&
+                if (operator == Operator.AND) {
+                    operator = Operator.NOTAND;
+                    Formula firstSubformula = new Formula(string.substring(2, operatorIndex));
+                    Formula secondSubformula = new Formula(string.substring(operatorIndex+1, end-1));
+                    firstSubformula.negate();
+                    secondSubformula.negate();
+                    subformulas.add(firstSubformula);
+                    subformulas.add(secondSubformula);
+                }
+                // ~|
+                else if (operator == Operator.OR) {
+                    operator = Operator.NOTOR;
+                    Formula firstSubformula = new Formula(string.substring(2, operatorIndex));
+                    Formula secondSubformula = new Formula(string.substring(operatorIndex+1, end-1));
+                    firstSubformula.negate();
+                    secondSubformula.negate();
+                    subformulas.add(firstSubformula);
+                    subformulas.add(secondSubformula);
+                }
+                // ~->
+                else if (operator == Operator.CONDITION) {
+                    operator = Operator.NOTCONDITION;
+                    Formula firstSubformula = new Formula(string.substring(2, operatorIndex));
+                    Formula secondSubformula = new Formula(string.substring(operatorIndex+2, end-1));
+                    secondSubformula.negate();
+                    subformulas.add(firstSubformula);
+                    subformulas.add(secondSubformula);
+                }
+                // ~<->
+                else if (operator == Operator.BICONDITION) {
+                    operator = Operator.NOTBICONDITION;
+                    String firstOperand = string.substring(2, operatorIndex);
+                    String secondOperand = string.substring(operatorIndex+3, end-1);
+                    Formula firstSubformula = new Formula("(" + firstOperand + "->" + secondOperand + ")");
+                    Formula secondSubformula = new Formula("(" + secondOperand + "->" + firstOperand + ")");
+                    firstSubformula.negate();
+                    secondSubformula.negate();
+                    subformulas.add(firstSubformula);
+                    subformulas.add(secondSubformula);
+                }
+                // ~[]
+                else if (operator == Operator.NECESSARILY) {
+                    operator = Operator.NOTNECESSARILY;
+                    Formula subformula = new Formula(string.substring(3, end));
+                    subformula.negate();
+                    subformulas.add(subformula);
+                }
+                // ~<>
+                else if (operator == Operator.POSSIBLY) {
+                    operator = Operator.NOTPOSSIBLY;
+                    Formula subformula = new Formula(string.substring(3, end));
+                    subformula.negate();
+                    subformulas.add(subformula);
+                }
+            }
         }
 
         // Binary operators
@@ -145,14 +177,16 @@ public class Formula {
             }
 
             else {
-                int operatorLength = 0; // Should always change value
+                Formula firstSubformula = null;
+                Formula secondSubformula = null;
                 if (operator == Operator.AND || operator == Operator.OR) {
-                    operatorLength = 1;
+                    firstSubformula = new Formula(string.substring(1, operatorIndex));
+                    secondSubformula = new Formula(string.substring(operatorIndex+1, end-1));
                 } else if (operator == Operator.CONDITION) {
-                    operatorLength = 2;
+                    firstSubformula = new Formula(string.substring(1, operatorIndex));
+                    secondSubformula = new Formula(string.substring(operatorIndex+2, end-1));
+                    firstSubformula.negate();
                 }
-                Formula firstSubformula = new Formula(string.substring(1, operatorIndex));
-                Formula secondSubformula = new Formula(string.substring(operatorIndex+operatorLength, end-1));
                 subformulas.add(firstSubformula);
                 subformulas.add(secondSubformula);
             }
@@ -229,6 +263,7 @@ public class Formula {
         clone.setOperator(operator);
         clone.setOperatorIndex(operatorIndex);
         clone.setSubformulas(subformulas);
+        clone.setTicked(ticked);
         return clone;
     }
 
@@ -240,6 +275,12 @@ public class Formula {
     // Only used for cloning
     private void setOperatorIndex(int operatorIndex) {
         this.operatorIndex = operatorIndex;
+    }
+
+    // TODO: THINK THROUGH POSSIBLE CONSEQUENCES OF NOT RESETTING LOOPCOUNT WHEN CLONING
+    // Only used for cloning
+    private void setTicked(boolean ticked) {
+        this.ticked = ticked;
     }
 
     // Only used for cloning
@@ -265,4 +306,15 @@ public class Formula {
         return operatorIndex;
     }
 
+    public boolean isTicked() {
+        return ticked;
+    }
+
+    public void notTicked() {
+        ticked = false;
+    }
+
+    public void ticked() {
+        ticked = true;
+    }
 }

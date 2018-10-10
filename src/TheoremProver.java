@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.stream.Collectors;
 
 public class TheoremProver {
@@ -50,7 +51,7 @@ public class TheoremProver {
         }
 
         // Debug
-        printTableaus(tableaus);
+        // printTableaus(tableaus);
     }
 
     private static void printTableaus(ArrayList<Tableau> tableaus) {
@@ -69,7 +70,8 @@ public class TheoremProver {
     private static void printTableau(Tableau tableau) {
         HashSet<Frame> frames = tableau.getFrames();
         int count = 1;
-        for (Frame frame : frames) {
+        for (Iterator<Frame> iterator = frames.iterator(); iterator.hasNext();) {
+            Frame frame = iterator.next();
             System.out.println();
             System.out.println();
             System.out.println("----------------------------------------------------------------------");
