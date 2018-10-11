@@ -90,8 +90,22 @@ public class Formula {
         int end = string.length();
 
         if (end > 0 && string.charAt(0) == '~') {
+            // ~[]
+            if (end > 3 && string.substring(1,3).equals("[]")) {
+                operator = Operator.NOTNECESSARILY;
+                Formula subformula = new Formula(string.substring(3, end));
+                subformula.negate();
+                subformulas.add(subformula);
+            }
+            // ~<>
+            else if (end > 3 && string.substring(1,3).equals("<>")) {
+                operator = Operator.NOTPOSSIBLY;
+                Formula subformula = new Formula(string.substring(3, end));
+                subformula.negate();
+                subformulas.add(subformula);
+            }
             // ~
-            if (!findBinaryOperator(this)) {
+            else if (!findBinaryOperator(this)) {
                 Formula subformula = new Formula(string.substring(1, end));
                 subformulas.add(subformula);
                 operator = Operator.NOT;
@@ -137,20 +151,6 @@ public class Formula {
                     secondSubformula.negate();
                     subformulas.add(firstSubformula);
                     subformulas.add(secondSubformula);
-                }
-                // ~[]
-                else if (operator == Operator.NECESSARILY) {
-                    operator = Operator.NOTNECESSARILY;
-                    Formula subformula = new Formula(string.substring(3, end));
-                    subformula.negate();
-                    subformulas.add(subformula);
-                }
-                // ~<>
-                else if (operator == Operator.POSSIBLY) {
-                    operator = Operator.NOTPOSSIBLY;
-                    Formula subformula = new Formula(string.substring(3, end));
-                    subformula.negate();
-                    subformulas.add(subformula);
                 }
             }
         }

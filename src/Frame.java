@@ -30,7 +30,7 @@ public class Frame {
         World chosenWorld = null;
         Formula chosenFormula = null;
 
-        // Repetition in the loop is needed to keep chosenWorld and chosenFormula as null objects if no operators are found
+        // Alpha
         outerLoop:
         for (int i = 0; i < worlds.size(); i++) {
             for (Formula formula : worlds.get(i).getFormulas()) {
@@ -39,18 +39,16 @@ public class Frame {
                     chosenWorld = worlds.get(i);
                     chosenFormula = formula;
                     break outerLoop;
-                } else if (formula.getOperator() == Operator.POSSIBLY || formula.getOperator() == Operator.NOTNECESSARILY) {
-                    currentWorld = i;
-                    chosenWorld = worlds.get(i);
-                    chosenFormula = formula;
-                    break outerLoop;
-                } else if (formula.getOperator() == Operator.OR || formula.getOperator() == Operator.NOTAND || formula.getOperator() == Operator.CONDITION || formula.getOperator() == Operator.NOTBICONDITION) {
-                    currentWorld = i;
-                    chosenWorld = worlds.get(i);
-                    chosenFormula = formula;
-                    break outerLoop;
-                } else if (formula.getOperator() == Operator.NECESSARILY || formula.getOperator() == Operator.NOTPOSSIBLY) {
-                    if (!formula.isTicked()) {
+                }
+            }
+        }
+
+        // Gamma
+        if (chosenWorld == null || chosenFormula == null) {
+            outerLoop:
+            for (int i = 0; i < worlds.size(); i++) {
+                for (Formula formula : worlds.get(i).getFormulas()) {
+                    if (formula.getOperator() == Operator.POSSIBLY || formula.getOperator() == Operator.NOTNECESSARILY) {
                         currentWorld = i;
                         chosenWorld = worlds.get(i);
                         chosenFormula = formula;
@@ -60,7 +58,39 @@ public class Frame {
             }
         }
 
-        // Only propositions and negated propositions remaining on the frame
+        // Beta
+        if (chosenWorld == null || chosenFormula == null) {
+            outerLoop:
+            for (int i = 0; i < worlds.size(); i++) {
+                for (Formula formula : worlds.get(i).getFormulas()) {
+                    if (formula.getOperator() == Operator.OR || formula.getOperator() == Operator.NOTAND || formula.getOperator() == Operator.CONDITION || formula.getOperator() == Operator.NOTBICONDITION) {
+                        currentWorld = i;
+                        chosenWorld = worlds.get(i);
+                        chosenFormula = formula;
+                        break outerLoop;
+                    }
+                }
+            }
+        }
+
+        // Delta
+        if (chosenWorld == null || chosenFormula == null) {
+            outerLoop:
+            for (int i = 0; i < worlds.size(); i++) {
+                for (Formula formula : worlds.get(i).getFormulas()) {
+                    if (formula.getOperator() == Operator.NECESSARILY || formula.getOperator() == Operator.NOTPOSSIBLY) {
+                        if (!formula.isTicked()) {
+                            currentWorld = i;
+                            chosenWorld = worlds.get(i);
+                            chosenFormula = formula;
+                            break outerLoop;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Only propositions, negated propositions and ticked delta-formulas remaining on the frame
         if (chosenWorld == null || chosenFormula == null) {
             return false;
         }
@@ -126,7 +156,6 @@ public class Frame {
 
     // Returns false if only propositions, negated propositions and [] formulas are remaining in the frame, true otherwise
     private boolean expandable() {
-
         for (World world : worlds) {
             for (Formula formula : world.getFormulas()) {
                 Operator operator = formula.getOperator();
@@ -135,7 +164,6 @@ public class Frame {
                 }
             }
         }
-
         return false;
     }
 
@@ -152,10 +180,10 @@ public class Frame {
     public boolean hasContradiction() {
         for (World world : worlds) {
             if (world.hasContradiction()) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     public ArrayList<World> cloneWorlds() {
@@ -170,6 +198,7 @@ public class Frame {
         worlds.get(currentWorld).addFormula(formula);
     }
 
+    // Debugging
     public void print() {
         int count = 1;
         for (World world : worlds) {

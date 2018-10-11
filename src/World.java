@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 
 public class World {
 
@@ -25,10 +24,10 @@ public class World {
 
         propositions.retainAll(negatedPropositions);  // Calculate the intersection of both sets, now stored in "propositions"
         if (!propositions.isEmpty()) {
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     @Override
@@ -48,26 +47,26 @@ public class World {
     }
 
     public void addFormula(Formula newFormula) {
-
         // Check for duplicate formulas
-        Iterator<Formula> iterator = formulas.iterator();
-        while(iterator.hasNext()) {
-            Formula formula = iterator.next();
+        for (Formula formula : formulas){
             if(formula.getString().equals(newFormula.getString())) {
                 return;
             }
         }
-
         formulas.add(newFormula.clone());
     }
 
     public void eliminateFormula(Formula deadFormula) {
-        Iterator<Formula> iterator = formulas.iterator();
-        while(iterator.hasNext()) {
-            Formula formula = iterator.next();
-            if(formula.getString().equals(deadFormula.getString())) {
-                iterator.remove();
+        boolean allFormulasChecked = false;  // Allows all formulas to be checked (to eliminate duplicates) while evading Concurrent Modification Exceptions
+        whileLoop:
+        while(!allFormulasChecked) {
+            for (Formula formula : formulas) {
+                if(formula.getString().equals(deadFormula.getString())) {
+                    formulas.remove(formula);
+                    continue whileLoop;
+                }
             }
+            allFormulasChecked = true;
         }
     }
 
@@ -75,6 +74,7 @@ public class World {
         return formulas;
     }
 
+    // Debugging
     public void print() {
         for(Formula formula : formulas) {
             System.out.println(formula.getString());

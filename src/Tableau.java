@@ -1,5 +1,4 @@
 import java.util.HashSet;
-import java.util.Iterator;
 
 public class Tableau {
 
@@ -18,14 +17,13 @@ public class Tableau {
         frames.add(new Frame(theorem.getFormulas(), this));
         while (!allFormulasExpanded) {
             allFormulasExpanded = true;
-            Iterator<Frame> iterator = frames.iterator();
-            while (iterator.hasNext()) {
-                Frame frame = iterator.next();
+            for (Frame frame : frames) {
                 if (frame.expandNextFormula()) {
                     allFormulasExpanded = false;
                 }
                 if (frame.hasContradiction()) {
                     frames.remove(frame);
+                    break;  // break from the for-loop to evade Concurrent Modification Exceptions
                 }
             }
         }
