@@ -17,6 +17,7 @@ public class Tableau {
         frames.add(new Frame(theorem.getFormulas(), this));
         while (!allFormulasExpanded) {
             allFormulasExpanded = true;
+            print();
             for (Frame frame : frames) {
                 if (frame.expandNextFormula()) {
                     allFormulasExpanded = false;
@@ -39,7 +40,16 @@ public class Tableau {
         frames.add(frame);
     }
 
-    public HashSet<Frame> getFrames() {
-        return frames;
+    public void print() {
+        int count = 1;
+        for (Frame frame : frames) {
+            System.out.println();
+            System.out.println();
+            System.out.println("----------------------------------------------------------------------");
+            System.out.println("\t\t\t\t\t\t\t  Frame " + count);
+            System.out.println("----------------------------------------------------------------------");
+            count++;
+            frame.print();
+        }
     }
 }

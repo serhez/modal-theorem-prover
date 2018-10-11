@@ -3,7 +3,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.stream.Collectors;
 
 public class TheoremProver {
@@ -64,21 +63,7 @@ public class TheoremProver {
             System.out.println("*********************************************************************");
             System.out.println("\t\t\t\t\t\t\t TABLEAU " + (i+1));
             System.out.println("*********************************************************************");
-            printTableau(tableaus.get(i));
-        }
-    }
-
-    private static void printTableau(Tableau tableau) {
-        HashSet<Frame> frames = tableau.getFrames();
-        int count = 1;
-        for (Frame frame : frames) {
-            System.out.println();
-            System.out.println();
-            System.out.println("----------------------------------------------------------------------");
-            System.out.println("\t\t\t\t\t\t\t  Frame " + count);
-            System.out.println("----------------------------------------------------------------------");
-            count++;
-            frame.print();
+            tableaus.get(i).print();
         }
     }
 
