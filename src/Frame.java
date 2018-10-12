@@ -134,7 +134,7 @@ public class Frame {
 
         // Delta Rule
         else if (operator == Operator.NECESSARILY || operator == Operator.NOTPOSSIBLY) {
-            HashSet<World> deltaWorlds = getDeltaWorldsFor(world);
+            HashSet<World> deltaWorlds = getDeltaWorldsFor(world, formula);
             for (World deltaWorld : deltaWorlds) {
                 deltaWorld.addFormula(formula.getSubformulas().get(0));
             }
@@ -167,11 +167,12 @@ public class Frame {
         return false;
     }
 
-    private HashSet<World> getDeltaWorldsFor(World world) {
+    private HashSet<World> getDeltaWorldsFor(World world, Formula formula) {
         HashSet<World> deltaWorlds = new HashSet<>();
         for (Transition transition : transitions) {
-            if (transition.from().equals(world)) {
+            if (transition.from().equals(world) && !formula.getWorldsExpanded().contains(transition.to())) {
                 deltaWorlds.add(transition.to());
+                formula.addWorldExpanded(transition.to());
             }
         }
         return deltaWorlds;

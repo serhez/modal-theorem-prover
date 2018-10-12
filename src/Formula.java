@@ -1,17 +1,20 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Formula {
 
     private String string;
     private final ArrayList<Formula> subformulas;
     private Operator operator;
-    private int operatorIndex; // In case of a negated operator, the index will indicate the location of the operator, not of the negation
-    private boolean ticked;    // Only used to loop check [] formulas
+    private int operatorIndex;              // In case of a negated operator, the index will indicate the location of the operator, not of the negation
+    private boolean ticked;                 // Only used to loop check [] formulas
+    private HashSet<World> worldsExpanded;  // Only used to loop check [] formulas
 
     public Formula(String formulaString) {
         this.string = formulaString;
         this.subformulas = new ArrayList<>();
         this.ticked = false;
+        this.worldsExpanded = new HashSet<>();
     }
 
     // Preprocesses the formulaString and eliminates all vacuous elements
@@ -316,5 +319,13 @@ public class Formula {
 
     public void ticked() {
         ticked = true;
+    }
+
+    public HashSet<World> getWorldsExpanded() {
+        return worldsExpanded;
+    }
+
+    public void addWorldExpanded(World world) {
+        worldsExpanded.add(world);
     }
 }
