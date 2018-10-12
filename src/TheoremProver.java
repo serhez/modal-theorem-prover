@@ -1,3 +1,5 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -7,15 +9,31 @@ import java.util.stream.Collectors;
 
 public class TheoremProver {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         // Important variables
         ArrayList<Theorem> theorems;
         ArrayList<Theorem> validTheorems = new ArrayList<>();
         ArrayList<Integer> validTheoremsIndeces = new ArrayList<>();
         ArrayList<Integer> invalidTheorems;
-        String inputPath = "input/input.txt";
-        String inputString = (Files.lines(Paths.get(inputPath), StandardCharsets.UTF_8)).collect(Collectors.joining());
+        String inputString = null;
+        try {
+            inputString = read();
+        } catch (IOException e) {
+            System.out.println("The input could not be read.");
+            return;
+        }
+
+        if (inputIsEmpty(inputString)) {
+            String message = "The input file cannot be empty.";
+            try {
+                write(message);
+            } catch (IOException e) {
+                System.out.println("Could not warn about empty input.");
+                return;
+            }
+            return;
+        }
 
         // Parse
         Parser parser = new Parser(inputString);
@@ -40,16 +58,56 @@ public class TheoremProver {
             Tableau tableau = new Tableau(theorem);
             tableaus.add(tableau);
             if (tableau.run()) {
-                System.out.println("Theorem " + (validTheoremsIndeces.get(0)+1) + " is valid.");
+                String result = "Theorem " + (validTheoremsIndeces.get(0)+1) + " is valid.";
+                try {
+                    write(result);
+                } catch (IOException e) {
+                    System.out.println("The output could not be written.");
+                    return;
+                }
                 validTheoremsIndeces.remove(0);
             } else {
-                System.out.println("Theorem " + (validTheoremsIndeces.get(0)+1) + " is not valid.");
+                String result = "Theorem " + (validTheoremsIndeces.get(0)+1) + " is not valid.";
+                try {
+                    write(result);
+                } catch (IOException e) {
+                    System.out.println("The output cannot be written.");
+                    return;
+                }
                 validTheoremsIndeces.remove(0);
             }
         }
 
         // Debug
         //printTableaus(tableaus);
+    }
+
+    static private String read() throws IOException {
+        String inputPath = "input/input.txt";
+        return (Files.lines(Paths.get(inputPath), StandardCharsets.UTF_8)).collect(Collectors.joining());
+    }
+
+    static private void write(String string) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter("output/output.txt"));
+        writer.write(string);
+        writer.close();
+    }
+
+    static private boolean inputIsEmpty(String input) {
+
+        // ""
+        if (input.length() == 0) {
+            return true;
+        }
+
+        // Only semi-colons, commas, spaces, tabs or new lines
+        for (int i=0; i<input.length(); i++) {
+            if (input.charAt(i) != ' ' && input.charAt(i) != '\t' && input.charAt(i) != '\n' && input.charAt(i) != ';' && input.charAt(i) != ',') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // Debugging methods

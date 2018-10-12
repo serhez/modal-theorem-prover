@@ -1,3 +1,6 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -24,13 +27,24 @@ public class Theorem {
             }
             currentFormula.preprocess();
             if (!currentFormula.parse()) {
-                System.out.println("The formula " + currentFormula.getString() + " has not been recognized");
+                String message = "The formula " + currentFormula.getString() + " has not been recognized";
+                try {
+                    write(message);
+                } catch (IOException e) {
+                    System.out.println("Could not warn about unrecognized formulas.");
+                }
                 validInput = false;
             }
             formulas.add(currentFormula);
         }
 
         return validInput;
+    }
+
+    private void write(String string) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter("output/output.txt"));
+        writer.write(string);
+        writer.close();
     }
 
     public ArrayList<Formula> getFormulas() {
