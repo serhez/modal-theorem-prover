@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Modal-Theorem-Prover:jar">
+    <output-path>$PROJECT_DIR$/developer/artifacts/Modal_Theorem_Prover_jar</output-path>
+    <root id="archive" name="Modal-Theorem-Prover.jar">
+      <element id="module-output" name="Modal-Theorem-Prover" />
+    </root>
+  </artifact>
+</component>

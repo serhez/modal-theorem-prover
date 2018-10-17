@@ -17,7 +17,6 @@ public class Tableau {
         frames.add(new Frame(theorem.getFormulas(), this));
         while (!allFormulasExpanded) {
             allFormulasExpanded = true;
-            print();
             for (Frame frame : frames) {
                 if (frame.expandNextFormula()) {
                     allFormulasExpanded = false;

@@ -6,15 +6,15 @@ public class Formula {
     private String string;
     private final ArrayList<Formula> subformulas;
     private Operator operator;
-    private int operatorIndex;              // In case of a negated operator, the index will indicate the location of the operator, not of the negation
-    private boolean ticked;                 // Only used to loop check [] formulas
-    private HashSet<World> worldsExpanded;  // Only used to loop check [] formulas
+    private int operatorIndex;                  // In case of a negated operator, the index will indicate the location of the operator, not of the negation
+    private boolean ticked;                     // Only used to loop check [] formulas
+    private HashSet<Integer> worldsExpandedTo;  // Only used to loop check [] formulas
 
     public Formula(String formulaString) {
         this.string = formulaString;
         this.subformulas = new ArrayList<>();
         this.ticked = false;
-        this.worldsExpanded = new HashSet<>();
+        this.worldsExpandedTo = new HashSet<>();
     }
 
     // Preprocesses the formulaString and eliminates all vacuous elements
@@ -266,6 +266,7 @@ public class Formula {
         clone.setOperator(operator);
         clone.setOperatorIndex(operatorIndex);
         clone.setSubformulas(subformulas);
+        clone.setWorldsExpandedTo(worldsExpandedTo);
         clone.setTicked(ticked);
         return clone;
     }
@@ -278,6 +279,11 @@ public class Formula {
     // Only used for cloning
     private void setOperatorIndex(int operatorIndex) {
         this.operatorIndex = operatorIndex;
+    }
+
+    // Only used for cloning
+    private void setWorldsExpandedTo(HashSet<Integer> worldsExpandedTo) {
+        this.worldsExpandedTo = worldsExpandedTo;
     }
 
     // TODO: THINK THROUGH POSSIBLE CONSEQUENCES OF NOT RESETTING LOOPCOUNT WHEN CLONING
@@ -321,11 +327,11 @@ public class Formula {
         ticked = true;
     }
 
-    public HashSet<World> getWorldsExpanded() {
-        return worldsExpanded;
+    public HashSet<Integer> getWorldsExpandedTo() {
+        return worldsExpandedTo;
     }
 
-    public void addWorldExpanded(World world) {
-        worldsExpanded.add(world);
+    public void addWorldExpandedTo(int worldId) {
+        worldsExpandedTo.add(worldId);
     }
 }

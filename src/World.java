@@ -3,10 +3,12 @@ import java.util.HashSet;
 
 public class World {
 
+    private final int id;
     private ArrayList<Formula> formulas;
 
-    public World(ArrayList<Formula> formulas) {
+    public World(ArrayList<Formula> formulas, int id) {
         this.formulas = cloneFormulas(formulas);
+        this.id = id;
     }
 
     public boolean hasContradiction() {
@@ -32,8 +34,7 @@ public class World {
 
     @Override
     public World clone() {
-        World clone = new World(formulas);
-
+        World clone = new World(formulas, id);
         return clone;
     }
 
@@ -72,6 +73,10 @@ public class World {
 
     public ArrayList<Formula> getFormulas() {
         return formulas;
+    }
+
+    public int getId() {
+        return id;
     }
 
     // Debugging

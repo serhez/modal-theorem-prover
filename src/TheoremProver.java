@@ -14,9 +14,9 @@ public class TheoremProver {
         // Important variables
         ArrayList<Theorem> theorems;
         ArrayList<Theorem> validTheorems = new ArrayList<>();
-        ArrayList<Integer> validTheoremsIndeces = new ArrayList<>();
+        ArrayList<Integer> validTheoremsIndexes = new ArrayList<>();
         ArrayList<Integer> invalidTheorems;
-        String inputString = null;
+        String inputString;
         try {
             inputString = read();
         } catch (IOException e) {
@@ -45,7 +45,7 @@ public class TheoremProver {
         for (int i = 0; i < theorems.size(); i++) {
             if (!invalidTheorems.contains(i)) {
                 validTheorems.add(theorems.get(i));
-                validTheoremsIndeces.add(i);
+                validTheoremsIndexes.add(i);
             }
         }
 
@@ -58,28 +58,28 @@ public class TheoremProver {
             Tableau tableau = new Tableau(theorem);
             tableaus.add(tableau);
             if (tableau.run()) {
-                String result = "Theorem " + (validTheoremsIndeces.get(0)+1) + " is valid.";
+                String result = "Theorem " + (validTheoremsIndexes.get(0)+1) + " is valid.";
                 try {
                     write(result);
                 } catch (IOException e) {
                     System.out.println("The output could not be written.");
                     return;
                 }
-                validTheoremsIndeces.remove(0);
+                validTheoremsIndexes.remove(0);
             } else {
-                String result = "Theorem " + (validTheoremsIndeces.get(0)+1) + " is not valid.";
+                String result = "Theorem " + (validTheoremsIndexes.get(0)+1) + " is not valid.";
                 try {
                     write(result);
                 } catch (IOException e) {
                     System.out.println("The output cannot be written.");
                     return;
                 }
-                validTheoremsIndeces.remove(0);
+                validTheoremsIndexes.remove(0);
             }
         }
 
         // Debug
-        //printTableaus(tableaus);
+        printTableaus(tableaus);
     }
 
     static private String read() throws IOException {

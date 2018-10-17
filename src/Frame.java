@@ -7,18 +7,21 @@ public class Frame {
     private ArrayList<World> worlds; // TODO: Make it a queue to make it a fair schedule when searching for a formula to expand
     private int currentWorld;
     private HashSet<Transition> transitions;
+    private int numberOfWorlds;
 
     public Frame(ArrayList<Formula> initialFormulas, Tableau tableau) {
         this.tableau = tableau;
         this.worlds = new ArrayList<>();
         this.currentWorld = 0;
-        World initialWorld = new World(initialFormulas);
+        World initialWorld = new World(initialFormulas, 1);
         this.worlds.add(initialWorld);
+        numberOfWorlds = 1;
         this.transitions = new HashSet<>();
     }
 
     public Frame(Frame originalFrame, Tableau tableau) {
         this.tableau = tableau;
+        this.numberOfWorlds = originalFrame.getNumberOfWorlds();
         this.worlds = originalFrame.cloneWorlds();
         this.currentWorld = originalFrame.currentWorld;
         this.transitions = originalFrame.transitions;
@@ -116,9 +119,10 @@ public class Frame {
             ArrayList<Formula> gammaFormula = new ArrayList<>();
             gammaFormula.add(formula.getSubformulas().get(0));
             world.eliminateFormula(formula);
-            World newWorld = new World(gammaFormula);
+            numberOfWorlds++;
+            World newWorld = new World(gammaFormula, numberOfWorlds);
             worlds.add(newWorld);
-            transitions.add(new Transition(world, newWorld));
+            transitions.add(new Transition(world.getId(), newWorld.getId()));
         }
 
         // Beta Rule
@@ -170,12 +174,22 @@ public class Frame {
     private HashSet<World> getDeltaWorldsFor(World world, Formula formula) {
         HashSet<World> deltaWorlds = new HashSet<>();
         for (Transition transition : transitions) {
-            if (transition.from().equals(world) && !formula.getWorldsExpanded().contains(transition.to())) {
-                deltaWorlds.add(transition.to());
-                formula.addWorldExpanded(transition.to());
+            if (transition.from() == world.getId() && !formula.getWorldsExpandedTo().contains(transition.to())) {
+                deltaWorlds.add(findWorldWithId(transition.to()));
+                formula.addWorldExpandedTo(transition.to());
             }
         }
         return deltaWorlds;
+    }
+
+    // Possibly not necessary when the variable worlds is an ArrayList, but this is robust in case it is changed to be a HashSet in the future
+    private World findWorldWithId(int id) {
+        for (World world : worlds) {
+            if (world.getId() == id) {
+                return world;
+            }
+        }
+        return null;
     }
 
     public boolean hasContradiction() {
@@ -199,13 +213,15 @@ public class Frame {
         worlds.get(currentWorld).addFormula(formula);
     }
 
+    public int getNumberOfWorlds() {
+        return numberOfWorlds;
+    }
+
     // Debugging
     public void print() {
-        int count = 1;
         for (World world : worlds) {
             System.out.println();
-            System.out.println("\t\t\t\t\t\t\t  WORLD " + count);
-            count++;
+            System.out.println("\t\t\t\t\t\t\t  WORLD " + world.getId());
             world.print();
             System.out.println();
         }
