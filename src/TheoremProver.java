@@ -11,12 +11,13 @@ public class TheoremProver {
 
     public static void main(String[] args) {
 
-        // Important variables
+        // Core variables
         ArrayList<Theorem> theorems;
         ArrayList<Theorem> validTheorems = new ArrayList<>();
         ArrayList<Integer> validTheoremsIndexes = new ArrayList<>();
         ArrayList<Integer> invalidTheorems;
         String inputString;
+
         try {
             inputString = read();
         } catch (IOException e) {
@@ -79,7 +80,7 @@ public class TheoremProver {
         }
 
         // Debug
-        printTableaus(tableaus);
+        //printTableaus(tableaus);
     }
 
     static private String read() throws IOException {
