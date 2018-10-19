@@ -41,7 +41,7 @@ public class TheoremProver {
         theorems = parser.getTheorems();
         invalidTheorems = parser.getInvalidTheorems();
 
-        results += "\n----------PARSING----------\n\n";
+        results += "\n--------  PARSING\n\n";
         if (invalidTheorems.isEmpty()) {
             results += "All theorems are syntactically and grammatically correct.\n";
         }
@@ -53,7 +53,7 @@ public class TheoremProver {
         //printTheorems(validTheorems);
 
         // Prove
-        results += "\n\n----------PROVING----------\n\n";
+        results += "\n\n--------  PROVING\n\n";
         ArrayList<Tableau> tableaus = new ArrayList<>();
         for (int i=0; i < theorems.size(); i++) {
             if (!invalidTheorems.contains(i)) {
