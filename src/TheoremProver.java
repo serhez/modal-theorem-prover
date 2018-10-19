@@ -41,7 +41,7 @@ public class TheoremProver {
         theorems = parser.getTheorems();
         invalidTheorems = parser.getInvalidTheorems();
 
-        results += "----------PARSING----------\n\n";
+        results += "\n----------PARSING----------\n\n";
         if (invalidTheorems.isEmpty()) {
             results += "All theorems are syntactically and grammatically correct.\n";
         }
