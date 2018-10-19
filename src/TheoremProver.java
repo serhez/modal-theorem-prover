@@ -13,10 +13,9 @@ public class TheoremProver {
 
         // Core variables
         ArrayList<Theorem> theorems;
-        ArrayList<Theorem> validTheorems = new ArrayList<>();
-        ArrayList<Integer> validTheoremsIndexes = new ArrayList<>();
         ArrayList<Integer> invalidTheorems;
         String inputString;
+        String results = "";
 
         try {
             inputString = read();
@@ -42,41 +41,37 @@ public class TheoremProver {
         theorems = parser.getTheorems();
         invalidTheorems = parser.getInvalidTheorems();
 
-        // Only prove syntactically/grammatically valid theorems
-        for (int i = 0; i < theorems.size(); i++) {
-            if (!invalidTheorems.contains(i)) {
-                validTheorems.add(theorems.get(i));
-                validTheoremsIndexes.add(i);
-            }
+        results += "----------PARSING----------\n\n";
+        if (invalidTheorems.isEmpty()) {
+            results += "All theorems are syntactically and grammatically correct.\n";
+        }
+        for (int i : invalidTheorems) {
+            results += "There are formulas in the theorem number " + (i+1) + " which have not been recognized.\n";
         }
 
         // Debug
         //printTheorems(validTheorems);
 
         // Prove
+        results += "\n\n----------PROVING----------\n\n";
         ArrayList<Tableau> tableaus = new ArrayList<>();
-        for (Theorem theorem : validTheorems) {
-            Tableau tableau = new Tableau(theorem);
-            tableaus.add(tableau);
-            if (tableau.run()) {
-                String result = "Theorem " + (validTheoremsIndexes.get(0)+1) + " is valid.";
-                try {
-                    write(result);
-                } catch (IOException e) {
-                    System.out.println("The output could not be written.");
-                    return;
+        for (int i=0; i < theorems.size(); i++) {
+            if (!invalidTheorems.contains(i)) {
+                Tableau tableau = new Tableau(theorems.get(i));
+                tableaus.add(tableau);
+                if (tableau.run()) {
+                    results += "Theorem " + (i+1) + " is valid.\n";
+                } else {
+                    results += "Theorem " + (i+1) + " is not valid.\n";
                 }
-                validTheoremsIndexes.remove(0);
-            } else {
-                String result = "Theorem " + (validTheoremsIndexes.get(0)+1) + " is not valid.";
-                try {
-                    write(result);
-                } catch (IOException e) {
-                    System.out.println("The output cannot be written.");
-                    return;
-                }
-                validTheoremsIndexes.remove(0);
             }
+        }
+
+        try {
+            write(results);
+        } catch (IOException e) {
+            System.out.println("The output could not be written.");
+            return;
         }
 
         // Debug

@@ -1,21 +1,22 @@
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 public class Frame {
 
     private final Tableau tableau;
-    private ArrayList<World> worlds; // TODO: Make it a queue to make it a fair schedule when searching for a formula to expand
-    private int currentWorld;
+    private LinkedList<World> worlds;
+    private int currentWorldId; // TODO: THIS NOW USES WORLD ID, HAVEN'T CHECKED IMPLICATIONS
     private HashSet<Transition> transitions;
     private int numberOfWorlds;
 
-    public Frame(ArrayList<Formula> initialFormulas, Tableau tableau) {
+    public Frame(LinkedList<Formula> initialFormulas, Tableau tableau) {
         this.tableau = tableau;
-        this.worlds = new ArrayList<>();
-        this.currentWorld = 0;
-        World initialWorld = new World(initialFormulas, 1);
-        this.worlds.add(initialWorld);
+        this.worlds = new LinkedList<>();
+        this.currentWorldId = 0;
         numberOfWorlds = 1;
+        World initialWorld = new World(initialFormulas, numberOfWorlds);
+        this.worlds.add(initialWorld);
         this.transitions = new HashSet<>();
     }
 
@@ -23,73 +24,119 @@ public class Frame {
         this.tableau = tableau;
         this.numberOfWorlds = originalFrame.getNumberOfWorlds();
         this.worlds = originalFrame.cloneWorlds();
-        this.currentWorld = originalFrame.currentWorld;
-        this.transitions = originalFrame.transitions;
+        this.currentWorldId = originalFrame.currentWorldId;
+        this.transitions = originalFrame.cloneTransitions();
     }
 
     public boolean expandNextFormula() {
 
         // We prioritise expanding alpha formulas, then gamma, then beta and finally delta
-        World chosenWorld = null;
+        World chosenWorld = null;  // TODO: MAY NOT BE NEEDED; USE CURRENT WORLD INSTEAD
         Formula chosenFormula = null;
+        int seenFormulas;
+        int totalFormulas;
+        int seenWorlds = 0;
+        int totalWorlds = worlds.size();
 
         // Alpha
         outerLoop:
-        for (int i = 0; i < worlds.size(); i++) {
-            for (Formula formula : worlds.get(i).getFormulas()) {
+        while (seenWorlds != totalWorlds) {
+            World world = worlds.getFirst();
+            LinkedList<Formula> formulas = world.getFormulas();
+            totalFormulas = formulas.size();
+            seenFormulas = 0;
+            seenWorlds++;
+            while (seenFormulas != totalFormulas) {
+                Formula formula = formulas.getFirst();
+                seenFormulas++;
                 if (formula.getOperator() == Operator.AND || formula.getOperator() == Operator.BICONDITION || formula.getOperator() == Operator.NOTOR || formula.getOperator() == Operator.NOTCONDITION) {
-                    currentWorld = i;
-                    chosenWorld = worlds.get(i);
+                    currentWorldId = world.getId();
+                    chosenWorld = world;
                     chosenFormula = formula;
                     break outerLoop;
                 }
+                formulas.add(formulas.removeFirst());
             }
+            worlds.add(worlds.removeFirst());
         }
+
+        seenWorlds = 0;
 
         // Gamma
         if (chosenWorld == null || chosenFormula == null) {
             outerLoop:
-            for (int i = 0; i < worlds.size(); i++) {
-                for (Formula formula : worlds.get(i).getFormulas()) {
+            while (seenWorlds != totalWorlds) {
+                World world = worlds.getFirst();
+                LinkedList<Formula> formulas = world.getFormulas();
+                totalFormulas = formulas.size();
+                seenFormulas = 0;
+                seenWorlds++;
+                while (seenFormulas != totalFormulas) {
+                    Formula formula = formulas.getFirst();
+                    seenFormulas++;
                     if (formula.getOperator() == Operator.POSSIBLY || formula.getOperator() == Operator.NOTNECESSARILY) {
-                        currentWorld = i;
-                        chosenWorld = worlds.get(i);
+                        currentWorldId = world.getId();
+                        chosenWorld = world;
                         chosenFormula = formula;
                         break outerLoop;
                     }
+                    formulas.add(formulas.removeFirst());
                 }
+                worlds.add(worlds.removeFirst());
             }
         }
+
+        seenWorlds = 0;
 
         // Beta
         if (chosenWorld == null || chosenFormula == null) {
             outerLoop:
-            for (int i = 0; i < worlds.size(); i++) {
-                for (Formula formula : worlds.get(i).getFormulas()) {
+            while (seenWorlds != totalWorlds) {
+                World world = worlds.getFirst();
+                LinkedList<Formula> formulas = world.getFormulas();
+                totalFormulas = formulas.size();
+                seenFormulas = 0;
+                seenWorlds++;
+                while (seenFormulas != totalFormulas) {
+                    Formula formula = formulas.getFirst();
+                    seenFormulas++;
                     if (formula.getOperator() == Operator.OR || formula.getOperator() == Operator.NOTAND || formula.getOperator() == Operator.CONDITION || formula.getOperator() == Operator.NOTBICONDITION) {
-                        currentWorld = i;
-                        chosenWorld = worlds.get(i);
+                        currentWorldId = world.getId();
+                        chosenWorld = world;
                         chosenFormula = formula;
                         break outerLoop;
                     }
+                    formulas.add(formulas.removeFirst());
                 }
+                worlds.add(worlds.removeFirst());
             }
         }
+
+        seenWorlds = 0;
 
         // Delta
         if (chosenWorld == null || chosenFormula == null) {
             outerLoop:
-            for (int i = 0; i < worlds.size(); i++) {
-                for (Formula formula : worlds.get(i).getFormulas()) {
+            while (seenWorlds != totalWorlds) {
+                World world = worlds.getFirst();
+                LinkedList<Formula> formulas = world.getFormulas();
+                totalFormulas = formulas.size();
+                seenFormulas = 0;
+                seenWorlds++;
+                while (seenFormulas != totalFormulas) {
+                    Formula formula = formulas.getFirst();
+                    seenFormulas++;
                     if (formula.getOperator() == Operator.NECESSARILY || formula.getOperator() == Operator.NOTPOSSIBLY) {
                         if (!formula.isTicked()) {
-                            currentWorld = i;
-                            chosenWorld = worlds.get(i);
+                            currentWorldId = world.getId();
+                            chosenWorld = world;
                             chosenFormula = formula;
                             break outerLoop;
                         }
                     }
+                    formulas.add(formulas.removeFirst());
                 }
+                worlds.add(worlds.removeFirst());
             }
         }
 
@@ -116,7 +163,7 @@ public class Frame {
 
         // Gamma Rule
         else if (operator == Operator.POSSIBLY || operator == Operator.NOTNECESSARILY) {
-            ArrayList<Formula> gammaFormula = new ArrayList<>();
+            LinkedList<Formula> gammaFormula = new LinkedList<>();
             gammaFormula.add(formula.getSubformulas().get(0));
             world.eliminateFormula(formula);
             numberOfWorlds++;
@@ -138,7 +185,7 @@ public class Frame {
 
         // Delta Rule
         else if (operator == Operator.NECESSARILY || operator == Operator.NOTPOSSIBLY) {
-            HashSet<World> deltaWorlds = getDeltaWorldsFor(world, formula);
+            LinkedList<World> deltaWorlds = getDeltaWorldsFor(world, formula);
             for (World deltaWorld : deltaWorlds) {
                 deltaWorld.addFormula(formula.getSubformulas().get(0));
             }
@@ -171,25 +218,15 @@ public class Frame {
         return false;
     }
 
-    private HashSet<World> getDeltaWorldsFor(World world, Formula formula) {
-        HashSet<World> deltaWorlds = new HashSet<>();
+    private LinkedList<World> getDeltaWorldsFor(World world, Formula formula) {
+        LinkedList<World> deltaWorlds = new LinkedList<>();
         for (Transition transition : transitions) {
             if (transition.from() == world.getId() && !formula.getWorldsExpandedTo().contains(transition.to())) {
-                deltaWorlds.add(findWorldWithId(transition.to()));
+                deltaWorlds.add(getWorldWithId(transition.to()));
                 formula.addWorldExpandedTo(transition.to());
             }
         }
         return deltaWorlds;
-    }
-
-    // Possibly not necessary when the variable worlds is an ArrayList, but this is robust in case it is changed to be a HashSet in the future
-    private World findWorldWithId(int id) {
-        for (World world : worlds) {
-            if (world.getId() == id) {
-                return world;
-            }
-        }
-        return null;
     }
 
     public boolean hasContradiction() {
@@ -201,16 +238,34 @@ public class Frame {
         return false;
     }
 
-    public ArrayList<World> cloneWorlds() {
-        ArrayList<World> clonedWorlds = new ArrayList<>();
+    private LinkedList<World> cloneWorlds() {
+        LinkedList<World> clonedWorlds = new LinkedList<>();
         for (World world : worlds) {
             clonedWorlds.add(world.clone());
         }
         return clonedWorlds;
     }
 
+    private HashSet<Transition> cloneTransitions() {
+        HashSet<Transition> clones = new HashSet<>();
+        for (Transition transition : transitions) {
+            Transition clone = new Transition(transition.from(), transition.to());
+            clones.add(clone);
+        }
+        return clones;
+    }
+
     private void addFormula(Formula formula) {
-        worlds.get(currentWorld).addFormula(formula);
+        getWorldWithId(currentWorldId).addFormula(formula);
+    }
+
+    private World getWorldWithId(int id) {
+        for (World world : worlds) {
+            if (world.getId() == id) {
+                return world;
+            }
+        }
+        return null;
     }
 
     public int getNumberOfWorlds() {
@@ -218,12 +273,23 @@ public class Frame {
     }
 
     // Debugging
+
     public void print() {
         for (World world : worlds) {
             System.out.println();
-            System.out.println("\t\t\t\t\t\t\t  WORLD " + world.getId());
+            System.out.println("\t\t\t\t\t\t\t  WORLD " + world.getId() + " -> " + getTransitionsFrom(world.getId()));
             world.print();
             System.out.println();
         }
+    }
+
+    public String getTransitionsFrom(int id) {
+        ArrayList<Integer> accessibleWorlds = new ArrayList<>();
+        for (Transition transition : transitions) {
+            if (transition.from() == id) {
+                accessibleWorlds.add(transition.to());
+            }
+        }
+        return accessibleWorlds.toString();
     }
 }

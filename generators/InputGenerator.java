@@ -28,7 +28,7 @@ public class InputGenerator {
     }
 
     static private void write(String string) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter("input/input.txt", true));
+        BufferedWriter writer = new BufferedWriter(new FileWriter("input/input.txt"));
         writer.write(string);
         writer.close();
     }

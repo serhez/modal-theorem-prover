@@ -1,13 +1,13 @@
-import java.util.HashSet;
+import java.util.LinkedList;
 
 public class Tableau {
 
     private final Theorem theorem;
-    private HashSet<Frame> frames;
+    private LinkedList<Frame> frames;
 
     public Tableau(Theorem theorem) {
         this.theorem = theorem;
-        this.frames = new HashSet<>();
+        this.frames = new LinkedList<>();
     }
 
     // Returns true if the theorem is valid, false otherwise
@@ -17,13 +17,15 @@ public class Tableau {
         frames.add(new Frame(theorem.getFormulas(), this));
         while (!allFormulasExpanded) {
             allFormulasExpanded = true;
-            for (Frame frame : frames) {
+            if (!frames.isEmpty()) {
+                Frame frame = frames.getFirst();
                 if (frame.expandNextFormula()) {
                     allFormulasExpanded = false;
                 }
                 if (frame.hasContradiction()) {
-                    frames.remove(frame);
-                    break;  // break from the for-loop to evade Concurrent Modification Exceptions
+                    frames.removeFirst();
+                } else {
+                    frames.add(frames.removeFirst());
                 }
             }
         }

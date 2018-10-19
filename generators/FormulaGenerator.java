@@ -27,16 +27,15 @@ public class FormulaGenerator {
         return formula;
     }
 
-    // Only uses three propositions to increase the chances of invalidity of the formula
+    // Only uses two propositions to increase the chances of validity of the formula
     private String appendProposition() {
 
         String formula = "";
         Random proposition = new Random();
 
-        switch (proposition.nextInt(3)) {
+        switch (proposition.nextInt(2)) {
             case 0: formula = "p"; break;
             case 1: formula = "q"; break;
-            case 2: formula = "r"; break;
         }
 
         return formula;

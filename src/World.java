@@ -1,12 +1,12 @@
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 public class World {
 
     private final int id;
-    private ArrayList<Formula> formulas;
+    private LinkedList<Formula> formulas;
 
-    public World(ArrayList<Formula> formulas, int id) {
+    public World(LinkedList<Formula> formulas, int id) {
         this.formulas = cloneFormulas(formulas);
         this.id = id;
     }
@@ -39,8 +39,8 @@ public class World {
     }
 
     // We clone the formulas so changes to a formula in one world are not made also in the rest of worlds
-    private ArrayList<Formula> cloneFormulas(ArrayList<Formula> formulas) {
-        ArrayList<Formula> clonedFormulas = new ArrayList<>();
+    private LinkedList<Formula> cloneFormulas(LinkedList<Formula> formulas) {
+        LinkedList<Formula> clonedFormulas = new LinkedList<>();
         for (Formula formula : formulas) {
             clonedFormulas.add(formula.clone());
         }
@@ -58,20 +58,20 @@ public class World {
     }
 
     public void eliminateFormula(Formula deadFormula) {
-        boolean allFormulasChecked = false;  // Allows all formulas to be checked (to eliminate duplicates) while evading Concurrent Modification Exceptions
-        whileLoop:
-        while(!allFormulasChecked) {
-            for (Formula formula : formulas) {
-                if(formula.getString().equals(deadFormula.getString())) {
-                    formulas.remove(formula);
-                    continue whileLoop;
-                }
+        int formulasCount = 0;
+        int formulasSize = formulas.size();
+        while(formulasCount != formulasSize) {
+            Formula formula = formulas.getFirst();
+            formulasCount++;
+            if(formula.getString().equals(deadFormula.getString())) {
+                formulas.removeFirst();
+            } else {
+                formulas.add(formulas.removeFirst());
             }
-            allFormulasChecked = true;
         }
     }
 
-    public ArrayList<Formula> getFormulas() {
+    public LinkedList<Formula> getFormulas() {
         return formulas;
     }
 

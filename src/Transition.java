@@ -1,18 +1,18 @@
 public class Transition {
 
-    private final int fromWorld;
-    private final int toWorld;
+    private final int fromWorldId;
+    private final int toWorldId;
 
     public Transition(int from, int to) {
-        this.fromWorld = from;
-        this.toWorld = to;
+        this.fromWorldId = from;
+        this.toWorldId = to;
     }
 
     public int from() {
-        return fromWorld;
+        return fromWorldId;
     }
 
     public int to() {
-        return toWorld;
+        return toWorldId;
     }
 }
