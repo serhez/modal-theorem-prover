@@ -28,10 +28,28 @@ public class InputGenerator {
             System.out.println("The output cannot be written.");
             return;
         }
+
+        try {
+            writeToMolle(formulas);
+        } catch (IOException e) {
+            System.out.println("The output for Molle cannot be written.");
+            return;
+        }
     }
 
     static private void write(String string) throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter("input/input.txt"));
+        writer.write(string);
+        writer.close();
+    }
+
+    // Translates the input string to Molle syntax and writes it to a file called "inputMolle.txt"
+    static private void writeToMolle(String string) throws IOException {
+        string = string.replaceAll("p", "P");
+        string = string.replaceAll("q", "Q");
+        string = string.replaceAll("r", "R");
+        string = string.replaceAll("-", "=");
+        BufferedWriter writer = new BufferedWriter(new FileWriter("input/inputMolle.txt"));
         writer.write(string);
         writer.close();
     }

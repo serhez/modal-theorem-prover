@@ -82,7 +82,7 @@ public class World {
     // Debugging
     public void print() {
         for(Formula formula : formulas) {
-            System.out.println(formula.getString());
+            System.out.println(formula.getString() + "\t:\t" + formula.getOperator());
         }
     }
 }

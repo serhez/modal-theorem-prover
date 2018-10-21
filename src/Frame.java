@@ -9,8 +9,12 @@ public class Frame {
     private int currentWorldId; // TODO: THIS NOW USES WORLD ID, HAVEN'T CHECKED IMPLICATIONS
     private HashSet<Transition> transitions;
     private int numberOfWorlds;
+    private final int id;
+    private boolean isExpandable;
 
-    public Frame(LinkedList<Formula> initialFormulas, Tableau tableau) {
+    public Frame(LinkedList<Formula> initialFormulas, Tableau tableau, int id) {
+        this.id = id;
+        this.isExpandable = true;
         this.tableau = tableau;
         this.worlds = new LinkedList<>();
         this.currentWorldId = 0;
@@ -20,7 +24,9 @@ public class Frame {
         this.transitions = new HashSet<>();
     }
 
-    public Frame(Frame originalFrame, Tableau tableau) {
+    public Frame(Frame originalFrame, Tableau tableau, int id) {
+        this.id = id;
+        this.isExpandable = true;
         this.tableau = tableau;
         this.numberOfWorlds = originalFrame.getNumberOfWorlds();
         this.worlds = originalFrame.cloneWorlds();
@@ -28,7 +34,7 @@ public class Frame {
         this.transitions = originalFrame.cloneTransitions();
     }
 
-    public boolean expandNextFormula() {
+    public void expandNextFormula() {
 
         // We prioritise expanding alpha formulas, then gamma, then beta and finally delta
         World chosenWorld = null;  // TODO: MAY NOT BE NEEDED; USE CURRENT WORLD INSTEAD
@@ -142,12 +148,11 @@ public class Frame {
 
         // Only propositions, negated propositions and ticked delta-formulas remaining on the frame
         if (chosenWorld == null || chosenFormula == null) {
-            return false;
+            isExpandable = false;
+            return;
         }
 
         expand(chosenFormula, chosenWorld);
-
-        return true;
     }
 
     private void expand(Formula formula, World world) {
@@ -177,7 +182,7 @@ public class Frame {
             Formula subformula1 = formula.getSubformulas().get(0);
             Formula subformula2 = formula.getSubformulas().get(1);
             world.eliminateFormula(formula);
-            Frame disjunctiveFrame = new Frame(this, tableau);
+            Frame disjunctiveFrame = new Frame(this, tableau, tableau.getNewFrameId());
             world.addFormula(subformula1);
             disjunctiveFrame.addFormula(subformula2);
             tableau.addFrame(disjunctiveFrame);
@@ -270,6 +275,14 @@ public class Frame {
 
     public int getNumberOfWorlds() {
         return numberOfWorlds;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public boolean isExpandable() {
+        return isExpandable;
     }
 
     // Debugging
