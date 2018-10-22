@@ -3,19 +3,16 @@ import java.util.Arrays;
 
 public class Parser {
 
-    private final String input;
-    private ArrayList<Theorem> theorems;
+    private ArrayList<Theorem> theorems;      // TODO: THESE TWO VARIABLES ARE BAD, RETURN EVERYTHING IN parseInput() CALL
     private ArrayList<Integer> invalidTheorems;
 
-
-    public Parser(String input) {
-        this.input = input;
+    public Parser() {
         theorems = new ArrayList<>();
         invalidTheorems = new ArrayList<>();
     }
 
     // Takes the input string extracted from the input file and populates the variable theorems
-    public void parse() {
+    public void parseInput(String input) {
 
         ArrayList<String> theoremStrings = new ArrayList(Arrays.asList(input.split(";", 0)));
         for (int i = 0; i < theoremStrings.size(); i++) {
@@ -25,6 +22,17 @@ public class Parser {
                 invalidTheorems.add(i);
             }
         }
+    }
+
+    public boolean parseFormula(String formulaString) {
+        Theorem theorem = new Theorem(formulaString);
+        theorems.add(theorem);
+        if (!theorem.parse()) {
+            invalidTheorems.add(0);
+            return false;
+        }
+
+        return true;
     }
 
     public ArrayList<Theorem> getTheorems() {

@@ -7,9 +7,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class TheoremProver {
+public class Prover {
 
-    public static void main(String[] args) {
+    public void proveInputFile() {
 
         // Core variables
         ArrayList<Theorem> theorems;
@@ -36,8 +36,8 @@ public class TheoremProver {
         }
 
         // Parse
-        Parser parser = new Parser(inputString);
-        parser.parse();
+        Parser parser = new Parser();
+        parser.parseInput(inputString);
         theorems = parser.getTheorems();
         invalidTheorems = parser.getInvalidTheorems();
 
@@ -76,6 +76,20 @@ public class TheoremProver {
 
         // Debug
         //printTableaus(tableaus);
+    }
+
+    public boolean proveFormula(String formulaString) throws UnrecognizableFormulaException {
+        Parser parser = new Parser();
+        if (!parser.parseFormula(formulaString)) {
+            throw new UnrecognizableFormulaException(formulaString);
+        }
+
+        Tableau tableau = new Tableau(parser.getTheorems().get(0));
+        if (tableau.run()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     static private String read() throws IOException {

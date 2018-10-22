@@ -39,7 +39,7 @@ public class Formula {
         }
     }
 
-    // Analise the formula and return false if itself or any of its subformulas is not valid
+    // Analise the formula and return false if itself or any of its subformulas is not recognized
     public boolean parse() {
 
         // Find the main operator of the formula and report any invalid syntactical structure on the current formula
