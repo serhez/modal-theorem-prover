@@ -55,13 +55,16 @@ public class Prover {
             results += "There are formulas in the theorem number " + (i+1) + " which have not been recognized.\n";
         }
 
+        // TODO: For now, we work with a K Modal System (the parsing of frame conditions has not been implemented)
+        ModalSystem system = new ModalSystem("K");
+
         // Prove
         results += "\n\n--------  PROVING\n\n";
-        ArrayList<Tableau> tableaus = new ArrayList<>();
+        ArrayList<Tableau> tableaux = new ArrayList<>();
         for (int i=0; i < theorems.size(); i++) {
             if (!invalidTheorems.contains(i)) {
-                Tableau tableau = new Tableau(theorems.get(i), debugging);
-                tableaus.add(tableau);
+                Tableau tableau = new Tableau(theorems.get(i), system, debugging);
+                tableaux.add(tableau);
                 if (tableau.run()) {
                     results += "Theorem " + (i+1) + " is valid.\n";
                 } else {
@@ -84,7 +87,10 @@ public class Prover {
             throw new UnrecognizableFormulaException(formulaString);
         }
 
-        Tableau tableau = new Tableau(parser.getTheorems().get(0), debugging);
+        // TODO: For now, we work with a K Modal System (the parsing of frame conditions has not been implemented)
+        ModalSystem system = new ModalSystem("K");
+
+        Tableau tableau = new Tableau(parser.getTheorems().get(0), system, debugging);
         if (tableau.run()) {
             return true;
         } else {
@@ -122,8 +128,8 @@ public class Prover {
 
     // Debugging methods
 
-    private static void printTableaus(ArrayList<Tableau> tableaus) {
-        for (int i = 0; i < tableaus.size(); i++) {
+    private static void printTableaux(ArrayList<Tableau> tableaux) {
+        for (int i = 0; i < tableaux.size(); i++) {
             System.out.println();
             System.out.println();
             System.out.println();
@@ -131,7 +137,7 @@ public class Prover {
             System.out.println("*********************************************************************");
             System.out.println("\t\t\t\t\t\t\t TABLEAU " + (i+1));
             System.out.println("*********************************************************************");
-            tableaus.get(i).print();
+            tableaux.get(i).print();
         }
     }
 

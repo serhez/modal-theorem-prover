@@ -1,10 +1,10 @@
 import java.util.HashSet;
 
-public class FrameConditions {
+public class ModalSystem {
 
     private HashSet<FrameCondition> frameConditions;
 
-    public FrameConditions(String frameConditionsString) {
+    public ModalSystem(String frameConditionsString) {
         this.frameConditions = new HashSet<>();
         this.frameConditions.add(FrameCondition.K);  // All frames must conform to K
         parseFrameConditions(frameConditionsString);
@@ -23,7 +23,7 @@ public class FrameConditions {
         }
     }
 
-    public boolean hasSeriality() {
+    public boolean isSerial() {
         if (frameConditions.contains(FrameCondition.D)) {
             return true;
         } else {
@@ -31,7 +31,7 @@ public class FrameConditions {
         }
     }
 
-    public boolean hasReflexivity() {
+    public boolean isReflexive() {
         if (frameConditions.contains(FrameCondition.T)) {
             return true;
         } else {
@@ -39,7 +39,7 @@ public class FrameConditions {
         }
     }
 
-    public boolean hasSymmetry() {
+    public boolean isSymmetric() {
         if (frameConditions.contains(FrameCondition.B)) {
             return true;
         } else {
@@ -47,7 +47,7 @@ public class FrameConditions {
         }
     }
 
-    public boolean hasTransitivity() {
+    public boolean isTransitive() {
         if (frameConditions.contains(FrameCondition.FOUR)) {
             return true;
         } else {
@@ -55,7 +55,7 @@ public class FrameConditions {
         }
     }
 
-    public boolean hasEuclidean() {
+    public boolean isEuclidean() {
         if (frameConditions.contains(FrameCondition.FIVE)) {
             return true;
         } else {

@@ -5,6 +5,7 @@ import java.util.LinkedList;
 public class Frame {
 
     private final int id;
+    private final ModalSystem system;
     private final Tableau tableau;
     private LinkedList<World> worlds;
     private int currentWorldId; // TODO: THIS NOW USES WORLD ID, HAVEN'T CHECKED IMPLICATIONS
@@ -12,8 +13,9 @@ public class Frame {
     private int numberOfWorlds;
     private boolean isExpandable;
 
-    public Frame(LinkedList<Formula> initialFormulas, Tableau tableau, int id) {
+    public Frame(LinkedList<Formula> initialFormulas, Tableau tableau, int id, ModalSystem system) {
         this.id = id;
+        this.system = system;
         this.isExpandable = true;
         this.tableau = tableau;
         this.worlds = new LinkedList<>();
@@ -22,10 +24,14 @@ public class Frame {
         World initialWorld = new World(initialFormulas, numberOfWorlds);
         this.worlds.add(initialWorld);
         this.transitions = new HashSet<>();
+        if (system.isReflexive()) {
+            this.transitions.add(new Transition(1, 1));
+        }
     }
 
-    public Frame(Frame originalFrame, Tableau tableau, int id) {
+    public Frame(Frame originalFrame, Tableau tableau, int id, ModalSystem specification) {
         this.id = id;
+        this.system = specification;
         this.isExpandable = true;
         this.tableau = tableau;
         this.numberOfWorlds = originalFrame.getNumberOfWorlds();
@@ -180,6 +186,12 @@ public class Frame {
             World newWorld = new World(gammaFormula, numberOfWorlds);
             worlds.add(newWorld);
             transitions.add(new Transition(world.getId(), newWorld.getId()));
+            if (system.isReflexive()) {
+                this.transitions.add(new Transition(newWorld.getId(), newWorld.getId()));
+            }
+            if (system.isSymmetric()) {
+                this.transitions.add(new Transition(newWorld.getId(), world.getId()));
+            }
         }
 
         // Beta Rule
@@ -187,7 +199,7 @@ public class Frame {
             Formula subformula1 = formula.getSubformulas().get(0);
             Formula subformula2 = formula.getSubformulas().get(1);
             world.eliminateFormula(formula);
-            Frame disjunctiveFrame = new Frame(this, tableau, tableau.getNewFrameId());
+            Frame disjunctiveFrame = new Frame(this, tableau, tableau.getNewFrameId(), system);
             world.addFormula(subformula1);
             disjunctiveFrame.addFormula(subformula2);
             tableau.addFrame(disjunctiveFrame);

@@ -3,11 +3,13 @@ import java.util.LinkedList;
 public class Tableau {
 
     private final Theorem theorem;
+    private final ModalSystem system;
     private LinkedList<Frame> frames;
     private int frameIdCount;
     private boolean debugging;
 
-    public Tableau(Theorem theorem, boolean debugging) {
+    public Tableau(Theorem theorem, ModalSystem system, boolean debugging) {
+        this.system = system;
         this.theorem = theorem;
         this.frames = new LinkedList<>();
         this.frameIdCount = 1;
@@ -17,7 +19,7 @@ public class Tableau {
     // Returns true if the theorem is valid, false otherwise
     public boolean run() {
 
-        frames.add(new Frame(theorem.getFormulas(), this, frameIdCount));
+        frames.add(new Frame(theorem.getFormulas(), this, frameIdCount, system));
         frameIdCount++;
 
         int step = 1;
