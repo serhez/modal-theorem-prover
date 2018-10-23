@@ -3,7 +3,7 @@ import java.util.HashSet;
 
 public class Formula {
 
-    // Hi
+    // Hi2
 
     private String string;
     private final ArrayList<Formula> subformulas;
