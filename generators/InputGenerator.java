@@ -1,8 +1,12 @@
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class InputGenerator {
 
@@ -75,6 +79,26 @@ public class InputGenerator {
         BufferedWriter writer = new BufferedWriter(new FileWriter("input/inputMolle.txt"));
         writer.write(string);
         writer.close();
+    }
+
+    public void translateCurrentInputFileToMolle() {
+        String molleInputString = "";
+        try {
+            molleInputString = translateInputToMolle(readInputFile());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            writeToMolle(molleInputString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    static private String readInputFile() throws IOException {
+        String inputPath = "input/input.txt";
+        return (Files.lines(Paths.get(inputPath), StandardCharsets.UTF_8)).collect(Collectors.joining());
     }
 
     private String translateInputToMolle(String inputString) {

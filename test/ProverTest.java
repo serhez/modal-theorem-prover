@@ -18,6 +18,12 @@ public class ProverTest {
     }
 
     @Test
+    public void translateCurrentInputFileToMolle() {
+        InputGenerator inputGenerator = new InputGenerator(0, 0);
+        inputGenerator.translateCurrentInputFileToMolle();
+    }
+
+    @Test
     public void runRandomInputFileAndTranslateToMolle() {
         InputGenerator inputGenerator = new InputGenerator(1000, 50);
         inputGenerator.generateInputFileAndMolleFile();
