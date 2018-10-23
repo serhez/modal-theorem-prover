@@ -4,12 +4,12 @@ import java.util.LinkedList;
 
 public class Frame {
 
+    private final int id;
     private final Tableau tableau;
     private LinkedList<World> worlds;
     private int currentWorldId; // TODO: THIS NOW USES WORLD ID, HAVEN'T CHECKED IMPLICATIONS
     private HashSet<Transition> transitions;
     private int numberOfWorlds;
-    private final int id;
     private boolean isExpandable;
 
     public Frame(LinkedList<Formula> initialFormulas, Tableau tableau, int id) {
