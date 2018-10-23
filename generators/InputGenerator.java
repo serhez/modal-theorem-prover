@@ -1,7 +1,6 @@
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -20,7 +19,6 @@ public class InputGenerator {
         String formulas = "";
         FormulaGenerator formulaGenerator = new FormulaGenerator();
 
-        // Write an input file of 100 random formulas of a maximum length of 50 characters each
         for (int i=0; i < n; i++) {
             String formula = "";
             // Avoid propositions and negated propositions as full formulas
@@ -33,7 +31,7 @@ public class InputGenerator {
         try {
             write(formulas);
         } catch (IOException e) {
-            System.out.println("The output cannot be written.");
+            System.out.println("The input formulas could not be written.");
             return null;
         }
 
@@ -58,7 +56,7 @@ public class InputGenerator {
     }
 
     // Translates the input string to Molle syntax and writes it to a file called "inputMolle.txt"
-    private String translateToMolle(String string) {
+    public String translateToMolle(String string) {
 
         string = string.replaceAll("p", "P");
         string = string.replaceAll("q", "Q");

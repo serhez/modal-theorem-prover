@@ -49,9 +49,6 @@ public class Prover {
             results += "There are formulas in the theorem number " + (i+1) + " which have not been recognized.\n";
         }
 
-        // Debug
-        //printTheorems(validTheorems);
-
         // Prove
         results += "\n\n--------  PROVING\n\n";
         ArrayList<Tableau> tableaus = new ArrayList<>();
@@ -73,9 +70,6 @@ public class Prover {
             System.out.println("The output could not be written.");
             return;
         }
-
-        // Debug
-        //printTableaus(tableaus);
     }
 
     public boolean proveFormula(String formulaString) throws UnrecognizableFormulaException {

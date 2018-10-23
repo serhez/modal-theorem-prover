@@ -1,4 +1,0 @@
-This is my final year project. A Modal Logic Theorem Prover.
-
-For the developer:
-  1. Note that within the code, validity of a formula or theorem references its syntactical/grammatical correctness, and does not reference logical validity or satisfiability.

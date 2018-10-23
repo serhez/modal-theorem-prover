@@ -36,6 +36,11 @@ public class Frame {
 
     public void expandNextFormula() {
 
+        if (hasContradiction()) {
+            isExpandable = false;
+            return;
+        }
+
         // We prioritise expanding alpha formulas, then gamma, then beta and finally delta
         World chosenWorld = null;  // TODO: MAY NOT BE NEEDED; USE CURRENT WORLD INSTEAD
         Formula chosenFormula = null;
@@ -195,7 +200,7 @@ public class Frame {
                 deltaWorld.addFormula(formula.getSubformulas().get(0));
             }
             if (!expandable()) {
-                formula.ticked();
+                formula.tick();
             } else {
                 untickAllFormulas();
             }

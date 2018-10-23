@@ -43,7 +43,9 @@ public class Tableau {
             System.out.println();
             System.out.println();
             System.out.println("**********************************************************************");
+            System.out.println("**********************************************************************");
             System.out.println("\t\t\t\t\t\t\t   STEP " + step);
+            System.out.println("**********************************************************************");
             System.out.println("**********************************************************************");
             System.out.println();
             System.out.println();

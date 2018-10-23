@@ -82,7 +82,12 @@ public class World {
     // Debugging
     public void print() {
         for(Formula formula : formulas) {
-            System.out.println(formula.getString() + "\t:\t" + formula.getOperator());
+            System.out.print(formula.getString() + "\t:\t" + formula.getOperator());
+            if (!formula.getWorldsExpandedTo().isEmpty()) {
+                System.out.println("\t\t; expanded to " + formula.getWorldsExpandedTo());
+            } else {
+                System.out.println();
+            }
         }
     }
 }

@@ -253,6 +253,9 @@ public class Formula {
 
     // Negate this formula
     public void negate() {
+        if (string.length() == 0) {
+            return;
+        }
         if (string.charAt(0) == '~') {
             string = string.substring(1, string.length());
         } else {
@@ -265,9 +268,8 @@ public class Formula {
         Formula clone = new Formula(string);
         clone.setOperator(operator);
         clone.setOperatorIndex(operatorIndex);
-        clone.setSubformulas(subformulas);
         clone.setWorldsExpandedTo(worldsExpandedTo);
-        clone.setTicked(ticked);
+        clone.setSubformulas(subformulas);
         return clone;
     }
 
@@ -283,10 +285,14 @@ public class Formula {
 
     // Only used for cloning
     private void setWorldsExpandedTo(HashSet<Integer> worldsExpandedTo) {
-        this.worldsExpandedTo = worldsExpandedTo;
+        HashSet<Integer> clone = new HashSet<>();
+        for (int i : worldsExpandedTo) {
+            clone.add(i);
+        }
+        this.worldsExpandedTo = clone;
     }
 
-    // TODO: THINK THROUGH POSSIBLE CONSEQUENCES OF NOT RESETTING LOOPCOUNT WHEN CLONING
+    // TODO: NOT COPYING TICKED WHEN CLONING, IS THAT FINE?
     // Only used for cloning
     private void setTicked(boolean ticked) {
         this.ticked = ticked;
@@ -323,7 +329,7 @@ public class Formula {
         ticked = false;
     }
 
-    public void ticked() {
+    public void tick() {
         ticked = true;
     }
 

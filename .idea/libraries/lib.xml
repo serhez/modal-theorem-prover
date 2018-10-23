@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../molle-src-1.0/lib/commons-collections-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../molle-src-1.0/lib/colt.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../molle-src-1.0/lib/jung-1.7.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
