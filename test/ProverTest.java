@@ -16,4 +16,13 @@ public class ProverTest {
         Prover prover = new Prover();
         prover.proveInputFile();
     }
+
+    @Test
+    public void runRandomInputFileAndTranslateToMolle() {
+        InputGenerator inputGenerator = new InputGenerator(1000, 50);
+        inputGenerator.generateInputFileAndMolleFile();
+
+        Prover prover = new Prover();
+        prover.proveInputFile();
+    }
 }

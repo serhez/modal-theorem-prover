@@ -16,7 +16,35 @@ public class InputGenerator {
 
     public String generateInputFile() {
 
-        String formulas = "";
+        String inputString = generateInput();
+
+        try {
+            write(inputString);
+        } catch (IOException e) {
+            System.out.println("The input formulas could not be written.");
+            return null;
+        }
+
+        return inputString;
+    }
+
+    public void generateInputFileAndMolleFile() {
+
+        String inputString = generateInputFile();
+        String molleInputString = translateInputToMolle(inputString);
+
+        try {
+            writeToMolle(molleInputString);
+        } catch (IOException e) {
+            System.out.println("The input formulas could not be written.");
+            return;
+        }
+    }
+
+    // Generates an input for the Theorem Prover
+    private String generateInput() {
+
+        String inputString = "";
         FormulaGenerator formulaGenerator = new FormulaGenerator();
 
         for (int i=0; i < n; i++) {
@@ -25,27 +53,15 @@ public class InputGenerator {
             while (formula.length() < 3) {
                 formula = formulaGenerator.generate(maxLength);
             }
-            formulas += (formula + ";\n");
+            inputString += (formula + ";\n");
         }
 
-        try {
-            write(formulas);
-        } catch (IOException e) {
-            System.out.println("The input formulas could not be written.");
-            return null;
-        }
-
-        return formulas;
+        return inputString;
     }
 
-
-    // Generates an input for the Theorem Prover, as well as converting that input to Molle syntax and returning it
-    public ArrayList<String> generateInputFormulas() {
-
-        String string = generateInputFile();
-
-        ArrayList<String> formulas = new ArrayList(Arrays.asList(string.split(";", 0)));
-
+    public ArrayList<String> generateFormulas() {
+        String inputString = generateInput();
+        ArrayList<String> formulas = new ArrayList(Arrays.asList(inputString.split(";\n", 0)));
         return formulas;
     }
 
@@ -55,8 +71,25 @@ public class InputGenerator {
         writer.close();
     }
 
+    private void writeToMolle(String string) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter("input/inputMolle.txt"));
+        writer.write(string);
+        writer.close();
+    }
+
+    private String translateInputToMolle(String inputString) {
+
+        ArrayList<String> formulas = new ArrayList(Arrays.asList(inputString.split(";\n", 0)));
+        String molleInputString = "";
+        for (String formula : formulas) {
+            molleInputString += translateFormulaToMolle(formula) + "\n";
+        }
+
+        return molleInputString;
+    }
+
     // Translates the input string to Molle syntax and writes it to a file called "inputMolle.txt"
-    public String translateToMolle(String string) {
+    public String translateFormulaToMolle(String string) {
 
         string = string.replaceAll("p", "P");
         string = string.replaceAll("q", "Q");
