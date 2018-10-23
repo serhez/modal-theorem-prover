@@ -7,8 +7,8 @@ public class Formula {
     private final ArrayList<Formula> subformulas;
     private Operator operator;
     private int operatorIndex;                  // In case of a negated operator, the index will indicate the location of the operator, not of the negation
-    private boolean ticked;                     // Only used to loop check [] formulas
     private HashSet<Integer> worldsExpandedTo;  // Only used to loop check [] formulas
+    private boolean ticked;                     // Only used to loop check [] formulas
 
     public Formula(String formulaString) {
         this.string = formulaString;
