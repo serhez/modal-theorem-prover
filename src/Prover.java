@@ -9,6 +9,12 @@ import java.util.stream.Collectors;
 
 public class Prover {
 
+    boolean debugging;
+
+    public Prover(boolean debugging) {
+        this.debugging = debugging;
+    }
+
     public void proveInputFile() {
 
         // Core variables
@@ -54,7 +60,7 @@ public class Prover {
         ArrayList<Tableau> tableaus = new ArrayList<>();
         for (int i=0; i < theorems.size(); i++) {
             if (!invalidTheorems.contains(i)) {
-                Tableau tableau = new Tableau(theorems.get(i));
+                Tableau tableau = new Tableau(theorems.get(i), debugging);
                 tableaus.add(tableau);
                 if (tableau.run()) {
                     results += "Theorem " + (i+1) + " is valid.\n";
@@ -78,7 +84,7 @@ public class Prover {
             throw new UnrecognizableFormulaException(formulaString);
         }
 
-        Tableau tableau = new Tableau(parser.getTheorems().get(0));
+        Tableau tableau = new Tableau(parser.getTheorems().get(0), debugging);
         if (tableau.run()) {
             return true;
         } else {

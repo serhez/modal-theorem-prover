@@ -5,11 +5,13 @@ public class Tableau {
     private final Theorem theorem;
     private LinkedList<Frame> frames;
     private int frameIdCount;
+    private boolean debugging;
 
-    public Tableau(Theorem theorem) {
+    public Tableau(Theorem theorem, boolean debugging) {
         this.theorem = theorem;
         this.frames = new LinkedList<>();
         this.frameIdCount = 1;
+        this.debugging = debugging;
     }
 
     // Returns true if the theorem is valid, false otherwise
@@ -37,21 +39,19 @@ public class Tableau {
                 }
             }
 
-            /*
-            // Debugging //
-            System.out.println();
-            System.out.println();
-            System.out.println();
-            System.out.println("**********************************************************************");
-            System.out.println("**********************************************************************");
-            System.out.println("\t\t\t\t\t\t\t   STEP " + step);
-            System.out.println("**********************************************************************");
-            System.out.println("**********************************************************************");
-            System.out.println();
-            System.out.println();
-            print();
-            // Debugging //
-            */
+            if (debugging) {
+                System.out.println();
+                System.out.println();
+                System.out.println();
+                System.out.println("**********************************************************************");
+                System.out.println("**********************************************************************");
+                System.out.println("\t\t\t\t\t\t\t   STEP " + step);
+                System.out.println("**********************************************************************");
+                System.out.println("**********************************************************************");
+                System.out.println();
+                System.out.println();
+                print();
+            }
 
             step++;
         }

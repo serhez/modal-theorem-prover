@@ -106,7 +106,7 @@ public class InputGenerator {
         ArrayList<String> formulas = new ArrayList(Arrays.asList(inputString.split(";\n", 0)));
         String molleInputString = "";
         for (String formula : formulas) {
-            molleInputString += translateFormulaToMolle(formula) + "\n";
+            molleInputString += (translateFormulaToMolle(formula) + "\n");
         }
 
         return molleInputString;

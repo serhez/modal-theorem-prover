@@ -10,7 +10,13 @@ public class ProverTest {
 
     @Test
     public void runCurrentInputFile() {
-        Prover prover = new Prover();
+        Prover prover = new Prover(false);
+        prover.proveInputFile();
+    }
+
+    @Test
+    public void debugCurrentInputFile() {
+        Prover prover = new Prover(true);
         prover.proveInputFile();
     }
 
@@ -19,7 +25,7 @@ public class ProverTest {
         InputGenerator inputGenerator = new InputGenerator(1000, 50);
         inputGenerator.generateInputFile();
 
-        Prover prover = new Prover();
+        Prover prover = new Prover(false);
         prover.proveInputFile();
     }
 
@@ -28,7 +34,7 @@ public class ProverTest {
         InputGenerator inputGenerator = new InputGenerator(1000, 50);
         inputGenerator.generateInputFileAndMolleFile();
 
-        Prover prover = new Prover();
+        Prover prover = new Prover(false);
         prover.proveInputFile();
     }
 }
