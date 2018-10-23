@@ -3,8 +3,6 @@ import java.util.HashSet;
 
 public class Formula {
 
-    // Hi3
-
     private String string;
     private final ArrayList<Formula> subformulas;
     private Operator operator;
