@@ -3,6 +3,12 @@ import org.junit.jupiter.api.Test;
 public class ProverTest {
 
     @Test
+    public void translateCurrentInputFileToMolle() {
+        InputGenerator inputGenerator = new InputGenerator(0, 0);
+        inputGenerator.translateCurrentInputFileToMolle();
+    }
+
+    @Test
     public void runCurrentInputFile() {
         Prover prover = new Prover();
         prover.proveInputFile();
@@ -15,12 +21,6 @@ public class ProverTest {
 
         Prover prover = new Prover();
         prover.proveInputFile();
-    }
-
-    @Test
-    public void translateCurrentInputFileToMolle() {
-        InputGenerator inputGenerator = new InputGenerator(0, 0);
-        inputGenerator.translateCurrentInputFileToMolle();
     }
 
     @Test
