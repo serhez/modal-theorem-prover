@@ -20,6 +20,7 @@ public class Prover {
         // Core variables
         ArrayList<Theorem> theorems;
         ArrayList<Integer> invalidTheorems;
+        ModalSystem system;
         String inputString;
         String results = "";
 
@@ -46,6 +47,7 @@ public class Prover {
         parser.parseInput(inputString);
         theorems = parser.getTheorems();
         invalidTheorems = parser.getInvalidTheorems();
+        system = parser.getSystem();
 
         results += "\n--------  PARSING\n\n";
         if (invalidTheorems.isEmpty()) {
@@ -54,9 +56,6 @@ public class Prover {
         for (int i : invalidTheorems) {
             results += "There are formulas in the theorem number " + (i+1) + " which have not been recognized.\n";
         }
-
-        // TODO: For now, we work with a K Modal System (the parsing of frame conditions has not been implemented)
-        ModalSystem system = new ModalSystem("K");
 
         // Prove
         results += "\n\n--------  PROVING\n\n";
@@ -87,10 +86,7 @@ public class Prover {
             throw new UnrecognizableFormulaException(formulaString);
         }
 
-        // TODO: For now, we work with a K Modal System (the parsing of frame conditions has not been implemented)
-        ModalSystem system = new ModalSystem("K");
-
-        Tableau tableau = new Tableau(parser.getTheorems().get(0), system, debugging);
+        Tableau tableau = new Tableau(parser.getTheorems().get(0), parser.getSystem(), debugging);
         if (tableau.run()) {
             return true;
         } else {

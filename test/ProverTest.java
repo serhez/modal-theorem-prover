@@ -4,7 +4,7 @@ public class ProverTest {
 
     @Test
     public void translateCurrentInputFileToMolle() {
-        InputGenerator inputGenerator = new InputGenerator(0, 0);
+        InputGenerator inputGenerator = new InputGenerator();
         inputGenerator.translateCurrentInputFileToMolle();
     }
 
@@ -22,8 +22,8 @@ public class ProverTest {
 
     @Test
     public void runRandomInputFile() {
-        InputGenerator inputGenerator = new InputGenerator(1000, 50);
-        inputGenerator.generateInputFile();
+        InputGenerator inputGenerator = new InputGenerator();
+        inputGenerator.generateInputFile(10000, 50, "K");
 
         Prover prover = new Prover(false);
         prover.proveInputFile();
@@ -31,8 +31,8 @@ public class ProverTest {
 
     @Test
     public void runRandomInputFileAndTranslateToMolle() {
-        InputGenerator inputGenerator = new InputGenerator(1000, 50);
-        inputGenerator.generateInputFileAndMolleFile();
+        InputGenerator inputGenerator = new InputGenerator();
+        inputGenerator.generateInputFileAndMolleFile(10000, 50, "K");
 
         Prover prover = new Prover(false);
         prover.proveInputFile();

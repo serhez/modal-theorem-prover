@@ -10,17 +10,9 @@ import java.util.stream.Collectors;
 
 public class InputGenerator {
 
-    public final int maxLength;  // Maximum length of a formula
-    public final int n;          // Number of formulas
+    public String generateInputFile(int n, int maxLength, String systemString) {
 
-    public InputGenerator(int n, int maxLength) {
-        this.n = n;
-        this.maxLength = maxLength;
-    }
-
-    public String generateInputFile() {
-
-        String inputString = generateInput();
+        String inputString = generateInput(n, maxLength, systemString);
 
         try {
             write(inputString);
@@ -32,9 +24,9 @@ public class InputGenerator {
         return inputString;
     }
 
-    public void generateInputFileAndMolleFile() {
+    public void generateInputFileAndMolleFile(int n, int maxLength, String systemString) {
 
-        String inputString = generateInputFile();
+        String inputString = generateInputFile(n, maxLength, systemString);
         String molleInputString = translateInputToMolle(inputString);
 
         try {
@@ -46,9 +38,9 @@ public class InputGenerator {
     }
 
     // Generates an input for the Theorem Prover
-    private String generateInput() {
+    private String generateInput(int n, int maxLength, String systemString) {
 
-        String inputString = "";
+        String inputString = ":" + systemString + ":\n";
         FormulaGenerator formulaGenerator = new FormulaGenerator();
 
         for (int i=0; i < n; i++) {
@@ -63,8 +55,25 @@ public class InputGenerator {
         return inputString;
     }
 
-    public ArrayList<String> generateFormulas() {
-        String inputString = generateInput();
+    public ArrayList<String> generateFormulas(int n, int maxLength, String systemString) {
+
+        String inputString = generateInput(n, maxLength, systemString);
+
+        // Delete the modal system specification from the input string
+        if(inputString.charAt(0) == ':') {
+            inputString = inputString.substring(1, inputString.length());
+            int i = 0;
+            while (i<inputString.length() && inputString.charAt(0) != ':') {
+                inputString = inputString.substring(1, inputString.length());
+                i++;
+            }
+            inputString = inputString.substring(2, inputString.length());  // Get rid of the last ':' and the '\n'
+        }
+
+        if (inputString.charAt(0) == '\n') {
+            System.out.println("CHAR IS NEW LINE");
+        }
+
         ArrayList<String> formulas = new ArrayList(Arrays.asList(inputString.split(";\n", 0)));
         return formulas;
     }

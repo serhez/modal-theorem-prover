@@ -5,6 +5,7 @@ public class Parser {
 
     private ArrayList<Theorem> theorems;      // TODO: THESE TWO VARIABLES ARE BAD, RETURN EVERYTHING IN parseInput() CALL
     private ArrayList<Integer> invalidTheorems;
+    private ModalSystem system;
 
     public Parser() {
         theorems = new ArrayList<>();
@@ -13,6 +14,8 @@ public class Parser {
 
     // Takes the input string extracted from the input file and populates the variable theorems
     public void parseInput(String input) {
+
+        input = preprocess(input);
 
         ArrayList<String> theoremStrings = new ArrayList(Arrays.asList(input.split(";", 0)));
         for (int i = 0; i < theoremStrings.size(); i++) {
@@ -25,6 +28,7 @@ public class Parser {
     }
 
     public boolean parseFormula(String formulaString) {
+        formulaString = preprocess(formulaString);
         Theorem theorem = new Theorem(formulaString);
         theorems.add(theorem);
         if (!theorem.parse()) {
@@ -33,6 +37,35 @@ public class Parser {
         }
 
         return true;
+    }
+
+    private String preprocess(String inputString) {
+        // Eliminate all spaces, tabs and new lines
+        inputString = inputString.replaceAll(" ","");
+        inputString = inputString.replaceAll("\t","");
+        inputString = inputString.replaceAll("\n","");
+
+        // Find a modal system with frame conditions, if any; also, delete the modal system specification from the input string
+        String frameConditions = "";
+        if (inputString.length() > 0) {
+            if(inputString.charAt(0) == ':') {
+                inputString = inputString.substring(1, inputString.length());
+                int i = 0;
+                while (i<inputString.length() && inputString.charAt(0) != ':') {
+                    frameConditions += inputString.charAt(0);
+                    inputString = inputString.substring(1, inputString.length());
+                    i++;
+                }
+                inputString = inputString.substring(1, inputString.length());  // Get rid of the last ':'
+            }
+        }
+        system = new ModalSystem(frameConditions);
+
+        return inputString;
+    }
+
+    public ModalSystem getSystem() {
+        return system;
     }
 
     public ArrayList<Theorem> getTheorems() {

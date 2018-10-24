@@ -17,15 +17,8 @@ public class Formula {
         this.worldsExpandedTo = new HashSet<>();
     }
 
-    // Preprocesses the formulaString and eliminates all vacuous elements
+    // Preprocesses the formulaString and eliminates all vacuous elements; in the future, it may have more elements, such as reducing to normal forms to increase efficiency
     public void preprocess() {
-
-        // Eliminate all spaces, tabs and new lines
-        string = string.replaceAll(" ","");
-        string = string.replaceAll("\t","");
-        string = string.replaceAll("\n","");
-
-        // Eliminate double negations
         eliminateDoubleNegations();
     }
 
@@ -71,7 +64,7 @@ public class Formula {
         // Check for invalid characters and strings
         for (int i = 0; i < formulaString.length(); i++) {
             char c = formulaString.charAt(i);
-            if (c == '(' || c == ')' || c == '~' || c == '&' || c == '|' || c == ',' || c == ';') {
+            if (c == '(' || c == ')' || c == '~' || c == '&' || c == '|' || c == ',' || c == ';' || c == ':') {
                 return false;
             } else if (i < formulaString.length()-1 && (c == '[' && formulaString.charAt(i+1) == ']')) {
                 return false;
