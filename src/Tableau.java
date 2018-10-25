@@ -37,6 +37,9 @@ public class Tableau {
                         fullyExpandedFrames--;
                     }
                 } else {
+                    if (!frame.isExpandable()) {
+                        return false;  // If there is a non-expandable frame which contains no contradictions, we can finish
+                    }
                     frames.add(frames.removeFirst());
                 }
             }

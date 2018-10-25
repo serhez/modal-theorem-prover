@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 public class ProverTest {
 
     // Current Input File
+
     @Test
     public void translateCurrentInputFileToMolle() {
         InputGenerator inputGenerator = new InputGenerator();
@@ -23,6 +24,7 @@ public class ProverTest {
     }
 
     // System K
+
     @Test
     public void runRandomInputFileForSystemK() {
         InputGenerator inputGenerator = new InputGenerator();
@@ -42,6 +44,7 @@ public class ProverTest {
     }
 
     // System T
+
     @Test
     public void testReflexiveFormulas() {
         Prover prover = new Prover(false);
@@ -58,6 +61,7 @@ public class ProverTest {
     }
 
     // System B
+
     @Test
     public void testSymmetricFormulas() {
         Prover prover = new Prover(false);
