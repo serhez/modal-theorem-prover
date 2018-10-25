@@ -35,6 +35,12 @@ Also, the use of spaces, new tabs, new lines, etc. is irrelevant (but surely hel
 ------------
 
 At the beginning of the input file, before any theorem has been defined, you may include a Modal System specified by a set of frame conditions which will be applied to the theorems in such input file. If not such system is specified, only the frame condition K will be applied.
+The frame conditions currently supported by this Theorem Prover are the following:
+
+K = Kripke (no special conditions)
+T = reflexive
+B = symmetric
+
 In order to specify your frame conditions, you may include the following construct (a string of your frame conditions surrounded by colons):
 
 :frame_conditions:

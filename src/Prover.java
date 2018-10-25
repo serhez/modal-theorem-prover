@@ -80,13 +80,13 @@ public class Prover {
         }
     }
 
-    public boolean proveFormula(String formulaString) throws UnrecognizableFormulaException {
+    public boolean proveFormula(String formulaString, ModalSystem system) throws UnrecognizableFormulaException {
         Parser parser = new Parser();
         if (!parser.parseFormula(formulaString)) {
             throw new UnrecognizableFormulaException(formulaString);
         }
 
-        Tableau tableau = new Tableau(parser.getTheorems().get(0), parser.getSystem(), debugging);
+        Tableau tableau = new Tableau(parser.getTheorems().get(0), system, debugging);
         if (tableau.run()) {
             return true;
         } else {
