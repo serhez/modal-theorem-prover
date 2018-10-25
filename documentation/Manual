@@ -54,4 +54,3 @@ Where frame_conditions is a string whose only characters are 'K', 'D', 'T', 'B',
 
 Create a file called "input.txt" and locate it within the folder "input". In it, write your theorems as specified above. Next, run the Java program. Finally, find your results in the file "output.txt" in the folder named "output".
 If a formula is deemed as "not recognized", you should check that particular formula as it is not following the syntax and/or grammar specified above. If you are confident your formula is correct, please report any bugs.
-Before any set of formulas, you may include
