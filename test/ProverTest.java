@@ -163,4 +163,19 @@ public class ProverTest {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void testCorrectnessOfTransitiveFormulas() {
+        Prover prover = new Prover(false);
+        ModalSystem system4 = new ModalSystem("4");
+        ModalSystem systemK = new ModalSystem("K");
+        String validFormula = "~(<>p & ([]<>p & ([]q & [][]~q)))";
+
+        try {
+            Assertions.assertTrue(prover.proveFormula(validFormula, system4));   // Should be valid on System 4
+            Assertions.assertFalse(prover.proveFormula(validFormula, systemK));  // ... but invalid on System K
+        } catch (UnrecognizableFormulaException e) {
+            e.printStackTrace();
+        }
+    }
 }

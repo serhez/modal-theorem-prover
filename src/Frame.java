@@ -25,7 +25,7 @@ public class Frame {
         this.worlds.add(initialWorld);
         this.transitions = new HashSet<>();
         if (system.isReflexive()) {
-            this.transitions.add(new Transition(1, 1));
+            this.addTransition(new Transition(1, 1));
         }
     }
 
@@ -196,24 +196,36 @@ public class Frame {
 
         // Gamma Rule
         else if (operator == Operator.POSSIBLY || operator == Operator.NOTNECESSARILY) {
-            LinkedList<Formula> gammaFormula = new LinkedList<>();
-            gammaFormula.add(formula.getSubformulas().get(0));
+
             formula.tick();
 
             if (system.isTransitive()) {
-
+                HashSet<Formula> transitiveFormulas = world.getTransitiveGammaExpansionFormulas(formula);
+                World existingWorld = worldContainingFormulas(transitiveFormulas);
+                if (existingWorld == null) {
+                    LinkedList<Formula> gammaFormulas = new LinkedList<>(transitiveFormulas); // TODO: DOES THIS WORK?
+                    numberOfWorlds++;
+                    World newWorld = new World(gammaFormulas, numberOfWorlds);
+                    worlds.add(newWorld);
+                    addTransition(new Transition(world.getId(), newWorld.getId()));
+                    world.allDeltaFormulasExpandedTo(newWorld.getId());
+                } else {
+                    addTransition(new Transition(world.getId(), existingWorld.getId()));
+                }
             }
 
-            else{
+            else {
+                LinkedList<Formula> gammaFormula = new LinkedList<>();
+                gammaFormula.add(formula.getSubformulas().get(0));
                 numberOfWorlds++;
                 World newWorld = new World(gammaFormula, numberOfWorlds);
                 worlds.add(newWorld);
-                transitions.add(new Transition(world.getId(), newWorld.getId()));
+                addTransition(new Transition(world.getId(), newWorld.getId()));
                 if (system.isReflexive()) {
-                    this.transitions.add(new Transition(newWorld.getId(), newWorld.getId()));
+                    this.addTransition(new Transition(newWorld.getId(), newWorld.getId()));
                 }
                 if (system.isSymmetric()) {
-                    this.transitions.add(new Transition(newWorld.getId(), world.getId()));
+                    this.addTransition(new Transition(newWorld.getId(), world.getId()));
                 }
             }
         }
@@ -230,6 +242,22 @@ public class Frame {
                 untickAllDeltaFormulas();
             }
         }
+    }
+
+    private World worldContainingFormulas(HashSet<Formula> formulas) {
+
+        // The first world containing all given formulas is returned, if any
+        worldsLoop:
+        for (World world : worlds) {
+            for (Formula formula : formulas) {
+                if (!world.containsFormula(formula)) {
+                    continue worldsLoop;
+                }
+            }
+            return world;
+        }
+
+        return null;
     }
 
     private void untickAllDeltaFormulas() {
@@ -296,6 +324,22 @@ public class Frame {
 
     private void addFormula(Formula formula) {
         getWorldWithId(currentWorldId).addFormula(formula);
+    }
+
+    private void addTransition(Transition transition) {
+        if (transitionExists(transition)) {
+            return;
+        }
+        transitions.add(transition);
+    }
+
+    private boolean transitionExists(Transition newTransition) {
+        for (Transition transition : transitions) {
+            if (transition.from() == newTransition.from() && transition.to() == newTransition.to()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private World getWorldWithId(int id) {

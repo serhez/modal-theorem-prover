@@ -1,3 +1,4 @@
+import java.text.Normalizer;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -32,6 +33,14 @@ public class World {
         return false;
     }
 
+    public void allDeltaFormulasExpandedTo(int worldId) {
+        for (Formula formula : formulas) {
+            if (formula.getOperator() == Operator.NECESSARILY || formula.getOperator() == Operator.NOTPOSSIBLY) {
+                formula.addWorldExpandedTo(worldId);
+            }
+        }
+    }
+
     @Override
     public World clone() {
         World clone = new World(formulas, id);
@@ -47,12 +56,20 @@ public class World {
         return clonedFormulas;
     }
 
+    // This function also counts ticked formulas
+    public boolean containsFormula(Formula newFormula) {
+        for (Formula formula : formulas){
+            if(newFormula.getString().equals(formula.getString())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void addFormula(Formula newFormula) {
         // Check for duplicate formulas
-        for (Formula formula : formulas){
-            if(formula.getString().equals(newFormula.getString())) {
-                return;
-            }
+        if (containsFormula(newFormula)) {
+            return;
         }
         formulas.add(newFormula.clone());
     }
@@ -73,6 +90,19 @@ public class World {
 
     public LinkedList<Formula> getFormulas() {
         return formulas;
+    }
+
+    public HashSet<Formula> getTransitiveGammaExpansionFormulas(Formula gammaFormula) {
+        HashSet<Formula> transitiveFormulas = new HashSet<>();
+        transitiveFormulas.add(gammaFormula.getSubformulas().get(0));
+        for (Formula formula : formulas) {
+            if (formula.getOperator() == Operator.NECESSARILY || formula.getOperator() == Operator.NOTPOSSIBLY) {
+                transitiveFormulas.add(formula);
+                transitiveFormulas.add(formula.getSubformulas().get(0));
+            }
+        }
+
+        return transitiveFormulas;
     }
 
     public int getId() {
