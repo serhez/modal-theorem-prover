@@ -8,7 +8,7 @@ public class Formula {
     private Operator operator;
     private int operatorIndex;                  // In case of a negated operator, the index will indicate the location of the operator, not of the negation
     private HashSet<Integer> worldsExpandedTo;  // Only used to loop check [] formulas
-    private boolean ticked;                     // Only used to loop check [] formulas
+    private boolean ticked;
 
     public Formula(String formulaString) {
         this.string = formulaString;
@@ -263,6 +263,7 @@ public class Formula {
         clone.setOperatorIndex(operatorIndex);
         clone.setWorldsExpandedTo(worldsExpandedTo);
         clone.setSubformulas(subformulas);
+        clone.setTicked(ticked);
         return clone;
     }
 
@@ -285,7 +286,7 @@ public class Formula {
         this.worldsExpandedTo = clone;
     }
 
-    // TODO: NOT COPYING TICKED WHEN CLONING, IS THAT FINE?
+    // TODO: Is cloning "tick" ok with []-formulas?
     // Only used for cloning
     private void setTicked(boolean ticked) {
         this.ticked = ticked;
@@ -318,7 +319,7 @@ public class Formula {
         return ticked;
     }
 
-    public void notTicked() {
+    public void untick() {
         ticked = false;
     }
 

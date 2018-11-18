@@ -6,4 +6,4 @@ All theorems are syntactically and grammatically correct.
 
 --------  PROVING
 
-Theorem 1 is not valid.
+Theorem 1 is valid.

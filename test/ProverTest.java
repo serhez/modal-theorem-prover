@@ -46,7 +46,7 @@ public class ProverTest {
     }
 
     @Test
-    public void molleAcceptsValidFormulas() {
+    public void acceptsValidFormulas() {
 
         Prover prover = new Prover(false);
         ModalSystem system = new ModalSystem("K");
@@ -72,7 +72,7 @@ public class ProverTest {
     }
 
     @Test
-    public void molleRejectsInvalidFormulas() {
+    public void rejectsInvalidFormulas() {
 
         Prover prover = new Prover(false);
         ModalSystem system = new ModalSystem("K");
@@ -102,9 +102,9 @@ public class ProverTest {
     @Test
     public void testReflexiveFormulas() {
         Prover prover = new Prover(false);
-        String validFormula = "~(~p & []p)";
         ModalSystem systemT = new ModalSystem("T");
         ModalSystem systemK = new ModalSystem("K");
+        String validFormula = "~(~p & []p)";
 
         try {
             Assertions.assertTrue(prover.proveFormula(validFormula, systemT));   // Should be valid on System T
@@ -119,13 +119,46 @@ public class ProverTest {
     @Test
     public void testSymmetricFormulas() {
         Prover prover = new Prover(false);
-        String validFormula = "~((p & <>p) & [][]~p)";
         ModalSystem systemB = new ModalSystem("B");
         ModalSystem systemK = new ModalSystem("K");
+        String validFormula = "~((p & <>p) & [][]~p)";
 
         try {
             Assertions.assertTrue(prover.proveFormula(validFormula, systemB));   // Should be valid on System B
             Assertions.assertFalse(prover.proveFormula(validFormula, systemK));  // ... but invalid on System K
+        } catch (UnrecognizableFormulaException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // System 4
+
+    @Test
+    public void testTerminationOfTransitiveFormulas() {
+        Prover prover = new Prover(false);
+        ModalSystem system4 = new ModalSystem("4");
+        ArrayList<String> validFormulas = new ArrayList<>();
+        ArrayList<String> invalidFormulas = new ArrayList<>();
+
+        // Valid formulas
+        validFormulas.add("~((<>p & []<>p) & [][]~p)");
+        validFormulas.add("~((<>p & []<>p) & [][][]~p)");
+
+        // Invalid formulas
+        invalidFormulas.add("~(<>p & []<>p)");
+        invalidFormulas.add("~((<>p & []<>p) & [][]p)");
+        invalidFormulas.add("~((<>p & []<>p) & []<>~p)");
+        invalidFormulas.add("~((<>p & []<>p) & []<>q)");
+        invalidFormulas.add("~(((<>p & []<>p) & []<>q) & []<>~p)");
+        invalidFormulas.add("~((((<>p & []<>p) & []<>q) & []<>~p) & []<>~q)");
+
+        try {
+            for (String validFormula : validFormulas) {
+                Assertions.assertTrue(prover.proveFormula(validFormula, system4));
+            }
+            for (String invalidFormula : invalidFormulas) {
+                Assertions.assertFalse(prover.proveFormula(invalidFormula, system4));
+            }
         } catch (UnrecognizableFormulaException e) {
             e.printStackTrace();
         }
