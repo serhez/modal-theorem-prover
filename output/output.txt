@@ -7,3 +7,11 @@ All theorems are syntactically and grammatically correct.
 --------  PROVING
 
 Theorem 1 is valid.
+Theorem 2 is valid.
+Theorem 3 is valid.
+Theorem 4 is valid.
+Theorem 5 is valid.
+Theorem 6 is valid.
+Theorem 7 is valid.
+Theorem 8 is valid.
+Theorem 9 is valid.
