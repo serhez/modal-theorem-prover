@@ -1,7 +1,12 @@
 import org.junit.jupiter.api.Test;
 
 public class Debugging {
-    // Current Input File
+
+    @Test
+    public void generateRandomInputFile() throws InvalidNumberOfPropositionsException {
+        InputGenerator inputGenerator = new InputGenerator();
+        inputGenerator.generateInputFile(10000, 3, 2, "K");
+    }
 
     @Test
     public void translateCurrentInputFileToMolle() {
@@ -22,18 +27,17 @@ public class Debugging {
     }
 
     @Test
-    public void runRandomInputFile() {
+    public void runRandomInputFile() throws InvalidNumberOfPropositionsException {
         InputGenerator inputGenerator = new InputGenerator();
-        inputGenerator.generateInputFile(10000, 50, "K");
-
+        inputGenerator.generateInputFile(10000, 50, 2, "K");
         Prover prover = new Prover(false);
         prover.proveInputFile();
     }
 
     @Test
-    public void runRandomInputFileAndTranslateToMolle() {
+    public void runRandomInputFileAndTranslateToMolle() throws InvalidNumberOfPropositionsException {
         InputGenerator inputGenerator = new InputGenerator();
-        inputGenerator.generateInputFileAndMolleFile(10000, 50, "K");
+        inputGenerator.generateInputFileAndMolleFile(10000, 50, 2, "K");
 
         Prover prover = new Prover(false);
         prover.proveInputFile();

@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
 
 public class InputGenerator {
 
-    public String generateInputFile(int n, int maxLength, String systemString) {
+    public String generateInputFile(int n, int maxLength, int maxPropositions, String systemString) throws InvalidNumberOfPropositionsException {
 
-        String inputString = generateInput(n, maxLength, systemString);
+        String inputString = generateInput(n, maxLength, maxPropositions, systemString);
 
         try {
             write(inputString);
@@ -24,9 +24,9 @@ public class InputGenerator {
         return inputString;
     }
 
-    public void generateInputFileAndMolleFile(int n, int maxLength, String systemString) {
+    public void generateInputFileAndMolleFile(int n, int maxLength, int maxPropositions, String systemString) throws InvalidNumberOfPropositionsException {
 
-        String inputString = generateInputFile(n, maxLength, systemString);
+        String inputString = generateInputFile(n, maxLength, maxPropositions, systemString);
         String molleInputString = translateInputToMolle(inputString);
 
         try {
@@ -38,26 +38,22 @@ public class InputGenerator {
     }
 
     // Generates an input for the Theorem Prover
-    private String generateInput(int n, int maxLength, String systemString) {
+    private String generateInput(int n, int maxLength, int maxPropositions, String systemString) throws InvalidNumberOfPropositionsException {
 
         String inputString = ":" + systemString + ":\n";
         FormulaGenerator formulaGenerator = new FormulaGenerator();
 
         for (int i=0; i < n; i++) {
-            String formula = "";
-            // Avoid propositions and negated propositions as full formulas
-            while (formula.length() < 3) {
-                formula = formulaGenerator.generate(maxLength);
-            }
+            String formula = formulaGenerator.generate(maxLength, maxPropositions);
             inputString += (formula + ";\n");
         }
 
         return inputString;
     }
 
-    public ArrayList<String> generateFormulas(int n, int maxLength, String systemString) {
+    public ArrayList<String> generateFormulas(int n, int maxLength, int maxPropositions, String systemString) throws InvalidNumberOfPropositionsException {
 
-        String inputString = generateInput(n, maxLength, systemString);
+        String inputString = generateInput(n, maxLength, maxPropositions, systemString);
 
         // Delete the modal system specification from the input string
         if(inputString.charAt(0) == ':') {
@@ -124,9 +120,32 @@ public class InputGenerator {
     // Translates the input string to Molle syntax and writes it to a file called "inputMolle.txt"
     public String translateFormulaToMolle(String string) {
 
+        string = string.replaceAll("a", "A");
+        string = string.replaceAll("b", "B");
+        string = string.replaceAll("c", "C");
+        string = string.replaceAll("d", "D");
+        string = string.replaceAll("e", "E");
+        string = string.replaceAll("f", "F");
+        string = string.replaceAll("g", "G");
+        string = string.replaceAll("h", "H");
+        string = string.replaceAll("i", "I");
+        string = string.replaceAll("j", "J");
+        string = string.replaceAll("k", "K");
+        string = string.replaceAll("l", "L");
+        string = string.replaceAll("m", "M");
+        string = string.replaceAll("n", "N");
+        string = string.replaceAll("o", "O");
         string = string.replaceAll("p", "P");
         string = string.replaceAll("q", "Q");
         string = string.replaceAll("r", "R");
+        string = string.replaceAll("s", "S");
+        string = string.replaceAll("t", "T");
+        string = string.replaceAll("u", "U");
+        string = string.replaceAll("v", "V");
+        string = string.replaceAll("w", "W");
+        string = string.replaceAll("x", "X");
+        string = string.replaceAll("y", "Y");
+        string = string.replaceAll("z", "Z");
         string = string.replaceAll("-", "=");
 
         return string;

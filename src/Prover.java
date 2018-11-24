@@ -25,7 +25,7 @@ public class Prover {
         String results = "";
 
         try {
-            inputString = read();
+            inputString = readInputFile();
         } catch (IOException e) {
             System.out.println("The input could not be read.");
             return;
@@ -34,7 +34,7 @@ public class Prover {
         if (inputIsEmpty(inputString)) {
             String message = "The input file cannot be empty.";
             try {
-                write(message);
+                writeOutputFile(message);
             } catch (IOException e) {
                 System.out.println("Could not warn about empty input.");
                 return;
@@ -73,7 +73,7 @@ public class Prover {
         }
 
         try {
-            write(results);
+            writeOutputFile(results);
         } catch (IOException e) {
             System.out.println("The output could not be written.");
             return;
@@ -94,18 +94,23 @@ public class Prover {
         }
     }
 
-    static private String read() throws IOException {
+    private String readInputFile() throws IOException {
         String inputPath = "input/input.txt";
         return (Files.lines(Paths.get(inputPath), StandardCharsets.UTF_8)).collect(Collectors.joining());
     }
 
-    static private void write(String string) throws IOException {
+    public String readOutputFile() throws IOException {
+        String outputPath = "output/output.txt";
+        return (Files.lines(Paths.get(outputPath), StandardCharsets.UTF_8)).collect(Collectors.joining());
+    }
+
+    private void writeOutputFile(String string) throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter("output/output.txt"));
         writer.write(string);
         writer.close();
     }
 
-    static private boolean inputIsEmpty(String input) {
+    private boolean inputIsEmpty(String input) {
 
         // ""
         if (input.length() == 0) {
@@ -124,7 +129,7 @@ public class Prover {
 
     // Debugging methods
 
-    private static void printTableaux(ArrayList<Tableau> tableaux) {
+    private void printTableaux(ArrayList<Tableau> tableaux) {
         for (int i = 0; i < tableaux.size(); i++) {
             System.out.println();
             System.out.println();
@@ -137,7 +142,7 @@ public class Prover {
         }
     }
 
-    private static void printTheorems(ArrayList<Theorem> theorems) {
+    private void printTheorems(ArrayList<Theorem> theorems) {
         for (int i = 0; i < theorems.size(); i++) {
             System.out.println();
             System.out.println();
@@ -152,7 +157,7 @@ public class Prover {
         }
     }
 
-    private static void printFormula(Formula formula, int indentation) {
+    private void printFormula(Formula formula, int indentation) {
         System.out.println();
         for (int i = 0; i < indentation; i++) {
             System.out.print(" ");
