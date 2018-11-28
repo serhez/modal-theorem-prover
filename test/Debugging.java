@@ -5,7 +5,7 @@ public class Debugging {
     @Test
     public void generateRandomInputFile() throws InvalidNumberOfPropositionsException {
         InputGenerator inputGenerator = new InputGenerator();
-        inputGenerator.generateInputFile(10000, 3, 2, "K");
+        inputGenerator.generateInputFile(10000, 100, 5, "K");
     }
 
     @Test
