@@ -38,22 +38,22 @@ public class InputGenerator {
     }
 
     // Generates an input for the Theorem Prover
-    private String generateInput(int n, int maxLength, int maxPropositions, String systemString) throws InvalidNumberOfPropositionsException {
+    private String generateInput(int n, int size, int maxPropositions, String systemString) throws InvalidNumberOfPropositionsException {
 
         String inputString = ":" + systemString + ":\n";
         FormulaGenerator formulaGenerator = new FormulaGenerator();
 
         for (int i=0; i < n; i++) {
-            String formula = formulaGenerator.generate(maxLength, maxPropositions);
+            String formula = formulaGenerator.generate(size, maxPropositions);
             inputString += (formula + ";\n");
         }
 
         return inputString;
     }
 
-    public ArrayList<String> generateFormulas(int n, int maxLength, int maxPropositions, String systemString) throws InvalidNumberOfPropositionsException {
+    public ArrayList<String> generateFormulas(int n, int size, int maxPropositions) throws InvalidNumberOfPropositionsException {
 
-        String inputString = generateInput(n, maxLength, maxPropositions, systemString);
+        String inputString = generateInput(n, size, maxPropositions, "");
 
         // Delete the modal system specification from the input string
         if(inputString.charAt(0) == ':') {
@@ -64,10 +64,6 @@ public class InputGenerator {
                 i++;
             }
             inputString = inputString.substring(2, inputString.length());  // Get rid of the last ':' and the '\n'
-        }
-
-        if (inputString.charAt(0) == '\n') {
-            System.out.println("CHAR IS NEW LINE");
         }
 
         ArrayList<String> formulas = new ArrayList(Arrays.asList(inputString.split(";\n", 0)));

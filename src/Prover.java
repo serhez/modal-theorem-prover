@@ -80,6 +80,22 @@ public class Prover {
         }
     }
 
+    // Returns a list of integers, where 1 represents validity and 0 represents invalidity
+    // This method can be used to study validity rates and the time and space performance of the prover
+    public ArrayList<Integer> proveRandomFormulas(int n, int size, int maxPropositions, ModalSystem system) throws InvalidNumberOfPropositionsException, UnrecognizableFormulaException {
+        ArrayList<Integer> results = new ArrayList<>();
+        InputGenerator generator = new InputGenerator();
+        ArrayList<String> formulas = generator.generateFormulas(n, size, maxPropositions);
+        for (String formula : formulas) {
+            if (proveFormula(formula, system)) {
+                results.add(1);
+            } else {
+                results.add(0);
+            }
+        }
+        return results;
+    }
+
     public boolean proveFormula(String formulaString, ModalSystem system) throws UnrecognizableFormulaException {
         Parser parser = new Parser();
         if (!parser.parseFormula(formulaString)) {
@@ -88,9 +104,9 @@ public class Prover {
 
         Tableau tableau = new Tableau(parser.getTheorems().get(0), system, debugging);
         if (tableau.run()) {
-            return true;
+            return true;   // Valid
         } else {
-            return false;
+            return false;  // Invalid
         }
     }
 
