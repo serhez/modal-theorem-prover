@@ -35,14 +35,14 @@ public class Formula {
     // Analise the formula and return false if itself or any of its subformulas is not recognized
     public boolean parse() {
 
-        // Find the main operator of the formula and report any invalid syntactical structure on the current formula
+        // Find the main operator of the formula and report any unrecognised syntactical structure on the current formula
         if (!analise()) {
             return false;
         }
 
         // In the case that this formula is a proposition
         if (operator == Operator.NONE) {
-            if (!validProposition(string)) {
+            if (!recognisedProposition(string)) {
                 return false;
             }
             return true;
@@ -58,10 +58,10 @@ public class Formula {
         return true;
     }
 
-    // Check if a proposition is valid
-    private boolean validProposition(String formulaString) {
+    // Check if a proposition is recognised
+    private boolean recognisedProposition(String formulaString) {
 
-        // Check for invalid characters and strings
+        // Check for unrecognised characters and strings
         for (int i = 0; i < formulaString.length(); i++) {
             char c = formulaString.charAt(i);
             if (c == '(' || c == ')' || c == '~' || c == '&' || c == '|' || c == ',' || c == ';' || c == ':') {
@@ -80,7 +80,7 @@ public class Formula {
         return true;
     }
 
-    // Determine the core operator and its subformulas (but for negations), as well as returning false if found any invalid structures
+    // Determine the core operator and its subformulas (but for negations), as well as returning false if found any unrecognised structures
     private boolean analise() {
 
         int end = string.length();
@@ -309,10 +309,6 @@ public class Formula {
 
     public Operator getOperator() {
         return operator;
-    }
-
-    public int getOperatorIndex() {
-        return operatorIndex;
     }
 
     public boolean isTicked() {
