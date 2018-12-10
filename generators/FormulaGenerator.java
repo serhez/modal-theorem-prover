@@ -14,40 +14,40 @@ public class FormulaGenerator {
         Random operator = new Random();
 
 
-        if (maxLength >= 5) {  // We count "->" and "<->" as 1 character each
-            switch (operator.nextInt(7)) {
-                case 0:
-                    formula = appendNegation(maxLength, maxPropositions);
-                    break;
-                case 1:
-                    formula = appendAnd(maxLength, maxPropositions);
-                    break;
-                case 2:
-                    formula = appendOr(maxLength, maxPropositions);
-                    break;
-                case 3:
-                    formula = appendNecessarily(maxLength, maxPropositions);
-                    break;
-                case 4:
-                    formula = appendPossibly(maxLength, maxPropositions);
-                    break;
-                case 5:
-                    formula = appendCondition(maxLength, maxPropositions);
-                    break;
-                case 6:
-                    formula = appendBicondition(maxLength, maxPropositions);
-            }
-        } else if (maxLength >= 2) {  // We count "[]" and "<>" as 1 character each
+        if (maxLength >= 5) {  // We count "->" and "<->" as 1 symbol each
             switch (operator.nextInt(3)) {
                 case 0:
                     formula = appendNegation(maxLength, maxPropositions);
                     break;
                 case 1:
-                    formula = appendNecessarily(maxLength, maxPropositions);
+                    formula = appendOr(maxLength, maxPropositions);
                     break;
                 case 2:
                     formula = appendPossibly(maxLength, maxPropositions);
                     break;
+//                case 3:
+//                    formula = appendNecessarily(maxLength, maxPropositions);
+//                    break;
+//                case 4:
+//                    formula = appendAnd(maxLength, maxPropositions);
+//                    break;
+//                case 5:
+//                    formula = appendCondition(maxLength, maxPropositions);
+//                    break;
+//                case 6:
+//                    formula = appendBicondition(maxLength, maxPropositions);
+            }
+        } else if (maxLength >= 2) {  // We count "[]" and "<>" as 1 symbol each
+            switch (operator.nextInt(2)) {
+                case 0:
+                    formula = appendNegation(maxLength, maxPropositions);
+                    break;
+                case 1:
+                    formula = appendPossibly(maxLength, maxPropositions);
+                    break;
+//                case 2:
+//                    formula = appendNecessarily(maxLength, maxPropositions);
+//                    break;
             }
         } else {
             formula = appendProposition(maxPropositions);
