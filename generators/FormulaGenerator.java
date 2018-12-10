@@ -15,7 +15,7 @@ public class FormulaGenerator {
 
 
         if (maxLength >= 5) {  // We count "->" and "<->" as 1 character each
-            switch (operator.nextInt(5)) {
+            switch (operator.nextInt(7)) {
                 case 0:
                     formula = appendNegation(maxLength, maxPropositions);
                     break;
@@ -31,11 +31,11 @@ public class FormulaGenerator {
                 case 4:
                     formula = appendPossibly(maxLength, maxPropositions);
                     break;
-//                case 5:
-//                    formula = appendCondition(maxLength, maxPropositions);
-//                    break;
-//                case 6:
-//                    formula = appendBicondition(maxLength, maxPropositions);
+                case 5:
+                    formula = appendCondition(maxLength, maxPropositions);
+                    break;
+                case 6:
+                    formula = appendBicondition(maxLength, maxPropositions);
             }
         } else if (maxLength >= 2) {  // We count "[]" and "<>" as 1 character each
             switch (operator.nextInt(3)) {
@@ -117,13 +117,8 @@ public class FormulaGenerator {
     private ArrayList<Integer> generateRandomPair(int totalLength) {
 
         Random number = new Random();
-        int n1 = 0;
-        int n2 = 0;
-
-        while ((n1 + n2) != totalLength) {
-            n1 = number.nextInt(totalLength) + 1;
-            n2 = number.nextInt(totalLength) + 1;
-        }
+        int n1 = number.nextInt(totalLength-1) + 1; // At least length 1 and at most totalLength-1
+        int n2 = totalLength - n1;
 
         ArrayList<Integer> randomPair = new ArrayList<>();
         randomPair.add(n1);

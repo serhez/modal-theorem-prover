@@ -286,7 +286,6 @@ public class Formula {
         this.worldsExpandedTo = clone;
     }
 
-    // TODO: Is cloning "tick" ok with []-formulas?
     // Only used for cloning
     private void setTicked(boolean ticked) {
         this.ticked = ticked;
