@@ -8,7 +8,7 @@ public class Frame {
     private final ModalSystem system;
     private final Tableau tableau;
     private LinkedList<World> worlds;
-    private int currentWorldId; // TODO: THIS NOW USES WORLD ID, HAVEN'T CHECKED IMPLICATIONS
+    private int currentWorldId;
     private HashSet<Transition> transitions;
     private int numberOfWorlds;
     private boolean isExpandable;
@@ -203,7 +203,7 @@ public class Frame {
                 HashSet<Formula> transitiveFormulas = world.getTransitiveGammaExpansionFormulas(formula);
                 World existingWorld = worldContainingFormulas(transitiveFormulas);
                 if (existingWorld == null) {
-                    LinkedList<Formula> gammaFormulas = new LinkedList<>(transitiveFormulas); // TODO: DOES THIS WORK?
+                    LinkedList<Formula> gammaFormulas = new LinkedList<>(transitiveFormulas);
                     numberOfWorlds++;
                     World newWorld = new World(gammaFormulas, numberOfWorlds);
                     worlds.add(newWorld);
