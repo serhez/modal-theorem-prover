@@ -31,6 +31,11 @@ public class FormulaGenerator {
                 case 4:
                     formula = appendPossibly(maxLength, maxPropositions);
                     break;
+//                case 5:
+//                    formula = appendCondition(maxLength, maxPropositions);
+//                    break;
+//                case 6:
+//                    formula = appendBicondition(maxLength, maxPropositions);
             }
         } else if (maxLength >= 2) {  // We count "[]" and "<>" as 1 character each
             switch (operator.nextInt(3)) {

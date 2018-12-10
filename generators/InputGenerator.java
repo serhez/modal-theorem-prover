@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
 
 public class InputGenerator {
 
-    public String generateInputFile(int n, int maxLength, int maxPropositions, String systemString) throws InvalidNumberOfPropositionsException {
+    public String generateInputFile(int n, int size, int maxPropositions, String systemString) throws InvalidNumberOfPropositionsException {
 
-        String inputString = generateInput(n, maxLength, maxPropositions, systemString);
+        String inputString = generateInput(n, size, maxPropositions, systemString);
 
         try {
             write(inputString);
@@ -24,9 +24,9 @@ public class InputGenerator {
         return inputString;
     }
 
-    public void generateInputFileAndMolleFile(int n, int maxLength, int maxPropositions, String systemString) throws InvalidNumberOfPropositionsException {
+    public void generateInputFileAndMolleFile(int n, int size, int maxPropositions, String systemString) throws InvalidNumberOfPropositionsException {
 
-        String inputString = generateInputFile(n, maxLength, maxPropositions, systemString);
+        String inputString = generateInputFile(n, size, maxPropositions, systemString);
         String molleInputString = translateInputToMolle(inputString);
 
         try {

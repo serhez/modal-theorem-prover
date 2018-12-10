@@ -19,7 +19,7 @@ public class Prover {
 
         // Core variables
         ArrayList<Theorem> theorems;
-        ArrayList<Integer> invalidTheorems;
+        ArrayList<Integer> unrecognisedTheorems;
         ModalSystem system;
         String inputString;
         String results = "";
@@ -46,29 +46,31 @@ public class Prover {
         Parser parser = new Parser();
         parser.parseInput(inputString);
         theorems = parser.getTheorems();
-        invalidTheorems = parser.getInvalidTheorems();
+        unrecognisedTheorems = parser.getInvalidTheorems();
         system = parser.getSystem();
 
         results += "\n--------  PARSING\n\n";
-        if (invalidTheorems.isEmpty()) {
+        if (unrecognisedTheorems.isEmpty()) {
             results += "All theorems are syntactically and grammatically correct.\n";
         }
-        for (int i : invalidTheorems) {
+        for (int i : unrecognisedTheorems) {
             results += "There are formulas in the theorem number " + (i+1) + " which have not been recognized.\n";
         }
 
+        int n = theorems.size();
+        Tableau tableau;
+
         // Prove
         results += "\n\n--------  PROVING\n\n";
-        ArrayList<Tableau> tableaux = new ArrayList<>();
-        for (int i=0; i < theorems.size(); i++) {
-            if (!invalidTheorems.contains(i)) {
-                Tableau tableau = new Tableau(theorems.get(i), system, debugging);
-                tableaux.add(tableau);
+        for (int i=0; i < n; i++) {
+            if (!unrecognisedTheorems.contains(i)) {
+                tableau = new Tableau(theorems.get(i), system, debugging);
                 if (tableau.run()) {
                     results += "Theorem " + (i+1) + " is valid.\n";
                 } else {
                     results += "Theorem " + (i+1) + " is not valid.\n";
                 }
+                System.out.println("Proven " + (i+1) + " of " + n + " theorems");
             }
         }
 
@@ -86,12 +88,14 @@ public class Prover {
         ArrayList<Integer> results = new ArrayList<>();
         InputGenerator generator = new InputGenerator();
         ArrayList<String> formulas = generator.generateFormulas(n, size, maxPropositions);
-        for (String formula : formulas) {
-            if (proveFormula(formula, system)) {
+        System.out.println("\n-- " + n + " formulas have been generated --\n");
+        for (int i = 0; i < n; i++) {
+            if (proveFormula(formulas.get(i), system)) {
                 results.add(1);
             } else {
                 results.add(0);
             }
+            System.out.println("Proven " + (i+1) + " of " + n + " formulas");
         }
         return results;
     }
@@ -104,20 +108,19 @@ public class Prover {
 
         Tableau tableau = new Tableau(parser.getTheorems().get(0), system, debugging);
         if (tableau.run()) {
-            return true;   // Valid
+            tableau = null; // To free memory
+            System.gc();
+            return true;    // Valid
         } else {
-            return false;  // Invalid
+            tableau = null; // To free memory
+            System.gc();
+            return false;   // Invalid
         }
     }
 
     private String readInputFile() throws IOException {
         String inputPath = "input/input.txt";
         return (Files.lines(Paths.get(inputPath), StandardCharsets.UTF_8)).collect(Collectors.joining());
-    }
-
-    public String readOutputFile() throws IOException {
-        String outputPath = "output/output.txt";
-        return (Files.lines(Paths.get(outputPath), StandardCharsets.UTF_8)).collect(Collectors.joining());
     }
 
     private void writeOutputFile(String string) throws IOException {
@@ -142,46 +145,4 @@ public class Prover {
 
         return true;
     }
-
-    // Debugging methods
-
-    private void printTableaux(ArrayList<Tableau> tableaux) {
-        for (int i = 0; i < tableaux.size(); i++) {
-            System.out.println();
-            System.out.println();
-            System.out.println();
-            System.out.println();
-            System.out.println("*********************************************************************");
-            System.out.println("\t\t\t\t\t\t\t TABLEAU " + (i+1));
-            System.out.println("*********************************************************************");
-            tableaux.get(i).print();
-        }
-    }
-
-    private void printTheorems(ArrayList<Theorem> theorems) {
-        for (int i = 0; i < theorems.size(); i++) {
-            System.out.println();
-            System.out.println();
-            System.out.println("----------------------------------------------------------------------");
-            System.out.println("----------------------------------------------------------------------");
-            System.out.println("\t\t\t\t\t\t\t  THEOREM " + (i+1));
-            System.out.println("----------------------------------------------------------------------");
-            System.out.println("----------------------------------------------------------------------");
-            for (Formula formula : theorems.get(i).getFormulas()) {
-                printFormula(formula, 0);
-            }
-        }
-    }
-
-    private void printFormula(Formula formula, int indentation) {
-        System.out.println();
-        for (int i = 0; i < indentation; i++) {
-            System.out.print(" ");
-        }
-        System.out.println(formula.getString() + "  ;  Operator = " + formula.getOperator() + "  ;  Op. Index = " + formula.getOperatorIndex());
-        for (Formula subformula : formula.getSubformulas()) {
-            printFormula(subformula, indentation+2);
-        }
-    }
-
 }

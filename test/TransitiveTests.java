@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class TransitiveTests {
 
     @Test
-    public void terminationOfTransitiveFormulas() {
+    public void termination() {
         Prover prover = new Prover(false);
         ModalSystem system4 = new ModalSystem("4");
         ArrayList<String> validFormulas = new ArrayList<>();
@@ -37,7 +37,7 @@ public class TransitiveTests {
     }
 
     @Test
-    public void correctnessOfTransitiveFormulas() {
+    public void correctness() {
         Prover prover = new Prover(false);
         ModalSystem system4 = new ModalSystem("4");
         ModalSystem systemK = new ModalSystem("K");

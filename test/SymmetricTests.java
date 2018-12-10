@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 public class SymmetricTests {
 
     @Test
-    public void correctnessOfSymmetricFormulas() {
+    public void correctness() {
         Prover prover = new Prover(false);
         ModalSystem systemB = new ModalSystem("B");
         ModalSystem systemK = new ModalSystem("K");
