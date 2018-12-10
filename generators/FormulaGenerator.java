@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.Random;
 
 public class FormulaGenerator {
@@ -70,34 +69,46 @@ public class FormulaGenerator {
         return formula;
     }
 
-    private String appendAnd(int maxLength, int maxPropositions) throws InvalidNumberOfPropositionsException {
-        ArrayList<Integer> randomPair = generateRandomPair(maxLength-3);
-        String subformula1 = generate(randomPair.get(0), maxPropositions);
-        String subformula2 = generate(randomPair.get(1), maxPropositions);
-        String formula = "(" + subformula1 + "&" + subformula2 + ")";
-        return formula;
-    }
-
     private String appendOr(int maxLength, int maxPropositions) throws InvalidNumberOfPropositionsException {
-        ArrayList<Integer> randomPair = generateRandomPair(maxLength-3);
-        String subformula1 = generate(randomPair.get(0), maxPropositions);
-        String subformula2 = generate(randomPair.get(1), maxPropositions);
+        Random number = new Random();
+        int subLength = maxLength-3;
+        int length1 = number.nextInt(subLength-1) + 1; // At least length 1 and at most subLength-1
+        int length2 = subLength - length1;
+        String subformula1 = generate(length1, maxPropositions);
+        String subformula2 = generate(length2, maxPropositions);
         String formula = "(" + subformula1 + "|" + subformula2 + ")";
         return formula;
     }
 
+    private String appendAnd(int maxLength, int maxPropositions) throws InvalidNumberOfPropositionsException {
+        Random number = new Random();
+        int subLength = maxLength-3;
+        int length1 = number.nextInt(subLength-1) + 1; // At least length 1 and at most subLength-1
+        int length2 = subLength - length1;
+        String subformula1 = generate(length1, maxPropositions);
+        String subformula2 = generate(length2, maxPropositions);
+        String formula = "(" + subformula1 + "&" + subformula2 + ")";
+        return formula;
+    }
+
     private String appendCondition(int maxLength, int maxPropositions) throws InvalidNumberOfPropositionsException {
-        ArrayList<Integer> randomPair = generateRandomPair(maxLength-4);
-        String subformula1 = generate(randomPair.get(0), maxPropositions);
-        String subformula2 = generate(randomPair.get(1), maxPropositions);
+        Random number = new Random();
+        int subLength = maxLength-4;
+        int length1 = number.nextInt(subLength-1) + 1; // At least length 1 and at most subLength-1
+        int length2 = subLength - length1;
+        String subformula1 = generate(length1, maxPropositions);
+        String subformula2 = generate(length2, maxPropositions);
         String formula = "(" + subformula1 + "->" + subformula2 + ")";
         return formula;
     }
 
     private String appendBicondition(int maxLength, int maxPropositions) throws InvalidNumberOfPropositionsException {
-        ArrayList<Integer> randomPair = generateRandomPair(maxLength-5);
-        String subformula1 = generate(randomPair.get(0), maxPropositions);
-        String subformula2 = generate(randomPair.get(1), maxPropositions);
+        Random number = new Random();
+        int subLength = maxLength-5;
+        int length1 = number.nextInt(subLength-1) + 1; // At least length 1 and at most subLength-1
+        int length2 = subLength - length1;
+        String subformula1 = generate(length1, maxPropositions);
+        String subformula2 = generate(length2, maxPropositions);
         String formula = "(" + subformula1 + "<->" + subformula2 + ")";
         return formula;
     }
@@ -112,18 +123,5 @@ public class FormulaGenerator {
         String subformula = generate(maxLength-1, maxPropositions);
         String formula = ("<>" + subformula);
         return formula;
-    }
-
-    private ArrayList<Integer> generateRandomPair(int totalLength) {
-
-        Random number = new Random();
-        int n1 = number.nextInt(totalLength-1) + 1; // At least length 1 and at most totalLength-1
-        int n2 = totalLength - n1;
-
-        ArrayList<Integer> randomPair = new ArrayList<>();
-        randomPair.add(n1);
-        randomPair.add(n2);
-
-        return randomPair;
     }
 }
