@@ -11,10 +11,10 @@ public class Theorem {
         this.formulas = new LinkedList<>();
     }
 
-    // Populate the "formulas" variable with Formula objects extracted from the theoremString, and return false if any formula is invalid
+    // Populate the "formulas" variable with Formula objects extracted from the theoremString, and return false if any formula is unrecognised
     public boolean parse() {
 
-        boolean validInput = true; // This variable allows the program to keep looking for invalid formulas once one has been found, for ease of debugging
+        boolean validInput = true; // Allows the program to keep looking for unrecognised formulas once one has been found, for ease of debugging
 
         LinkedList<String> formulaStrings = new LinkedList(Arrays.asList(theoremString.split(",", 0)));
         for (int i = 0; i < formulaStrings.size(); i++) {
