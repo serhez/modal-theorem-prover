@@ -15,6 +15,7 @@ public class ModalSystem {
             switch (frameConditionsString.charAt(i)) {
                 case 'T': frameConditions.add(FrameCondition.T);    break;
                 case 'B': frameConditions.add(FrameCondition.B);    break;
+                case 'D': frameConditions.add(FrameCondition.D);    break;
                 case '4': frameConditions.add(FrameCondition.FOUR); break;
                 default :                                           break;
             }
@@ -24,24 +25,29 @@ public class ModalSystem {
     public boolean isReflexive() {
         if (frameConditions.contains(FrameCondition.T)) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     public boolean isSymmetric() {
         if (frameConditions.contains(FrameCondition.B)) {
             return true;
-        } else {
-            return false;
         }
+        return false;
+
+    }
+
+    public boolean isSerial(){
+        if (frameConditions.contains(FrameCondition.D)) {
+            return true;
+        }
+        return false;
     }
 
     public boolean isTransitive() {
         if (frameConditions.contains(FrameCondition.FOUR)) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 }

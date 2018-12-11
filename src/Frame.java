@@ -165,6 +165,15 @@ public class Frame {
 
         // Only propositions, negated propositions and ticked delta-formulas remaining on the frame
         if (chosenWorld == null || chosenFormula == null) {
+            if (system.isSerial()) {
+                World nonSerialWorld = getNonSerialWorld();
+                if (nonSerialWorld == null) {
+                    isExpandable = false;
+                    return;
+                } else {
+                    serialise(nonSerialWorld);
+                }
+            }
             isExpandable = false;
             return;
         }
@@ -242,6 +251,41 @@ public class Frame {
                 untickAllDeltaFormulas();
             }
         }
+    }
+
+    private void serialise(World world) {
+
+        // In this frame, create a transition from the world to itself
+        addTransition(new Transition(world.getId(), world.getId()));
+
+        // Create (|worlds| - 1) new frames as this one, and in each one create a transition from the world to a different world (other than itself)
+        for (World otherWorld : worlds) {
+            if (otherWorld.getId() != world.getId()) {
+                Frame newFrame = new Frame(this, tableau, tableau.getNewFrameId(), system);
+                newFrame.addTransition(new Transition(world.getId(), otherWorld.getId()));
+                tableau.addFrame(newFrame);
+            }
+        }
+    }
+
+    private World getNonSerialWorld() {
+
+        ArrayList<Integer> nonSerialWorldsIds = new ArrayList<>();
+
+        // Initially we assume all worlds are non-serial
+        for (World world : worlds) {
+            nonSerialWorldsIds.add(world.getId());
+        }
+
+        // We discard worlds that have a transition to another world as non-serial
+        for (Transition transition : transitions) {
+            nonSerialWorldsIds.remove(transition.from());
+        }
+
+        if (nonSerialWorldsIds.isEmpty()) {
+            return null;
+        }
+        return getWorldWithId(nonSerialWorldsIds.get(0));
     }
 
     private World worldContainingFormulas(HashSet<Formula> formulas) {

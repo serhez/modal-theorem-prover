@@ -40,13 +40,14 @@ The frame conditions currently supported by this Theorem Prover are the followin
 K = Kripke (no special conditions)
 T = reflexive
 B = symmetric
+D = serial
 4 = transitive
 
 In order to specify your frame conditions, you may include the following construct (a string of your frame conditions surrounded by colons):
 
 :frame_conditions:
 
-Where frame_conditions is a string whose only characters are 'K', 'T', 'B', and '4', in any order but without repetition of any of them.
+Where frame_conditions is a string whose only characters are 'K', 'T', 'B', 'D' and '4', in any order but without repetition of any of them.
 
 
 --------

@@ -90,6 +90,14 @@ public class Prover {
         ArrayList<String> formulas = generator.generateFormulas(n, size, maxPropositions);
         System.out.println("\n-- " + n + " formulas have been generated --\n");
         for (int i = 0; i < n; i++) {
+
+            // Debugging
+            if (i == 5) {
+                int j = 0; // Breakpoint
+            } else if (i == 10) {
+                int j = 0; // Breakpoint
+            }
+
             if (proveFormula(formulas.get(i), system)) {
                 results.add(1);
             } else {
