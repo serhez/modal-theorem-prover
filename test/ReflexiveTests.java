@@ -1,6 +1,9 @@
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+// TODO: create tests to make sure that the resulting frames in the tableau are enforcing reflexivity (will need a way to inspect the resulting tableau)
+// TODO: do this as well for all test sets of the other frame conditions
+
 public class ReflexiveTests {
 
     @Test

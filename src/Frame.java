@@ -48,7 +48,7 @@ public class Frame {
         }
 
         // We prioritise expanding alpha formulas, then beta, then gamma and finally delta
-        World chosenWorld = null;  // TODO: MAY NOT BE NEEDED; USE CURRENT WORLD INSTEAD
+        World chosenWorld = null;
         Formula chosenFormula = null;
         int seenFormulas;
         int totalFormulas;
