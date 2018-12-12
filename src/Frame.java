@@ -208,6 +208,7 @@ public class Frame {
 
             formula.tick();
 
+            int i = 0; // TODO: Delete
             if (system.isTransitive()) {
                 HashSet<Formula> transitiveFormulas = world.getTransitiveGammaExpansionFormulas(formula);
                 World existingWorld = worldContainingFormulas(transitiveFormulas);
