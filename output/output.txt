@@ -7,9 +7,3 @@ All theorems are syntactically and grammatically correct.
 --------  PROVING
 
 Theorem 1 is not valid.
-Theorem 2 is not valid.
-Theorem 3 is not valid.
-Theorem 4 is not valid.
-Theorem 5 is not valid.
-Theorem 6 is not valid.
-Theorem 7 is not valid.
