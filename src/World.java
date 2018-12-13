@@ -17,9 +17,12 @@ public class World {
         HashSet<String> negatedPropositions = new HashSet<>();
 
         for (Formula formula : formulas) {
-            if (formula.getOperator() == Operator.NONE) {
+            if (formula.getType() == FormulaType.FALSE) {
+                return true;
+            }
+            if (formula.getType() == FormulaType.PROPOSITION) {
                 propositions.add(formula.getString());
-            } else if (formula.getOperator() == Operator.NOT) {
+            } else if (formula.getType() == FormulaType.NOTPROPOSITION) {
                 negatedPropositions.add(formula.getString().substring(1));
             }
         }
@@ -34,7 +37,7 @@ public class World {
 
     public void allCurrentDeltaFormulasExpandedTo(int worldId) {
         for (Formula formula : formulas) {
-            if (formula.getOperator() == Operator.NECESSARILY || formula.getOperator() == Operator.NOTPOSSIBLY) {
+            if (formula.getType() == FormulaType.NECESSARILY || formula.getType() == FormulaType.NOTPOSSIBLY) {
                 formula.addWorldExpandedTo(worldId);
             }
         }
@@ -95,7 +98,7 @@ public class World {
         HashSet<Formula> transitiveFormulas = new HashSet<>();
         transitiveFormulas.add(gammaFormula.getSubformulas().get(0));
         for (Formula formula : formulas) {
-            if (formula.getOperator() == Operator.NECESSARILY || formula.getOperator() == Operator.NOTPOSSIBLY) {
+            if (formula.getType() == FormulaType.NECESSARILY || formula.getType() == FormulaType.NOTPOSSIBLY) {
                 transitiveFormulas.add(formula);
                 transitiveFormulas.add(formula.getSubformulas().get(0));
             }
@@ -108,7 +111,7 @@ public class World {
         HashSet<Formula> kripkeFormulas = new HashSet<>();
         kripkeFormulas.add(gammaFormula.getSubformulas().get(0));
         for (Formula formula : formulas) {
-            if (formula.getOperator() == Operator.NECESSARILY || formula.getOperator() == Operator.NOTPOSSIBLY) {
+            if (formula.getType() == FormulaType.NECESSARILY || formula.getType() == FormulaType.NOTPOSSIBLY) {
                 kripkeFormulas.add(formula.getSubformulas().get(0));
             }
         }
@@ -119,7 +122,7 @@ public class World {
     public HashSet<Formula> getDeltaExpansionFormulas() {
         HashSet<Formula> deltaFormulas = new HashSet<>();
         for (Formula formula : formulas) {
-            if (formula.getOperator() == Operator.NECESSARILY || formula.getOperator() == Operator.NOTPOSSIBLY) {
+            if (formula.getType() == FormulaType.NECESSARILY || formula.getType() == FormulaType.NOTPOSSIBLY) {
                 deltaFormulas.add(formula.getSubformulas().get(0));
             }
         }
@@ -137,7 +140,7 @@ public class World {
             if (formula.isTicked()) {
                 System.out.print("[TICKED] ");
             }
-            System.out.print(formula.getString() + "\t:\t" + formula.getOperator());
+            System.out.print(formula.getString() + "\t:\t" + formula.getType());
             if (!formula.getWorldsExpandedTo().isEmpty()) {
                 System.out.println("\t\t; expanded to " + formula.getWorldsExpandedTo());
             } else {

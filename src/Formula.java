@@ -5,7 +5,7 @@ public class Formula {
 
     private String string;
     private final ArrayList<Formula> subformulas;
-    private Operator operator;
+    private FormulaType type;
     private int operatorIndex;                  // In case of a negated operator, the index will indicate the location of the operator, not of the negation
     private HashSet<Integer> worldsExpandedTo;  // Only used to loop check [] formulas
     private boolean ticked;
@@ -41,7 +41,7 @@ public class Formula {
         }
 
         // In the case that this formula is a proposition
-        if (operator == Operator.NONE) {
+        if (type == FormulaType.PROPOSITION) {
             if (!recognisedProposition(string)) {
                 return false;
             }
@@ -80,36 +80,48 @@ public class Formula {
         return true;
     }
 
-    // Determine the core operator and its subformulas (but for negations), as well as returning false if found any unrecognised structures
+    // Determine the type and subformulas, as well as returning false if found any unrecognised structures
     private boolean analise() {
 
         int end = string.length();
 
         if (end > 0 && string.charAt(0) == '~') {
+            // ~T
+            if (string.equals("~T")) {
+                type = FormulaType.NOTTRUE;
+                Formula subformula = new Formula("F");
+                subformulas.add(subformula);
+            }
+            // ~F
+            else if (string.equals("~F")) {
+                type = FormulaType.NOTFALSE;
+                Formula subformula = new Formula("T");
+                subformulas.add(subformula);
+            }
             // ~[]
-            if (end > 3 && string.substring(1,3).equals("[]")) {
-                operator = Operator.NOTNECESSARILY;
+            else if (end > 3 && string.substring(1,3).equals("[]")) {
+                type = FormulaType.NOTNECESSARILY;
                 Formula subformula = new Formula(string.substring(3, end));
                 subformula.negate();
                 subformulas.add(subformula);
             }
             // ~<>
             else if (end > 3 && string.substring(1,3).equals("<>")) {
-                operator = Operator.NOTPOSSIBLY;
+                type = FormulaType.NOTPOSSIBLY;
                 Formula subformula = new Formula(string.substring(3, end));
                 subformula.negate();
                 subformulas.add(subformula);
             }
-            // ~
+            // ~p
             else if (!findBinaryOperator(this)) {
                 Formula subformula = new Formula(string.substring(1, end));
                 subformulas.add(subformula);
-                operator = Operator.NOT;
+                type = FormulaType.NOTPROPOSITION;
                 operatorIndex = 0;
             } else {
                 // ~&
-                if (operator == Operator.AND) {
-                    operator = Operator.NOTAND;
+                if (type == FormulaType.AND) {
+                    type = FormulaType.NOTAND;
                     Formula firstSubformula = new Formula(string.substring(2, operatorIndex));
                     Formula secondSubformula = new Formula(string.substring(operatorIndex+1, end-1));
                     firstSubformula.negate();
@@ -118,8 +130,8 @@ public class Formula {
                     subformulas.add(secondSubformula);
                 }
                 // ~|
-                else if (operator == Operator.OR) {
-                    operator = Operator.NOTOR;
+                else if (type == FormulaType.OR) {
+                    type = FormulaType.NOTOR;
                     Formula firstSubformula = new Formula(string.substring(2, operatorIndex));
                     Formula secondSubformula = new Formula(string.substring(operatorIndex+1, end-1));
                     firstSubformula.negate();
@@ -128,8 +140,8 @@ public class Formula {
                     subformulas.add(secondSubformula);
                 }
                 // ~->
-                else if (operator == Operator.CONDITION) {
-                    operator = Operator.NOTCONDITION;
+                else if (type == FormulaType.CONDITION) {
+                    type = FormulaType.NOTCONDITION;
                     Formula firstSubformula = new Formula(string.substring(2, operatorIndex));
                     Formula secondSubformula = new Formula(string.substring(operatorIndex+2, end-1));
                     secondSubformula.negate();
@@ -137,8 +149,8 @@ public class Formula {
                     subformulas.add(secondSubformula);
                 }
                 // ~<->
-                else if (operator == Operator.BICONDITION) {
-                    operator = Operator.NOTBICONDITION;
+                else if (type == FormulaType.BICONDITION) {
+                    type = FormulaType.NOTBICONDITION;
                     String firstOperand = string.substring(2, operatorIndex);
                     String secondOperand = string.substring(operatorIndex+3, end-1);
                     Formula firstSubformula = new Formula("(" + firstOperand + "->" + secondOperand + ")");
@@ -163,7 +175,7 @@ public class Formula {
             }
 
             // In the case of a bicondition, we treat it as a conjunction (&) of conditions
-            if (operator == Operator.BICONDITION) {
+            if (type == FormulaType.BICONDITION) {
                 String firstOperand = string.substring(1, operatorIndex);
                 String secondOperand = string.substring(operatorIndex+3, end-1);
                 Formula firstSubformula = new Formula("(" + firstOperand + "->" + secondOperand + ")");
@@ -175,10 +187,10 @@ public class Formula {
             else {
                 Formula firstSubformula = null;
                 Formula secondSubformula = null;
-                if (operator == Operator.AND || operator == Operator.OR) {
+                if (type == FormulaType.AND || type == FormulaType.OR) {
                     firstSubformula = new Formula(string.substring(1, operatorIndex));
                     secondSubformula = new Formula(string.substring(operatorIndex+1, end-1));
-                } else if (operator == Operator.CONDITION) {
+                } else if (type == FormulaType.CONDITION) {
                     firstSubformula = new Formula(string.substring(1, operatorIndex));
                     secondSubformula = new Formula(string.substring(operatorIndex+2, end-1));
                     firstSubformula.negate();
@@ -190,27 +202,37 @@ public class Formula {
 
         // []
         else if (end > 2 && string.substring(0,2).equals("[]")) {
-            operator = Operator.NECESSARILY;
+            type = FormulaType.NECESSARILY;
             operatorIndex = 0;
             subformulas.add(new Formula(string.substring(2, end)));
         }
 
         // <>
         else if (end > 2 && string.substring(0,2).equals("<>")) {
-            operator = Operator.POSSIBLY;
+            type = FormulaType.POSSIBLY;
             operatorIndex = 0;
             subformulas.add(new Formula(string.substring(2, end)));
         }
 
+        // T
+        else if (string.equals("T")) {
+            type = FormulaType.TRUE;
+        }
+
+        // F
+        else if (string.equals("F")) {
+            type = FormulaType.FALSE;
+        }
+
         // Proposition
         else {
-            operator = Operator.NONE;
+            type = FormulaType.PROPOSITION;
         }
 
         return true;
     }
 
-    // Finds and sets the operator and operatorIndex of the formula given, and returns false if no operator is found
+    // Finds and sets the type and operatorIndex of the formula given, and returns false if no operator is found
     private boolean findBinaryOperator(Formula formula) {
 
         String formulaString = formula.string;
@@ -223,19 +245,19 @@ public class Formula {
             } else if (c == ')') {
                 countSubformulas--;
             } else if (c == '&' && countSubformulas == 0) {
-                formula.operator = Operator.AND;
+                formula.type = FormulaType.AND;
                 formula.operatorIndex = i;
                 return true;
             } else if (c == '|' && countSubformulas == 0) {
-                formula.operator = Operator.OR;
+                formula.type = FormulaType.OR;
                 formula.operatorIndex = i;
                 return true;
             } else if (i<formulaString.length()-1 && ((c == '-' && formulaString.charAt(i+1) == '>') && countSubformulas == 0)) {
-                formula.operator = Operator.CONDITION;
+                formula.type = FormulaType.CONDITION;
                 formula.operatorIndex = i;
                 return true;
             }  else if (i<formulaString.length()-2 && ((c == '<' && formulaString.charAt(i+1) == '-' && formulaString.charAt(i+2) == '>') && countSubformulas == 0)) {
-                formula.operator = Operator.BICONDITION;
+                formula.type = FormulaType.BICONDITION;
                 formula.operatorIndex = i;
                 return true;
             }
@@ -259,7 +281,7 @@ public class Formula {
     @Override
     public Formula clone() {
         Formula clone = new Formula(string);
-        clone.setOperator(operator);
+        clone.setType(type);
         clone.setOperatorIndex(operatorIndex);
         clone.setWorldsExpandedTo(worldsExpandedTo);
         clone.setSubformulas(subformulas);
@@ -268,8 +290,8 @@ public class Formula {
     }
 
     // Only used for cloning
-    private void setOperator(Operator operator) {
-        this.operator = operator;
+    private void setType(FormulaType type) {
+        this.type = type;
     }
 
     // Only used for cloning
@@ -306,8 +328,8 @@ public class Formula {
         return string;
     }
 
-    public Operator getOperator() {
-        return operator;
+    public FormulaType getType() {
+        return type;
     }
 
     public boolean isTicked() {

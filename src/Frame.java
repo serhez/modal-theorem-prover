@@ -47,13 +47,39 @@ public class Frame {
             return;
         }
 
-        // We prioritise expanding alpha formulas, then beta, then gamma and finally delta
+        // We prioritise expanding negated boolean formulas, then alpha, then beta, then gamma and finally delta
         World chosenWorld = null;
         Formula chosenFormula = null;
         int seenFormulas;
         int totalFormulas;
         int seenWorlds = 0;
         int totalWorlds = worlds.size();
+
+        // Negated Boolean
+        outerLoop:
+        while (seenWorlds != totalWorlds) {
+            World world = worlds.getFirst();
+            LinkedList<Formula> formulas = world.getFormulas();
+            totalFormulas = formulas.size();
+            seenFormulas = 0;
+            seenWorlds++;
+            while (seenFormulas != totalFormulas) {
+                Formula formula = formulas.getFirst();
+                seenFormulas++;
+                if (formula.getType() == FormulaType.NOTTRUE || formula.getType() == FormulaType.NOTFALSE) {
+                    if (!formula.isTicked()) {
+                        currentWorldId = world.getId();
+                        chosenWorld = world;
+                        chosenFormula = formula;
+                        break outerLoop;
+                    }
+                }
+                formulas.add(formulas.removeFirst());
+            }
+            worlds.add(worlds.removeFirst());
+        }
+
+        seenWorlds = 0;
 
         // Alpha
         outerLoop:
@@ -66,7 +92,7 @@ public class Frame {
             while (seenFormulas != totalFormulas) {
                 Formula formula = formulas.getFirst();
                 seenFormulas++;
-                if (formula.getOperator() == Operator.AND || formula.getOperator() == Operator.BICONDITION || formula.getOperator() == Operator.NOTOR || formula.getOperator() == Operator.NOTCONDITION) {
+                if (formula.getType() == FormulaType.AND || formula.getType() == FormulaType.BICONDITION || formula.getType() == FormulaType.NOTOR || formula.getType() == FormulaType.NOTCONDITION) {
                     if (!formula.isTicked()) {
                         currentWorldId = world.getId();
                         chosenWorld = world;
@@ -93,7 +119,7 @@ public class Frame {
                 while (seenFormulas != totalFormulas) {
                     Formula formula = formulas.getFirst();
                     seenFormulas++;
-                    if (formula.getOperator() == Operator.OR || formula.getOperator() == Operator.NOTAND || formula.getOperator() == Operator.CONDITION || formula.getOperator() == Operator.NOTBICONDITION) {
+                    if (formula.getType() == FormulaType.OR || formula.getType() == FormulaType.NOTAND || formula.getType() == FormulaType.CONDITION || formula.getType() == FormulaType.NOTBICONDITION) {
                         if (!formula.isTicked()) {
                             currentWorldId = world.getId();
                             chosenWorld = world;
@@ -121,7 +147,7 @@ public class Frame {
                 while (seenFormulas != totalFormulas) {
                     Formula formula = formulas.getFirst();
                     seenFormulas++;
-                    if (formula.getOperator() == Operator.POSSIBLY || formula.getOperator() == Operator.NOTNECESSARILY) {
+                    if (formula.getType() == FormulaType.POSSIBLY || formula.getType() == FormulaType.NOTNECESSARILY) {
                         if (!formula.isTicked()) {
                             currentWorldId = world.getId();
                             chosenWorld = world;
@@ -149,7 +175,7 @@ public class Frame {
                 while (seenFormulas != totalFormulas) {
                     Formula formula = formulas.getFirst();
                     seenFormulas++;
-                    if (formula.getOperator() == Operator.NECESSARILY || formula.getOperator() == Operator.NOTPOSSIBLY) {
+                    if (formula.getType() == FormulaType.NECESSARILY || formula.getType() == FormulaType.NOTPOSSIBLY) {
                         if (!formula.isTicked()) {
                             currentWorldId = world.getId();
                             chosenWorld = world;
@@ -163,17 +189,8 @@ public class Frame {
             }
         }
 
-        // Only propositions, negated propositions and ticked delta-formulas remaining on the frame
+        // Only booleans, propositions, negated propositions and ticked delta-formulas remaining on the frame
         if (chosenWorld == null || chosenFormula == null) {
-            if (system.isSerial()) {
-                World nonSerialWorld = getNonSerialWorld();
-                if (nonSerialWorld == null) {
-                    isExpandable = false;
-                    return;
-                } else {
-                    serialise(nonSerialWorld);
-                }
-            }
             isExpandable = false;
             return;
         }
@@ -183,17 +200,23 @@ public class Frame {
 
     private void expand(Formula formula, World world) {
 
-        Operator operator = formula.getOperator();
+        FormulaType type = formula.getType();
+
+        // Negated Boolean Rule
+        if (type == FormulaType.NOTTRUE || type == FormulaType.NOTFALSE) {
+            world.addFormula(formula.getSubformulas().get(0));
+            formula.tick();
+        }
 
         // Alpha Rule
-        if (operator == Operator.AND || operator == Operator.BICONDITION || operator == Operator.NOTOR || operator == Operator.NOTCONDITION) {
+        if (type == FormulaType.AND || type == FormulaType.BICONDITION || type == FormulaType.NOTOR || type == FormulaType.NOTCONDITION) {
             world.addFormula(formula.getSubformulas().get(0));
             world.addFormula(formula.getSubformulas().get(1));
             formula.tick();
         }
 
         // Beta Rule
-        else if (operator == Operator.OR || operator == Operator.NOTAND || operator == Operator.NOTBICONDITION || operator == Operator.CONDITION) {
+        else if (type == FormulaType.OR || type == FormulaType.NOTAND || type == FormulaType.NOTBICONDITION || type == FormulaType.CONDITION) {
             Formula subformula1 = formula.getSubformulas().get(0);
             Formula subformula2 = formula.getSubformulas().get(1);
             formula.tick();
@@ -204,7 +227,7 @@ public class Frame {
         }
 
         // Gamma Rule
-        else if (operator == Operator.POSSIBLY || operator == Operator.NOTNECESSARILY) {
+        else if (type == FormulaType.POSSIBLY || type == FormulaType.NOTNECESSARILY) {
 
             formula.tick();
 
@@ -247,7 +270,7 @@ public class Frame {
         }
 
         // Delta Rule
-        else if (operator == Operator.NECESSARILY || operator == Operator.NOTPOSSIBLY) {
+        else if (type == FormulaType.NECESSARILY || type == FormulaType.NOTPOSSIBLY) {
             LinkedList<World> deltaWorlds = getDeltaWorldsFor(world, formula);
             for (World deltaWorld : deltaWorlds) {
                 deltaWorld.addFormula(formula.getSubformulas().get(0));
@@ -335,19 +358,19 @@ public class Frame {
     private void untickAllDeltaFormulas() {
         for (World world : worlds) {
             for (Formula formula : world.getFormulas()) {
-                if (formula.getOperator() == Operator.NECESSARILY || formula.getOperator() == Operator.NOTPOSSIBLY) {
+                if (formula.getType() == FormulaType.NECESSARILY || formula.getType() == FormulaType.NOTPOSSIBLY) {
                     formula.untick();
                 }
             }
         }
     }
 
-    // Returns false if only propositions, negated propositions, []-formulas and ticked formulas are remaining in the frame, true otherwise
+    // Returns false if only propositions, negated propositions, booleans, []-formulas and ticked formulas are remaining in the frame, true otherwise
     private boolean expandable() {
         for (World world : worlds) {
             for (Formula formula : world.getFormulas()) {
-                Operator operator = formula.getOperator();
-                if (operator != Operator.NOT && operator != Operator.NONE && operator != Operator.NECESSARILY && operator != Operator.NOTPOSSIBLY) {
+                FormulaType type = formula.getType();
+                if (type != FormulaType.TRUE && type != FormulaType.FALSE && type != FormulaType.NOTPROPOSITION && type != FormulaType.PROPOSITION && type != FormulaType.NECESSARILY && type != FormulaType.NOTPOSSIBLY) {
                     if (!formula.isTicked()) {
                         return true;
                     }

@@ -4,10 +4,11 @@
 
 This theorem prover uses standard Modal Logic syntax. It is recursively defined as the following:
 
- prop = {a : a is a string} \ {b: b is a string such that any of its substrings are "~", "[]", "<>", "&", "|", "->", "<->", ";", ":", ",", ")" or "("}
- fmla = prop | ¬fmla | (fmla ∧ fmla) | (fmla ∨ fmla) | (fmla → fmla) | (fmla ↔ fmla) | □fmla | ◊fmla
+ prop = {a : a is a string} \ {b: b is "T" or "F" or a string such that any of its substrings are "~", "[]", "<>", "&", "|", "->", "<->", ";", ":", ",", ")" or "("}
+ fmla = "T" | "F" | prop | ¬fmla | (fmla ∧ fmla) | (fmla ∨ fmla) | (fmla → fmla) | (fmla ↔ fmla) | □fmla | ◊fmla
 
 Please, make sure you are making use of parentheses correctly, as specified above.
+The "T" and "F" literals are used to express truth and falsehood. They are not essential, but useful. For example: "T" is equivalent to "(p|~p)"; and "F" is equivalent to "(p&~p)".
 
 
 ------------
