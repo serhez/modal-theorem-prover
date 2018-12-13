@@ -22,6 +22,10 @@ public class Frame {
         this.currentWorldId = 0;
         numberOfWorlds = 1;
         World initialWorld = new World(initialFormulas, numberOfWorlds);
+        if (system.isSerial()) {
+            initialWorld.addFormula(new Formula("T"));
+            initialWorld.addFormula(new Formula("<>T"));
+        }
         this.worlds.add(initialWorld);
         this.transitions = new HashSet<>();
         if (system.isReflexive()) {
@@ -255,6 +259,10 @@ public class Frame {
                 LinkedList<Formula> formulas = new LinkedList<>(expandingFormulas);
                 numberOfWorlds++;
                 World newWorld = new World(formulas, numberOfWorlds);
+                if (system.isSerial()) {
+                    newWorld.addFormula(new Formula("T"));
+                    newWorld.addFormula(new Formula("<>T"));
+                }
                 worlds.add(newWorld);
                 world.allCurrentDeltaFormulasExpandedTo(newWorld.getId());
                 addTransition(new Transition(world.getId(), newWorld.getId()));

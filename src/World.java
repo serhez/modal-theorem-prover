@@ -7,7 +7,11 @@ public class World {
     private LinkedList<Formula> formulas;
 
     public World(LinkedList<Formula> formulas, int id) {
-        this.formulas = cloneFormulas(formulas);
+        this.formulas = new LinkedList<>();
+        LinkedList<Formula> clonedFormulas = cloneFormulas(formulas);
+        for (Formula formula : clonedFormulas) {
+            addFormula(formula);  // To keep all formulas unique
+        }
         this.id = id;
     }
 
