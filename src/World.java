@@ -32,7 +32,7 @@ public class World {
         return false;
     }
 
-    public void allDeltaFormulasExpandedTo(int worldId) {
+    public void allCurrentDeltaFormulasExpandedTo(int worldId) {
         for (Formula formula : formulas) {
             if (formula.getOperator() == Operator.NECESSARILY || formula.getOperator() == Operator.NOTPOSSIBLY) {
                 formula.addWorldExpandedTo(worldId);
@@ -102,6 +102,29 @@ public class World {
         }
 
         return transitiveFormulas;
+    }
+
+    public HashSet<Formula> getKripkeGammaExpansionFormulas(Formula gammaFormula) {
+        HashSet<Formula> kripkeFormulas = new HashSet<>();
+        kripkeFormulas.add(gammaFormula.getSubformulas().get(0));
+        for (Formula formula : formulas) {
+            if (formula.getOperator() == Operator.NECESSARILY || formula.getOperator() == Operator.NOTPOSSIBLY) {
+                kripkeFormulas.add(formula.getSubformulas().get(0));
+            }
+        }
+
+        return kripkeFormulas;
+    }
+
+    public HashSet<Formula> getDeltaExpansionFormulas() {
+        HashSet<Formula> deltaFormulas = new HashSet<>();
+        for (Formula formula : formulas) {
+            if (formula.getOperator() == Operator.NECESSARILY || formula.getOperator() == Operator.NOTPOSSIBLY) {
+                deltaFormulas.add(formula.getSubformulas().get(0));
+            }
+        }
+
+        return deltaFormulas;
     }
 
     public int getId() {

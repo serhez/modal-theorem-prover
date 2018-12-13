@@ -208,28 +208,32 @@ public class Frame {
 
             formula.tick();
 
-            int i = 0; // TODO: Delete
+            // The reason this works is because you always choose <> after & and |. Hence, when expanding a <> formula,
+            // you only have props, neg props, <> and [] remaining in the frame. Thus, it's not possible that by expanding
+            // <>p, you create a world with p and (e.g.) (q&~p), and then you expand the later formula and found a contradiction
+            // that if you would have created a new world, you would not have found. BUT: what happens if you expand
+            // <>(q&~p) into a world with p?????? YOU CAN'T, because in order to do that, (q&~p) would need to be in that world
+            // already (so they would have been expanded before and found the contradiction anyway) NICE!
+            HashSet<Formula> expandingFormulas;
             if (system.isTransitive()) {
-                HashSet<Formula> transitiveFormulas = world.getTransitiveGammaExpansionFormulas(formula);
-                World existingWorld = worldContainingFormulas(transitiveFormulas);
-                if (existingWorld == null) {
-                    LinkedList<Formula> gammaFormulas = new LinkedList<>(transitiveFormulas);
-                    numberOfWorlds++;
-                    World newWorld = new World(gammaFormulas, numberOfWorlds);
-                    worlds.add(newWorld);
-                    addTransition(new Transition(world.getId(), newWorld.getId()));
-                    world.allDeltaFormulasExpandedTo(newWorld.getId());
-                } else {
-                    addTransition(new Transition(world.getId(), existingWorld.getId()));
-                }
+                expandingFormulas = world.getTransitiveGammaExpansionFormulas(formula);
+            } else {
+                expandingFormulas = world.getKripkeGammaExpansionFormulas(formula);
             }
 
-            else {
-                LinkedList<Formula> gammaFormula = new LinkedList<>();
-                gammaFormula.add(formula.getSubformulas().get(0));
+            World existingWorld;
+            // Need to also check that the "to" world will not introduce a contradiction in the "from" world when applying symmetry
+            if (system.isSymmetric()) {
+                existingWorld = worldSymmetricallyCompatible(expandingFormulas, world);
+            } else {
+                existingWorld = worldContainingFormulas(expandingFormulas);
+            }
+            if (existingWorld == null) {
+                LinkedList<Formula> formulas = new LinkedList<>(expandingFormulas);
                 numberOfWorlds++;
-                World newWorld = new World(gammaFormula, numberOfWorlds);
+                World newWorld = new World(formulas, numberOfWorlds);
                 worlds.add(newWorld);
+                world.allCurrentDeltaFormulasExpandedTo(newWorld.getId());
                 addTransition(new Transition(world.getId(), newWorld.getId()));
                 if (system.isReflexive()) {
                     this.addTransition(new Transition(newWorld.getId(), newWorld.getId()));
@@ -237,6 +241,8 @@ public class Frame {
                 if (system.isSymmetric()) {
                     this.addTransition(new Transition(newWorld.getId(), world.getId()));
                 }
+            } else {
+                addTransition(new Transition(world.getId(), existingWorld.getId()));
             }
         }
 
@@ -287,6 +293,27 @@ public class Frame {
             return null;
         }
         return getWorldWithId(nonSerialWorldsIds.get(0));
+    }
+
+    private World worldSymmetricallyCompatible(HashSet<Formula> formulas, World currentWorld) {
+        // The first world containing all given formulas is returned, if any
+        worldsLoop:
+        for (World newWorld : worlds) {
+            for (Formula formula : formulas) {
+                if (!newWorld.containsFormula(formula)) {
+                    continue worldsLoop;
+                }
+            }
+            HashSet<Formula> newWorldFormulas = newWorld.getDeltaExpansionFormulas();
+            for (Formula newWorldFormula : newWorldFormulas) {
+                if (!currentWorld.containsFormula(newWorldFormula)) {
+                    continue worldsLoop;
+                }
+            }
+            return newWorld;
+        }
+
+        return null;
     }
 
     private World worldContainingFormulas(HashSet<Formula> formulas) {
