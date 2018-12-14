@@ -46,6 +46,7 @@ L = Linear
 4 = Transitive
 
 In order to specify your frame conditions, you may include the following construct (a string of your frame conditions surrounded by colons):
+Also, some frame conditions imply other frame conditions. For example, linearity implies transitivity.
 
 :frame_conditions:
 

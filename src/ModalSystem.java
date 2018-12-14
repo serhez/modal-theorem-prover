@@ -9,7 +9,14 @@ public class ModalSystem {
         this.frameConditions = new HashSet<>();
         this.frameConditions.add(FrameCondition.K);  // All frames must conform to K
         parseFrameConditions(frameConditionsString);
+        addNecessaryConditions();  // Because some frame conditions imply other conditions (e.g.: linearity implies transitivity)
         findIncompatibilities();
+    }
+
+    private void addNecessaryConditions() {
+        if (isLinear() && !isTransitive()) {
+            frameConditions.add(FrameCondition.FOUR);
+        }
     }
 
     private void findIncompatibilities() throws IncompatibleFrameConditionsException {
