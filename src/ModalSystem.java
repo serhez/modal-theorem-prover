@@ -25,7 +25,11 @@ public class ModalSystem {
             incompatibleConditions.add("L");
             incompatibleConditions.add("B");
             throw new IncompatibleFrameConditionsException(incompatibleConditions);
-
+        } else if (isLinear() && isSerial()) {
+            ArrayList<String> incompatibleConditions = new ArrayList<>();
+            incompatibleConditions.add("L");
+            incompatibleConditions.add("D");
+            throw new IncompatibleFrameConditionsException(incompatibleConditions);
         }
     }
 
@@ -54,7 +58,6 @@ public class ModalSystem {
             return true;
         }
         return false;
-
     }
 
     public boolean isSerial(){

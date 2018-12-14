@@ -239,38 +239,43 @@ public class Frame {
             // you only have props, neg props, <> and [] remaining in the frame. Thus, it's not possible that by expanding
             // <>p, you create a world with p and (e.g.) (q&~p), and then you expand the later formula and found a contradiction
             // that if you would have created a new world, you would not have found. BUT: what happens if you expand
-            // <>(q&~p) into a world with p?????? YOU CAN'T, because in order to do that, (q&~p) would need to be in that world
+            // <>(q&~p) into a world with p? YOU CAN'T, because in order to do that, (q&~p) would need to be in that world
             // already (so they would have been expanded before and found the contradiction anyway) NICE!
             HashSet<Formula> expandingFormulas;
-            if (system.isTransitive()) {
+            if (system.isTransitive()) {  // Also applies to linearity
                 expandingFormulas = world.getTransitiveGammaExpansionFormulas(formula);
             } else {
                 expandingFormulas = world.getKripkeGammaExpansionFormulas(formula);
             }
 
             World existingWorld;
-            // Need to also check that the "to" world will not introduce a contradiction in the "from" world when applying symmetry
-            if (system.isSymmetric()) {
+            if (system.isSymmetric()) {  // Need to also check that the "to" world will not introduce a contradiction in the "from" world when applying symmetry
                 existingWorld = worldSymmetricallyCompatible(expandingFormulas, world);
+            } else if (system.isLinear()) {  // Need to also check that the "to" world will be in the future
+                existingWorld = worldLinearlyCompatible(expandingFormulas, world);
             } else {
                 existingWorld = worldContainingFormulas(expandingFormulas);
             }
             if (existingWorld == null) {
-                LinkedList<Formula> formulas = new LinkedList<>(expandingFormulas);
-                numberOfWorlds++;
-                World newWorld = new World(formulas, numberOfWorlds);
-                if (system.isSerial()) {
-                    newWorld.addFormula(new Formula("T"));
-                    newWorld.addFormula(new Formula("<>T"));
-                }
-                worlds.add(newWorld);
-                world.allCurrentDeltaFormulasExpandedTo(newWorld.getId());
-                addTransition(new Transition(world.getId(), newWorld.getId()));
-                if (system.isReflexive()) {
-                    this.addTransition(new Transition(newWorld.getId(), newWorld.getId()));
-                }
-                if (system.isSymmetric()) {
-                    this.addTransition(new Transition(newWorld.getId(), world.getId()));
+                if (system.isLinear()) {
+                    linearlyPlaceNewWorld(world, expandingFormulas);
+                } else {
+                    LinkedList<Formula> formulas = new LinkedList<>(expandingFormulas);
+                    World newWorld = new World(formulas, numberOfWorlds);
+                    if (system.isSerial()) {
+                        newWorld.addFormula(new Formula("T"));
+                        newWorld.addFormula(new Formula("<>T"));
+                    }
+                    numberOfWorlds++;
+                    worlds.add(newWorld);
+                    world.allCurrentDeltaFormulasExpandedTo(newWorld.getId());
+                    addTransition(new Transition(world.getId(), newWorld.getId()));
+                    if (system.isSymmetric()) {
+                        this.addTransition(new Transition(newWorld.getId(), world.getId()));
+                    }
+                    if (system.isReflexive()) {
+                        this.addTransition(new Transition(newWorld.getId(), newWorld.getId()));
+                    }
                 }
             } else {
                 addTransition(new Transition(world.getId(), existingWorld.getId()));
@@ -289,6 +294,19 @@ public class Frame {
                 untickAllDeltaFormulas();
             }
         }
+    }
+
+    private void linearlyPlaceNewWorld(World currentWorld, HashSet<Formula> expandingFormulas) {
+        LinkedList<Formula> formulas = new LinkedList<>(expandingFormulas);
+        World newWorld = new World(formulas, numberOfWorlds);
+        numberOfWorlds++;
+        worlds.add(newWorld);
+        currentWorld.allCurrentDeltaFormulasExpandedTo(newWorld.getId());
+        if (system.isReflexive()) {
+            this.addTransition(new Transition(newWorld.getId(), newWorld.getId()));
+        }
+        
+        // If no choices which did not introduce a contradiction were found, then ?declare the frame as contradictory and return?
     }
 
     private void serialise(World world) {
@@ -327,6 +345,7 @@ public class Frame {
     }
 
     private World worldSymmetricallyCompatible(HashSet<Formula> formulas, World currentWorld) {
+
         // The first world containing all given formulas is returned, if any
         worldsLoop:
         for (World newWorld : worlds) {
@@ -342,6 +361,42 @@ public class Frame {
                 }
             }
             return newWorld;
+        }
+
+        return null;
+    }
+
+    private HashSet<World> futureWorlds(World currentWorld) {
+
+        HashSet<World> futureWorlds = new HashSet<>();
+        futureWorlds.add(currentWorld);  // By reflexivity
+
+        // If the frame was linear and also serial, this recursive for-loop could potentially never terminate
+        for (World world : worlds) {
+            for (Transition transition : transitions) {
+                if (transition.from() == currentWorld.getId() && transition.to() == world.getId()) {
+                    futureWorlds.add(world);
+                    futureWorlds.addAll(futureWorlds(world));  // Take the union of both sets
+                }
+            }
+        }
+
+        return futureWorlds;
+    }
+
+    private World worldLinearlyCompatible(HashSet<Formula> formulas, World currentWorld) {
+
+        HashSet<World> futureWorlds = futureWorlds(currentWorld);
+
+        // The first world containing all given formulas is returned, if any
+        worldsLoop:
+        for (World world : futureWorlds) {
+            for (Formula formula : formulas) {
+                if (!world.containsFormula(formula)) {
+                    continue worldsLoop;
+                }
+            }
+            return world;
         }
 
         return null;

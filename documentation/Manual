@@ -51,7 +51,7 @@ Also, some frame conditions imply other frame conditions. For example, linearity
 :frame_conditions:
 
 Where frame_conditions is a string whose only characters are 'K', 'T', 'B', 'D' and '4', in any order but without repetition of any of them.
-Note that some frame conditions are incompatible. In this version of the program, only L and B are incompatible (as serial frames are anti-symmetric).
+Note that some frame conditions are incompatible. In this version of the program, only L is incompatible with B and D (as serial frames are anti-symmetric and cannot be serial).
 
 
 --------
