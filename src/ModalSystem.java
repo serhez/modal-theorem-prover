@@ -1,13 +1,25 @@
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class ModalSystem {
 
     private HashSet<FrameCondition> frameConditions;
 
-    public ModalSystem(String frameConditionsString) {
+    public ModalSystem(String frameConditionsString) throws IncompatibleFrameConditionsException {
         this.frameConditions = new HashSet<>();
         this.frameConditions.add(FrameCondition.K);  // All frames must conform to K
         parseFrameConditions(frameConditionsString);
+        findIncompatibilities();
+    }
+
+    private void findIncompatibilities() throws IncompatibleFrameConditionsException {
+        if (isLinear() && isSymmetric()) {
+            ArrayList<String> incompatibleConditions = new ArrayList<>();
+            incompatibleConditions.add("L");
+            incompatibleConditions.add("B");
+            throw new IncompatibleFrameConditionsException(incompatibleConditions);
+
+        }
     }
 
     private void parseFrameConditions(String frameConditionsString) {
@@ -16,6 +28,7 @@ public class ModalSystem {
                 case 'T': frameConditions.add(FrameCondition.T);    break;
                 case 'B': frameConditions.add(FrameCondition.B);    break;
                 case 'D': frameConditions.add(FrameCondition.D);    break;
+                case 'L': frameConditions.add(FrameCondition.L);    break;
                 case '4': frameConditions.add(FrameCondition.FOUR); break;
                 default :                                           break;
             }
@@ -39,6 +52,13 @@ public class ModalSystem {
 
     public boolean isSerial(){
         if (frameConditions.contains(FrameCondition.D)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isLinear(){
+        if (frameConditions.contains(FrameCondition.L)) {
             return true;
         }
         return false;

@@ -15,19 +15,19 @@ public class Debugging {
     }
 
     @Test
-    public void runCurrentInputFile() {
+    public void runCurrentInputFile() throws IncompatibleFrameConditionsException {
         Prover prover = new Prover(false);
         prover.proveInputFile();
     }
 
     @Test
-    public void debugCurrentInputFile() {
+    public void debugCurrentInputFile() throws IncompatibleFrameConditionsException {
         Prover prover = new Prover(true);
         prover.proveInputFile();
     }
 
     @Test
-    public void runRandomInputFile() throws InvalidNumberOfPropositionsException {
+    public void runRandomInputFile() throws InvalidNumberOfPropositionsException, IncompatibleFrameConditionsException {
         InputGenerator inputGenerator = new InputGenerator();
         inputGenerator.generateInputFile(100000, 100, 2, "K");
         Prover prover = new Prover(false);
@@ -35,7 +35,7 @@ public class Debugging {
     }
 
     @Test
-    public void runRandomInputFileAndTranslateToMolle() throws InvalidNumberOfPropositionsException {
+    public void runRandomInputFileAndTranslateToMolle() throws InvalidNumberOfPropositionsException, IncompatibleFrameConditionsException {
         InputGenerator inputGenerator = new InputGenerator();
         inputGenerator.generateInputFileAndMolleFile(10000, 50, 2, "K");
 

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class ReflexiveTests {
 
     @Test
-    public void correctness() {
+    public void correctness() throws IncompatibleFrameConditionsException {
         Prover prover = new Prover(false);
         ModalSystem systemT = new ModalSystem("T");
         ModalSystem systemK = new ModalSystem("K");

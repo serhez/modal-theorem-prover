@@ -13,7 +13,7 @@ public class Parser {
     }
 
     // Takes the input string extracted from the input file and populates the variable theorems
-    public void parseInput(String input) {
+    public void parseInput(String input) throws IncompatibleFrameConditionsException {
 
         input = preprocess(input);
 
@@ -27,7 +27,7 @@ public class Parser {
         }
     }
 
-    public boolean parseFormula(String formulaString) {
+    public boolean parseFormula(String formulaString) throws IncompatibleFrameConditionsException {
         formulaString = preprocess(formulaString);
         Theorem theorem = new Theorem(formulaString);
         theorems.add(theorem);
@@ -39,7 +39,7 @@ public class Parser {
         return true;
     }
 
-    private String preprocess(String inputString) {
+    private String preprocess(String inputString) throws IncompatibleFrameConditionsException {
         // Eliminate all spaces, tabs and new lines
         inputString = inputString.replaceAll(" ","");
         inputString = inputString.replaceAll("\t","");

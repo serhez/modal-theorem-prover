@@ -15,7 +15,7 @@ public class Prover {
         this.debugging = debugging;
     }
 
-    public void proveInputFile() {
+    public void proveInputFile() throws IncompatibleFrameConditionsException {
 
         // Core variables
         ArrayList<Theorem> theorems;
@@ -84,20 +84,12 @@ public class Prover {
 
     // Returns a list of integers, where 1 represents validity and 0 represents invalidity
     // This method can be used to study validity rates and the time and space performance of the prover
-    public ArrayList<Integer> proveRandomFormulas(int n, int size, int maxPropositions, ModalSystem system) throws InvalidNumberOfPropositionsException, UnrecognizableFormulaException {
+    public ArrayList<Integer> proveRandomFormulas(int n, int size, int maxPropositions, ModalSystem system) throws InvalidNumberOfPropositionsException, UnrecognizableFormulaException, IncompatibleFrameConditionsException {
         ArrayList<Integer> results = new ArrayList<>();
         InputGenerator generator = new InputGenerator();
         ArrayList<String> formulas = generator.generateFormulas(n, size, maxPropositions);
         System.out.println("\n-- " + n + " formulas have been generated --\n");
         for (int i = 0; i < n; i++) {
-
-            // Debugging
-            if (i == 5) {
-                int j = 0; // Breakpoint
-            } else if (i == 10) {
-                int j = 0; // Breakpoint
-            }
-
             if (proveFormula(formulas.get(i), system)) {
                 results.add(1);
             } else {
@@ -108,7 +100,7 @@ public class Prover {
         return results;
     }
 
-    public boolean proveFormula(String formulaString, ModalSystem system) throws UnrecognizableFormulaException {
+    public boolean proveFormula(String formulaString, ModalSystem system) throws UnrecognizableFormulaException, IncompatibleFrameConditionsException {
         Parser parser = new Parser();
         if (!parser.parseFormula(formulaString)) {
             throw new UnrecognizableFormulaException(formulaString);

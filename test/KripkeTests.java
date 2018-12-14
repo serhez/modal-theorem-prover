@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class KripkeTests {
 
     @Test
-    public void acceptsValidFormulas() {
+    public void acceptsValidFormulas() throws IncompatibleFrameConditionsException {
 
         Prover prover = new Prover(false);
         ModalSystem system = new ModalSystem("K");
@@ -31,7 +31,7 @@ public class KripkeTests {
     }
 
     @Test
-    public void rejectsInvalidFormulas() {
+    public void rejectsInvalidFormulas() throws IncompatibleFrameConditionsException {
 
         Prover prover = new Prover(false);
         ModalSystem system = new ModalSystem("K");

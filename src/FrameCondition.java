@@ -1,3 +1,3 @@
 public enum FrameCondition {
-    K, D, T, B, FOUR, FIVE
+    K, D, T, B, L, FOUR
 }

@@ -39,16 +39,18 @@ At the beginning of the input file, before any theorem has been defined, you may
 The frame conditions currently supported by this Theorem Prover are the following:
 
 K = Kripke (no special conditions)
-T = reflexive
-B = symmetric
-D = serial
-4 = transitive
+T = Reflexive
+B = Symmetric
+D = Serial
+L = Linear
+4 = Transitive
 
 In order to specify your frame conditions, you may include the following construct (a string of your frame conditions surrounded by colons):
 
 :frame_conditions:
 
 Where frame_conditions is a string whose only characters are 'K', 'T', 'B', 'D' and '4', in any order but without repetition of any of them.
+Note that some frame conditions are incompatible. In this version of the program, only L and B are incompatible (as serial frames are anti-symmetric).
 
 
 --------

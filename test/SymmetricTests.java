@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 public class SymmetricTests {
 
     @Test
-    public void correctness() {
+    public void correctness() throws IncompatibleFrameConditionsException {
         Prover prover = new Prover(false);
         ModalSystem systemB = new ModalSystem("B");
         ModalSystem systemK = new ModalSystem("K");
