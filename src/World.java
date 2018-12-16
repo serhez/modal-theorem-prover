@@ -72,6 +72,16 @@ public class World {
         return false;
     }
 
+    // This function also counts ticked formulas
+    public boolean containsFormulas(HashSet<Formula> formulas) {
+        for (Formula formula : formulas){
+            if (!containsFormula(formula)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void addFormula(Formula newFormula) {
         // Check for duplicate formulas
         if (containsFormula(newFormula)) {
@@ -123,10 +133,13 @@ public class World {
         return kripkeFormulas;
     }
 
-    public HashSet<Formula> getDeltaExpansionFormulas() {
+    public HashSet<Formula> getDeltaExpansionFormulas(ModalSystem system) {
         HashSet<Formula> deltaFormulas = new HashSet<>();
         for (Formula formula : formulas) {
             if (formula.getType() == FormulaType.NECESSARILY || formula.getType() == FormulaType.NOTPOSSIBLY) {
+                if (system.isTransitive()) {
+                    deltaFormulas.add(formula);
+                }
                 deltaFormulas.add(formula.getSubformulas().get(0));
             }
         }

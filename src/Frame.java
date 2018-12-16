@@ -257,25 +257,21 @@ public class Frame {
                 existingWorld = worldContainingFormulas(expandingFormulas);
             }
             if (existingWorld == null) {
-                if (system.isLinear()) {
-                    linearlyPlaceNewWorld(world, expandingFormulas);
-                } else {
-                    LinkedList<Formula> formulas = new LinkedList<>(expandingFormulas);
-                    World newWorld = new World(formulas, numberOfWorlds);
-                    if (system.isSerial()) {
-                        newWorld.addFormula(new Formula("T"));
-                        newWorld.addFormula(new Formula("<>T"));
-                    }
-                    numberOfWorlds++;
-                    worlds.add(newWorld);
-                    world.allCurrentDeltaFormulasExpandedTo(newWorld.getId());
-                    addTransition(new Transition(world.getId(), newWorld.getId()));
-                    if (system.isSymmetric()) {
-                        this.addTransition(new Transition(newWorld.getId(), world.getId()));
-                    }
-                    if (system.isReflexive()) {
-                        this.addTransition(new Transition(newWorld.getId(), newWorld.getId()));
-                    }
+                LinkedList<Formula> formulas = new LinkedList<>(expandingFormulas);
+                World newWorld = new World(formulas, numberOfWorlds);
+                if (system.isSerial()) {
+                    newWorld.addFormula(new Formula("T"));
+                    newWorld.addFormula(new Formula("<>T"));
+                }
+                numberOfWorlds++;
+                worlds.add(newWorld);
+                world.allCurrentDeltaFormulasExpandedTo(newWorld.getId());
+                addTransition(new Transition(world.getId(), newWorld.getId()));
+                if (system.isSymmetric()) {
+                    this.addTransition(new Transition(newWorld.getId(), world.getId()));
+                }
+                if (system.isReflexive()) {
+                    this.addTransition(new Transition(newWorld.getId(), newWorld.getId()));
                 }
             } else {
                 addTransition(new Transition(world.getId(), existingWorld.getId()));
@@ -296,54 +292,6 @@ public class Frame {
         }
     }
 
-    private void linearlyPlaceNewWorld(World currentWorld, HashSet<Formula> expandingFormulas) {
-        LinkedList<Formula> formulas = new LinkedList<>(expandingFormulas);
-        World newWorld = new World(formulas, numberOfWorlds);
-        numberOfWorlds++;
-        worlds.add(newWorld);
-        currentWorld.allCurrentDeltaFormulasExpandedTo(newWorld.getId());
-        if (system.isReflexive()) {
-            this.addTransition(new Transition(newWorld.getId(), newWorld.getId()));
-        }
-        
-        // If no choices which did not introduce a contradiction were found, then ?declare the frame as contradictory and return?
-    }
-
-    private void serialise(World world) {
-
-        // In this frame, create a transition from the world to itself
-        addTransition(new Transition(world.getId(), world.getId()));
-
-        // Create (|worlds| - 1) new frames as this one, and in each one create a transition from the world to a different world (other than itself)
-        for (World otherWorld : worlds) {
-            if (otherWorld.getId() != world.getId()) {
-                Frame newFrame = new Frame(this, tableau, tableau.getNewFrameId(), system);
-                newFrame.addTransition(new Transition(world.getId(), otherWorld.getId()));
-                tableau.addFrame(newFrame);
-            }
-        }
-    }
-
-    private World getNonSerialWorld() {
-
-        ArrayList<Integer> nonSerialWorldsIds = new ArrayList<>();
-
-        // Initially we assume all worlds are non-serial
-        for (World world : worlds) {
-            nonSerialWorldsIds.add(world.getId());
-        }
-
-        // We discard worlds that have a transition to another world as non-serial
-        for (Transition transition : transitions) {
-            nonSerialWorldsIds.remove(transition.from());
-        }
-
-        if (nonSerialWorldsIds.isEmpty()) {
-            return null;
-        }
-        return getWorldWithId(nonSerialWorldsIds.get(0));
-    }
-
     private World worldSymmetricallyCompatible(HashSet<Formula> formulas, World currentWorld) {
 
         // The first world containing all given formulas is returned, if any
@@ -354,7 +302,7 @@ public class Frame {
                     continue worldsLoop;
                 }
             }
-            HashSet<Formula> newWorldFormulas = newWorld.getDeltaExpansionFormulas();
+            HashSet<Formula> newWorldFormulas = newWorld.getDeltaExpansionFormulas(system);
             for (Formula newWorldFormula : newWorldFormulas) {
                 if (!currentWorld.containsFormula(newWorldFormula)) {
                     continue worldsLoop;
@@ -375,8 +323,10 @@ public class Frame {
         for (World world : worlds) {
             for (Transition transition : transitions) {
                 if (transition.from() == currentWorld.getId() && transition.to() == world.getId()) {
-                    futureWorlds.add(world);
-                    futureWorlds.addAll(futureWorlds(world));  // Take the union of both sets
+                    if (currentWorld.getId() != world.getId()) {  // Do not make a recursive call for reflexive transitions (otherwise it loops forever)
+                        futureWorlds.add(world);
+                        futureWorlds.addAll(futureWorlds(world));  // Take the union of both sets
+                    }
                 }
             }
         }
@@ -384,26 +334,29 @@ public class Frame {
         return futureWorlds;
     }
 
+    private boolean worldsAreLinearlyCompatible(HashSet<Formula> formulas, World toWorld) {
+        for (Formula formula : formulas) {
+            if (!toWorld.containsFormula(formula)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private World worldLinearlyCompatible(HashSet<Formula> formulas, World currentWorld) {
-
         HashSet<World> futureWorlds = futureWorlds(currentWorld);
-
         // The first world containing all given formulas is returned, if any
         worldsLoop:
         for (World world : futureWorlds) {
-            for (Formula formula : formulas) {
-                if (!world.containsFormula(formula)) {
-                    continue worldsLoop;
-                }
+            if (worldsAreLinearlyCompatible(formulas, world)) {
+                continue worldsLoop;
             }
             return world;
         }
-
         return null;
     }
 
     private World worldContainingFormulas(HashSet<Formula> formulas) {
-
         // The first world containing all given formulas is returned, if any
         worldsLoop:
         for (World world : worlds) {
@@ -414,7 +367,6 @@ public class Frame {
             }
             return world;
         }
-
         return null;
     }
 
