@@ -72,16 +72,6 @@ public class World {
         return false;
     }
 
-    // This function also counts ticked formulas
-    public boolean containsFormulas(HashSet<Formula> formulas) {
-        for (Formula formula : formulas){
-            if (!containsFormula(formula)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public void addFormula(Formula newFormula) {
         // Check for duplicate formulas
         if (containsFormula(newFormula)) {

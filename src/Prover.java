@@ -46,7 +46,7 @@ public class Prover {
         Parser parser = new Parser();
         parser.parseInput(inputString);
         theorems = parser.getTheorems();
-        unrecognisedTheorems = parser.getInvalidTheorems();
+        unrecognisedTheorems = parser.getUnrecognisedTheorems();
         system = parser.getSystem();
 
         results += "\n--------  PARSING\n\n";

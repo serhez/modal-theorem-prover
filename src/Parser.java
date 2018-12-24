@@ -4,12 +4,12 @@ import java.util.Arrays;
 public class Parser {
 
     private ArrayList<Theorem> theorems;      // TODO: THESE TWO VARIABLES ARE BAD, RETURN EVERYTHING IN parseInput() CALL
-    private ArrayList<Integer> invalidTheorems;
+    private ArrayList<Integer> unrecognisedTheorems;
     private ModalSystem system;
 
     public Parser() {
         theorems = new ArrayList<>();
-        invalidTheorems = new ArrayList<>();
+        unrecognisedTheorems = new ArrayList<>();
     }
 
     // Takes the input string extracted from the input file and populates the variable theorems
@@ -22,7 +22,7 @@ public class Parser {
             Theorem currentTheorem = new Theorem(theoremStrings.get(i));
             theorems.add(currentTheorem);
             if (!currentTheorem.parse()) {
-                invalidTheorems.add(i);
+                unrecognisedTheorems.add(i);
             }
         }
     }
@@ -32,7 +32,7 @@ public class Parser {
         Theorem theorem = new Theorem(formulaString);
         theorems.add(theorem);
         if (!theorem.parse()) {
-            invalidTheorems.add(0);
+            unrecognisedTheorems.add(0);
             return false;
         }
 
@@ -72,7 +72,7 @@ public class Parser {
         return theorems;
     }
 
-    public ArrayList<Integer> getInvalidTheorems() {
-        return invalidTheorems;
+    public ArrayList<Integer> getUnrecognisedTheorems() {
+        return unrecognisedTheorems;
     }
 }

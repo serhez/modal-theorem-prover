@@ -23,7 +23,7 @@ public class Tableau {
         frameIdCount++;
 
         int step = 1;
-        int fullyExpandedFrames = 0;
+        int fullyExpandedFrames = 0;   // TODO: DON'T NEED THIS
         while (fullyExpandedFrames != frames.size()) {
             if (!frames.isEmpty()) {
                 Frame frame = frames.getFirst();
