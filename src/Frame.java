@@ -241,6 +241,11 @@ public class Frame {
             // that if you would have created a new world, you would not have found. BUT: what happens if you expand
             // <>(q&~p) into a world with p? YOU CAN'T, because in order to do that, (q&~p) would need to be in that world
             // already (so they would have been expanded before and found the contradiction anyway) NICE!
+
+            // NO! What if you had a world w with a ticked formula ~(~p->q) (hence also formulas ~p and ~q) and you expand
+            // the gamma formula <>p into w? STILL OK, because in order to expand <>p to w, w needs to have p (and possibly other formulas),
+            // hence the contradiction introduced by ~p and p would have already existed (and likely been found) in w before.
+
             HashSet<Formula> expandingFormulas;
             if (system.isTransitive()) {  // Also applies to linearity
                 expandingFormulas = world.getTransitiveGammaExpansionFormulas(formula);
