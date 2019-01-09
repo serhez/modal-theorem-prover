@@ -34,10 +34,11 @@ public class Prover {
         if (inputIsEmpty(inputString)) {
             String message = "The input file cannot be empty.";
             try {
-                writeOutputFile(message);
+                write(message, "output/output.txt");
             } catch (IOException e) {
-                System.out.println("Could not warn about empty input.");
-                return;
+                System.out.print("Could not write warning to output file: ");
+                System.out.println(e.getMessage());
+                System.out.println("Running directory is " + System.getProperty("user.dir"));                return;
             }
             return;
         }
@@ -75,19 +76,37 @@ public class Prover {
         }
 
         try {
-            writeOutputFile(results);
+            write(results, "output/output.txt");
         } catch (IOException e) {
-            System.out.println("The output could not be written.");
+            System.out.print("The output could not be written: ");
+            System.out.println(e.getMessage());
+            System.out.println("Running directory is " + System.getProperty("user.dir"));
             return;
         }
     }
 
     // Returns a list of integers, where 1 represents validity and 0 represents invalidity
-    // This method can be used to study validity rates and the time and space performance of the prover
+    // This method can be used to study validity rates and the time-space performance of the prover
     public ArrayList<Integer> proveRandomFormulas(int n, int size, int maxPropositions, ModalSystem system) throws InvalidNumberOfPropositionsException, UnrecognizableFormulaException, IncompatibleFrameConditionsException {
         ArrayList<Integer> results = new ArrayList<>();
         InputGenerator generator = new InputGenerator();
         ArrayList<String> formulas = generator.generateFormulas(n, size, maxPropositions);
+
+        // Write formulas to the debugging file
+        StringBuilder builder = new StringBuilder();
+        for (String formula : formulas)
+        {
+            builder.append(formula);
+            builder.append("\n");
+        }
+        try {
+            write(builder.toString(), "Validity-Analysis/output/debugging.txt");
+        } catch (IOException e) {
+            System.out.print("The formulas could not be written to the debugging file: ");
+            System.out.println(e.getMessage());
+            System.out.println("Running directory is " + System.getProperty("user.dir"));
+        }
+
         System.out.println("\n-- " + n + " formulas have been generated --\n");
         for (int i = 0; i < n; i++) {
             if (proveFormula(formulas.get(i), system)) {
@@ -108,7 +127,7 @@ public class Prover {
 
         Tableau tableau = new Tableau(parser.getTheorems().get(0), system, debugging);
         if (tableau.run()) {
-            tableau = null; // To free memory
+            tableau = null; // To free memory // TODO: check this works with VisualVM; if not, delete
             System.gc();
             return true;    // Valid
         } else {
@@ -123,8 +142,8 @@ public class Prover {
         return (Files.lines(Paths.get(inputPath), StandardCharsets.UTF_8)).collect(Collectors.joining());
     }
 
-    private void writeOutputFile(String string) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter("output/output.txt"));
+    private void write(String string, String path) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(path));
         writer.write(string);
         writer.close();
     }
