@@ -29,7 +29,7 @@ public class Debugging {
     @Test
     public void runRandomInputFile() throws InvalidNumberOfPropositionsException, IncompatibleFrameConditionsException {
         InputGenerator inputGenerator = new InputGenerator();
-        inputGenerator.generateInputFile(100000, 100, 2, "K");
+        inputGenerator.generateInputFile(1, 70000, 2, "K");
         Prover prover = new Prover(false);
         prover.proveInputFile();
     }

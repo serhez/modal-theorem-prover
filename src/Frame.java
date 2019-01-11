@@ -271,7 +271,11 @@ public class Frame {
                 numberOfWorlds++;
                 worlds.add(newWorld);
                 world.allCurrentDeltaFormulasExpandedTo(newWorld.getId());
-                addTransition(new Transition(world.getId(), newWorld.getId()));
+                if (system.isLinear()) {
+                    // TODO: If system is linear and you are creating a new world, you have to choose the position where you place it in the "line" and create the appropriate transitions
+                } else {
+                    addTransition(new Transition(world.getId(), newWorld.getId()));
+                }
                 if (system.isSymmetric()) {
                     this.addTransition(new Transition(newWorld.getId(), world.getId()));
                 }
@@ -279,13 +283,20 @@ public class Frame {
                     this.addTransition(new Transition(newWorld.getId(), newWorld.getId()));
                 }
             } else {
-                addTransition(new Transition(world.getId(), existingWorld.getId()));
+                if (!system.isTransitive()) {  // We avoid creating transitions to non-adjacent future worlds since we imply many transitions
+                    addTransition(new Transition(world.getId(), existingWorld.getId()));
+                }
             }
         }
 
         // Delta Rule
         else if (type == FormulaType.NECESSARILY || type == FormulaType.NOTPOSSIBLY) {
-            LinkedList<World> deltaWorlds = getDeltaWorldsFor(world, formula);
+            HashSet<World> deltaWorlds;
+            if (system.isTransitive()) {
+                deltaWorlds = reachableWorlds(world);  // Necessary since we imply many transitions in transitive frames (not explicit)
+            } else {
+                deltaWorlds = getDeltaWorldsFor(world, formula);
+            }
             for (World deltaWorld : deltaWorlds) {
                 deltaWorld.addFormula(formula.getSubformulas().get(0));
             }
@@ -319,10 +330,30 @@ public class Frame {
         return null;
     }
 
+    private HashSet<World> reachableWorlds(World currentWorld) {
+
+        HashSet<World> reachableWorlds = new HashSet<>();
+
+        for (World world : worlds) {
+            for (Transition transition : transitions) {
+                if (transition.from() == currentWorld.getId() && transition.to() == world.getId()) {
+                    if (currentWorld.getId() != world.getId()) {
+                        reachableWorlds.add(world);
+                    } else {  // Do not make a recursive call for reflexive transitions (otherwise it loops forever)
+                        reachableWorlds.add(world);
+                        reachableWorlds.addAll(reachableWorlds(world));  // Take the union of both sets
+                    }
+                }
+            }
+        }
+
+        return reachableWorlds;
+    }
+
     private HashSet<World> futureWorlds(World currentWorld) {
 
         HashSet<World> futureWorlds = new HashSet<>();
-        futureWorlds.add(currentWorld);  // By reflexivity
+        futureWorlds.add(currentWorld);  // Difference with reachableWorlds() method is that the current world is always a future world
 
         // If the frame was linear and also serial, this recursive for-loop could potentially never terminate
         for (World world : worlds) {
@@ -400,8 +431,8 @@ public class Frame {
         return false;
     }
 
-    private LinkedList<World> getDeltaWorldsFor(World world, Formula formula) {
-        LinkedList<World> deltaWorlds = new LinkedList<>();
+    private HashSet<World> getDeltaWorldsFor(World world, Formula formula) {
+        HashSet<World> deltaWorlds = new HashSet<>();
         for (Transition transition : transitions) {
             if (transition.from() == world.getId() && !formula.getWorldsExpandedTo().contains(transition.to())) {
                 deltaWorlds.add(getWorldWithId(transition.to()));
