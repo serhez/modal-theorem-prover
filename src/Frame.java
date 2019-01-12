@@ -272,7 +272,52 @@ public class Frame {
                 worlds.add(newWorld);
                 world.allCurrentDeltaFormulasExpandedTo(newWorld.getId());
                 if (system.isLinear()) {
-                    // TODO: If system is linear and you are creating a new world, you have to choose the position where you place it in the "line" and create the appropriate transitions
+                    // TODO: If none of the future worlds have the necessary formulas, then the new world will be placed
+                    // TODO: ... at the end of the "line". However, is it possible that, in some frame, placing it at the
+                    // TODO: ... end of the "line" produces eventually a contradiction, but having it placed at some other
+                    // TODO: ... valid position would have not, even if at such position the adjacent worlds did not have
+                    // TODO: ... the necessary formulas within them?
+                    HashSet<World> futureWorlds = futureWorlds(world);
+                    HashSet<Formula> necessaryFormulas;
+                    HashSet<Formula> newWorldDeltaFormulas;
+                    World leftWorld = null;   // The world we will place at the left of the new world in the "line"
+                    World rightWorld = null;  // The world we will place at the right of the new world in the "line"
+                    positionSearch:
+                    for (World fromWorld : futureWorlds) {
+                        necessaryFormulas = fromWorld.getDeltaExpansionFormulas(system);
+                        if (!newWorld.containsFormulas(necessaryFormulas)) {
+                            continue positionSearch;
+                        }
+                        World toWorld = linearlyAdjacentWorld(fromWorld);  // Can be null if it is the last world in the "line"
+                        newWorldDeltaFormulas = newWorld.getDeltaExpansionFormulas(system);
+                        if (toWorld == null || !toWorld.containsFormulas(newWorldDeltaFormulas)) { // If toWorld == null then it is the last world in the "line"
+                            continue positionSearch;
+                        }
+                        leftWorld = fromWorld;
+                        rightWorld = toWorld;
+                    }
+                    if (!(leftWorld == null)) {
+                        // Remove previous transition
+                        removeTransition(leftWorld.getId(), rightWorld.getId());
+                        // Create new transitions
+                        transitions.add(new Transition(leftWorld.getId(), newWorld.getId()));
+                        transitions.add(new Transition(newWorld.getId(), rightWorld.getId()));
+                    } else {
+                        // We find the last world in the "line"
+                        World lastWorld = null;  // We assume we will always find a last world
+                        lastWorldSearch:
+                        for (World futureWorld : futureWorlds) {
+                            for (Transition transition : transitions) {
+                                if (transition.from() == futureWorld.getId() && transition.to() != world.getId()) {  // We don't consider loop transitions
+                                    continue lastWorldSearch;
+                                }
+                            }
+                            lastWorld = futureWorld;
+                            break lastWorldSearch;
+                        }
+                        // We place the new world at the end of the "line"
+                        transitions.add(new Transition(lastWorld.getId(), newWorld.getId()));
+                    }
                 } else {
                     addTransition(new Transition(world.getId(), newWorld.getId()));
                 }
@@ -306,6 +351,24 @@ public class Frame {
                 untickAllDeltaFormulas();
             }
         }
+    }
+
+    private void removeTransition(int from, int to) {
+        for (Transition transition : transitions) {
+            if (transition.from() == from && transition.to() == to) {
+                transitions.remove(transition);
+            }
+        }
+    }
+
+    // Returns the adjacent world to any world in a linear frame, assuming there is only such adjacent world
+    private World linearlyAdjacentWorld(World world) {
+        for (Transition transition : transitions) {
+            if (transition.from() == world.getId() && transition.to() != world.getId()) {  // Not counting loop transitions
+                return getWorldWithId(transition.to());
+            }
+        }
+        return null;
     }
 
     private World worldSymmetricallyCompatible(HashSet<Formula> formulas, World currentWorld) {

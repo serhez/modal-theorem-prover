@@ -63,6 +63,16 @@ public class World {
     }
 
     // This function also counts ticked formulas
+    public boolean containsFormulas(HashSet<Formula> formulas) {
+        for (Formula formula : formulas){
+            if (!containsFormula(formula)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // This function also counts ticked formulas
     public boolean containsFormula(Formula newFormula) {
         for (Formula formula : formulas){
             if(newFormula.getString().equals(formula.getString())) {
