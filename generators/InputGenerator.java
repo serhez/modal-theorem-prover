@@ -46,7 +46,7 @@ public class InputGenerator {
         for (int i=0; i < n; i++) {
             String formula = formulaGenerator.generate(size, maxPropositions);
             inputString += (formula + ";\n");
-            System.out.println("Generated " + (i+1) + " formulas out of " + n);
+            // System.out.println("Generated " + (i+1) + " formulas out of " + n);  // For debugging
         }
 
         return inputString;

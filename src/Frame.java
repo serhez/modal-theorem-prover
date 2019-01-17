@@ -10,7 +10,7 @@ public class Frame {
     private LinkedList<World> worlds;
     private int currentWorldId;
     private HashSet<Transition> transitions;
-    private int numberOfWorlds;
+    private int worldIdCount;
     private boolean isExpandable;
 
     public Frame(LinkedList<Formula> initialFormulas, Tableau tableau, int id, ModalSystem system) {
@@ -20,8 +20,8 @@ public class Frame {
         this.tableau = tableau;
         this.worlds = new LinkedList<>();
         this.currentWorldId = 0;
-        numberOfWorlds = 1;
-        World initialWorld = new World(initialFormulas, numberOfWorlds);
+        worldIdCount = 1;
+        World initialWorld = new World(initialFormulas, worldIdCount);
         if (system.isSerial()) {
             initialWorld.addFormula(new Formula("T"));
             initialWorld.addFormula(new Formula("<>T"));
@@ -38,7 +38,7 @@ public class Frame {
         this.system = specification;
         this.isExpandable = true;
         this.tableau = tableau;
-        this.numberOfWorlds = originalFrame.getNumberOfWorlds();
+        this.worldIdCount = originalFrame.getWorldIdCount();
         this.worlds = originalFrame.cloneWorlds();
         this.currentWorldId = originalFrame.currentWorldId;
         this.transitions = originalFrame.cloneTransitions();
@@ -263,12 +263,12 @@ public class Frame {
             }
             if (existingWorld == null) {
                 LinkedList<Formula> formulas = new LinkedList<>(expandingFormulas);
-                World newWorld = new World(formulas, numberOfWorlds);
+                worldIdCount++;
+                World newWorld = new World(formulas, worldIdCount);
                 if (system.isSerial()) {
                     newWorld.addFormula(new Formula("T"));
                     newWorld.addFormula(new Formula("<>T"));
                 }
-                numberOfWorlds++;
                 worlds.add(newWorld);
                 world.allCurrentDeltaFormulasExpandedTo(newWorld.getId());
                 if (system.isLinear()) {
@@ -570,8 +570,8 @@ public class Frame {
         return accessibleWorlds.toString();
     }
 
-    public int getNumberOfWorlds() {
-        return numberOfWorlds;
+    public int getWorldIdCount() {
+        return worldIdCount;
     }
 
     public int getId() {

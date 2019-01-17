@@ -6,18 +6,22 @@ public class Tableau {
     private final ModalSystem system;
     private LinkedList<Frame> frames;
     private int frameIdCount;
-    private boolean debugging;
+    private Prover prover;
+    private long startTime;
 
-    public Tableau(Theorem theorem, ModalSystem system, boolean debugging) {
+    public Tableau(Prover prover, Theorem theorem, ModalSystem system) {
+        this.prover = prover;
         this.system = system;
         this.theorem = theorem;
         this.frames = new LinkedList<>();
         this.frameIdCount = 1;
-        this.debugging = debugging;
+        if (prover.isProtected()) {
+            this.startTime = System.currentTimeMillis();
+        }
     }
 
-    // Returns true if the theorem is valid, false otherwise
-    public boolean run() {
+    // Returns true if the theorem is valid, false otherwise; if in protected mode, it may return null if it times out
+    public Boolean run() {
 
         frames.add(new Frame(theorem.getFormulas(), this, frameIdCount, system));
         frameIdCount++;
@@ -25,6 +29,13 @@ public class Tableau {
         int step = 1;
         int fullyExpandedFrames = 0;   // TODO: DON'T NEED THIS
         while (fullyExpandedFrames != frames.size()) {
+            if (prover.isProtected()) {
+                long now = System.currentTimeMillis();
+                // Time out after 3 seconds
+                if (now - startTime > 3000) {
+                    return null;
+                }
+            }
             if (!frames.isEmpty()) {
                 Frame frame = frames.getFirst();
                 frame.expandNextFormula();
@@ -38,13 +49,13 @@ public class Tableau {
                     }
                 } else {
                     if (!frame.isExpandable()) {
-                        return false;  // If there is a non-expandable frame which contains no contradictions, we can finish
+                        return Boolean.FALSE;  // If there is a non-expandable frame which contains no contradictions, we can finish
                     }
                     frames.add(frames.removeFirst());
                 }
             }
 
-            if (debugging) {
+            if (prover.isDebugging()) {
                 System.out.println();
                 System.out.println();
                 System.out.println();
@@ -62,10 +73,10 @@ public class Tableau {
         }
 
         if (frames.isEmpty()) {
-            return true;
+            return Boolean.TRUE;
         }
 
-        return false;
+        return Boolean.FALSE;
     }
 
     public void addFrame(Frame frame) {

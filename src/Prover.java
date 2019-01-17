@@ -9,10 +9,12 @@ import java.util.stream.Collectors;
 
 public class Prover {
 
-    boolean debugging;
+    boolean debuggingMode;   // Prints to the console the state of the frames at each step of the tableau
+    boolean protectedMode;   // Stops tableaux if they reach a limit number of frames, worlds or transitions
 
-    public Prover(boolean debugging) {
-        this.debugging = debugging;
+    public Prover(boolean debuggingMode, boolean protectedMode) {
+        this.debuggingMode = debuggingMode;
+        this.protectedMode = protectedMode;
     }
 
     public void proveInputFile() throws IncompatibleFrameConditionsException {
@@ -38,7 +40,8 @@ public class Prover {
             } catch (IOException e) {
                 System.out.print("Could not write warning to output file: ");
                 System.out.println(e.getMessage());
-                System.out.println("Running directory is " + System.getProperty("user.dir"));                return;
+                System.out.println("Running directory is " + System.getProperty("user.dir"));
+                return;
             }
             return;
         }
@@ -65,13 +68,16 @@ public class Prover {
         results += "\n\n--------  PROVING\n\n";
         for (int i=0; i < n; i++) {
             if (!unrecognisedTheorems.contains(i)) {
-                tableau = new Tableau(theorems.get(i), system, debugging);
-                if (tableau.run()) {
+                tableau = new Tableau(this, theorems.get(i), system);
+                Boolean validity = tableau.run();
+                if (validity == null) {  // The tableau aborted in protected mode
+                    results += "The proving process for theorem " + (i+1) + " was aborted in protected mode.\n";
+                } else if (validity.booleanValue()) {
                     results += "Theorem " + (i+1) + " is valid.\n";
                 } else {
                     results += "Theorem " + (i+1) + " is not valid.\n";
                 }
-                System.out.println("Proven " + (i+1) + " of " + n + " theorems");
+                System.out.println("Done " + (i+1) + " of " + n + " theorems");
             }
         }
 
@@ -87,53 +93,73 @@ public class Prover {
 
     // Returns a list of integers, where 1 represents validity and 0 represents invalidity
     // This method can be used to study validity rates and the time-space performance of the prover
-    public ArrayList<Integer> proveRandomFormulas(int n, int size, int maxPropositions, ModalSystem system) throws InvalidNumberOfPropositionsException, UnrecognizableFormulaException, IncompatibleFrameConditionsException {
+    // It employs the protected mode of the prover, due to generally being used with large formula sizes
+    public ArrayList<Integer> proveRandomFormulas(int n, int size, int maxPropositions, ModalSystem system, boolean debugging) throws InvalidNumberOfPropositionsException, UnrecognizableFormulaException, IncompatibleFrameConditionsException {
+
         ArrayList<Integer> results = new ArrayList<>();
         InputGenerator generator = new InputGenerator();
         ArrayList<String> formulas = generator.generateFormulas(n, size, maxPropositions);
-
-        // Write formulas to the debugging file
-        StringBuilder builder = new StringBuilder();
-        for (String formula : formulas)
-        {
-            builder.append(formula);
-            builder.append("\n");
-        }
-        try {
-            write(builder.toString(), "Validity-Analysis/output/debugging.txt");
-        } catch (IOException e) {
-            System.out.print("The formulas could not be written to the debugging file: ");
-            System.out.println(e.getMessage());
-            System.out.println("Running directory is " + System.getProperty("user.dir"));
-        }
-
         System.out.println("\n-- " + n + " formulas have been generated --\n");
+
+        int abortedFormulas = 0;
+
+        if (debugging) {
+            // Write formulas to the debugging file
+            StringBuilder builder = new StringBuilder();
+            for (String formula : formulas) {
+                builder.append(formula);
+                builder.append("\n");
+            }
+            try {
+                write(builder.toString(), "Validity-Analysis/output/debugging.txt");
+            } catch (IOException e) {
+                System.out.print("The formulas could not be written to the debugging file: ");
+                System.out.println(e.getMessage());
+                System.out.println("Running directory is " + System.getProperty("user.dir"));
+            }
+        }
+
         for (int i = 0; i < n; i++) {
-            if (proveFormula(formulas.get(i), system)) {
+            Boolean validity = proveFormula(formulas.get(i), system);
+            if (validity == null) {
+                abortedFormulas++;
+                System.out.println("Aborted formula #" + (i+1));
+                continue;
+            } else if (validity.booleanValue()) {
                 results.add(1);
             } else {
                 results.add(0);
             }
-            System.out.println("Proven " + (i+1) + " of " + n + " formulas");
+            System.out.println("Analysed " + (i+1) + " of " + n + " formulas");
         }
+
+        System.out.println("\n\n---------- RESULTS ----------\n");
+        System.out.println("# formulas aborted = " + abortedFormulas);
+        System.out.println("# formulas proven = " + (n - abortedFormulas));
+        System.out.println("% formulas proven = " + ((((double)(n - abortedFormulas))/n)*100) + "%");
+        System.out.println("\n-----------------------------\n");
         return results;
     }
 
-    public boolean proveFormula(String formulaString, ModalSystem system) throws UnrecognizableFormulaException, IncompatibleFrameConditionsException {
+    public Boolean proveFormula(String formulaString, ModalSystem system) throws UnrecognizableFormulaException, IncompatibleFrameConditionsException {
         Parser parser = new Parser();
         if (!parser.parseFormula(formulaString)) {
             throw new UnrecognizableFormulaException(formulaString);
         }
 
-        Tableau tableau = new Tableau(parser.getTheorems().get(0), system, debugging);
-        if (tableau.run()) {
+        Tableau tableau = new Tableau(this, parser.getTheorems().get(0), system);
+        Boolean validity = tableau.run();
+        // TODO: "return tableau.run();" instead. This was only done to be able to do system.gc()
+        if (validity == null) {
+            return null;
+        } else if (validity.booleanValue()) {
             tableau = null; // To free memory // TODO: check this works with VisualVM; if not, delete
             System.gc();
-            return true;    // Valid
+            return Boolean.TRUE;    // Valid
         } else {
             tableau = null; // To free memory
             System.gc();
-            return false;   // Invalid
+            return Boolean.FALSE;   // Invalid
         }
     }
 
@@ -163,5 +189,13 @@ public class Prover {
         }
 
         return true;
+    }
+
+    public boolean isDebugging() {
+        return debuggingMode;
+    }
+
+    public boolean isProtected() {
+        return protectedMode;
     }
 }

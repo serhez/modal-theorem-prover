@@ -5,7 +5,7 @@ public class SymmetricTests {
 
     @Test
     public void correctness() throws IncompatibleFrameConditionsException {
-        Prover prover = new Prover(false);
+        Prover prover = new Prover(true, false);
         ModalSystem systemB = new ModalSystem("B");
         ModalSystem systemK = new ModalSystem("K");
         String validFormula = "~((p & <>p) & [][]~p)";

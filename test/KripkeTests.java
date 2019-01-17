@@ -7,7 +7,7 @@ public class KripkeTests {
     @Test
     public void acceptsValidFormulas() throws IncompatibleFrameConditionsException {
 
-        Prover prover = new Prover(false);
+        Prover prover = new Prover(false, false);
         ModalSystem system = new ModalSystem("K");
         ArrayList<String> formulas = new ArrayList<>();
 
@@ -33,7 +33,7 @@ public class KripkeTests {
     @Test
     public void rejectsInvalidFormulas() throws IncompatibleFrameConditionsException {
 
-        Prover prover = new Prover(false);
+        Prover prover = new Prover(false, false);
         ModalSystem system = new ModalSystem("K");
         ArrayList<String> formulas = new ArrayList<>();
 
