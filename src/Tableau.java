@@ -32,7 +32,7 @@ public class Tableau {
             if (prover.isProtected()) {
                 long now = System.currentTimeMillis();
                 // Time out after 3 seconds
-                if (now - startTime > 3000) {
+                if (now - startTime > prover.getTimeoutLimit()) {
                     return null;
                 }
             }

@@ -9,12 +9,35 @@ import java.util.stream.Collectors;
 
 public class Prover {
 
-    boolean debuggingMode;   // Prints to the console the state of the frames at each step of the tableau
-    boolean protectedMode;   // Stops tableaux if they reach a limit number of frames, worlds or transitions
+    private boolean debuggingMode;    // Prints to the console the state of the frames at each step of the tableau
+    private boolean protectedMode;    // Stops tableaux if timeout limit is surpassed
+    private int timeoutLimit = 3000;  // 3 seconds by default (only used in protected mode)
 
     public Prover(boolean debuggingMode, boolean protectedMode) {
         this.debuggingMode = debuggingMode;
         this.protectedMode = protectedMode;
+    }
+
+    public class Results {
+        private ArrayList<Integer> results;
+        private double abortionRate;
+        private double seconds;
+
+        public Results(ArrayList<Integer> results, double abortionRate) {
+            this.results = results;
+            this.abortionRate = abortionRate;
+            this.seconds = (double)timeoutLimit/1000;
+        }
+
+        public ArrayList<Integer> getResults() {
+            return results;
+        }
+        public double getAbortionRate() {
+            return abortionRate;
+        }
+        public double getTimeoutLimit() {
+            return seconds;
+        }
     }
 
     public void proveInputFile() throws IncompatibleFrameConditionsException {
@@ -94,9 +117,9 @@ public class Prover {
     // Returns a list of integers, where 1 represents validity and 0 represents invalidity
     // This method can be used to study validity rates and the time-space performance of the prover
     // It employs the protected mode of the prover, due to generally being used with large formula sizes
-    public ArrayList<Integer> proveRandomFormulas(int n, int size, int maxPropositions, ModalSystem system, boolean debugging) throws InvalidNumberOfPropositionsException, UnrecognizableFormulaException, IncompatibleFrameConditionsException {
+    public Results proveRandomFormulas(int n, int size, int maxPropositions, ModalSystem system, boolean debugging) throws InvalidNumberOfPropositionsException, UnrecognizableFormulaException, IncompatibleFrameConditionsException {
 
-        ArrayList<Integer> results = new ArrayList<>();
+        ArrayList<Integer> proven = new ArrayList<>();
         InputGenerator generator = new InputGenerator();
         ArrayList<String> formulas = generator.generateFormulas(n, size, maxPropositions);
         System.out.println("\n-- " + n + " formulas have been generated --\n");
@@ -126,18 +149,21 @@ public class Prover {
                 System.out.println("Aborted formula #" + (i+1));
                 continue;
             } else if (validity.booleanValue()) {
-                results.add(1);
+                proven.add(1);
             } else {
-                results.add(0);
+                proven.add(0);
             }
             System.out.println("Analysed " + (i+1) + " of " + n + " formulas");
         }
 
+        double abortionRate = ((1-(((double)(n - abortedFormulas))/n))*100);
         System.out.println("\n\n---------- RESULTS ----------\n");
         System.out.println("# formulas aborted = " + abortedFormulas);
         System.out.println("# formulas proven = " + (n - abortedFormulas));
-        System.out.println("% formulas proven = " + ((((double)(n - abortedFormulas))/n)*100) + "%");
+        System.out.println("% formulas aborted = " + abortionRate + "%");
         System.out.println("\n-----------------------------\n");
+
+        Results results = new Results(proven, abortionRate);
         return results;
     }
 
@@ -194,8 +220,13 @@ public class Prover {
     public boolean isDebugging() {
         return debuggingMode;
     }
-
     public boolean isProtected() {
         return protectedMode;
+    }
+    public int getTimeoutLimit() {
+        return timeoutLimit;
+    }
+    public void setTimeoutLimit(int timeoutLimit) {
+        this.timeoutLimit = timeoutLimit;
     }
 }
