@@ -1,6 +1,7 @@
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -11,26 +12,31 @@ public class Prover {
 
     private boolean debuggingMode;    // Prints to the console the state of the frames at each step of the tableau
     private boolean protectedMode;    // Stops tableaux if timeout limit is surpassed
-    private int timeoutLimit = 3000;  // 3 seconds by default (only used in protected mode)
+    private int timeout = 3000;       // 3 seconds by default (only used in protected mode)
 
-    public Prover(boolean debuggingMode, boolean protectedMode) {
-        this.debuggingMode = debuggingMode;
-        this.protectedMode = protectedMode;
+    public Prover() {
+        this.debuggingMode = false;
+        this.protectedMode = false;
     }
 
     public class Results {
         private ArrayList<Integer> results;
+        private ArrayList<Long> times;
         private double abortionRate;
         private double seconds;
 
-        public Results(ArrayList<Integer> results, double abortionRate) {
+        public Results(ArrayList<Integer> results, ArrayList<Long> times, double abortionRate) {
             this.results = results;
+            this.times = times;
             this.abortionRate = abortionRate;
-            this.seconds = (double)timeoutLimit/1000;
+            this.seconds = (double)timeout/1000;
         }
 
         public ArrayList<Integer> getResults() {
             return results;
+        }
+        public ArrayList<Long> getTimes() {
+            return times;
         }
         public double getAbortionRate() {
             return abortionRate;
@@ -119,6 +125,8 @@ public class Prover {
     // It employs the protected mode of the prover, due to generally being used with large formula sizes
     public Results proveRandomFormulas(int n, int size, int maxPropositions, ModalSystem system, boolean debugging) throws InvalidNumberOfPropositionsException, UnrecognizableFormulaException, IncompatibleFrameConditionsException {
 
+        long start, end;
+        ArrayList<Long> times = new ArrayList<>();
         ArrayList<Integer> proven = new ArrayList<>();
         InputGenerator generator = new InputGenerator();
         ArrayList<String> formulas = generator.generateFormulas(n, size, maxPropositions);
@@ -143,17 +151,21 @@ public class Prover {
         }
 
         for (int i = 0; i < n; i++) {
+            start = System.currentTimeMillis();
             Boolean validity = proveFormula(formulas.get(i), system);
+            end = System.currentTimeMillis();
             if (validity == null) {
                 abortedFormulas++;
-                System.out.println("Aborted formula #" + (i+1));
+                //System.out.println("Aborted formula #" + (i+1));  // Uncomment for feedback; comment for better performance
                 continue;
-            } else if (validity.booleanValue()) {
+            }
+            times.add(end-start);
+            if (validity.booleanValue()) {
                 proven.add(1);
             } else {
                 proven.add(0);
             }
-            System.out.println("Analysed " + (i+1) + " of " + n + " formulas");
+            //System.out.println("Analysed " + (i+1) + " of " + n + " formulas");  // Uncomment for feedback; comment for better performance
         }
 
         double abortionRate = ((1-(((double)(n - abortedFormulas))/n))*100);
@@ -163,7 +175,7 @@ public class Prover {
         System.out.println("% formulas aborted = " + abortionRate + "%");
         System.out.println("\n-----------------------------\n");
 
-        Results results = new Results(proven, abortionRate);
+        Results results = new Results(proven, times, abortionRate);
         return results;
     }
 
@@ -223,10 +235,23 @@ public class Prover {
     public boolean isProtected() {
         return protectedMode;
     }
-    public int getTimeoutLimit() {
-        return timeoutLimit;
+    public int getTimeout() {
+        return timeout;
     }
-    public void setTimeoutLimit(int timeoutLimit) {
-        this.timeoutLimit = timeoutLimit;
+    public void enableProtectedMode(int timeout) throws NegativeTimeoutException {
+        if (timeout < 0) {
+            throw new NegativeTimeoutException();
+        }
+        protectedMode = true;
+        this.timeout = timeout;
+    }
+    public void enableDebuggingMode() {
+        debuggingMode = true;
+    }
+    public void disableProtectedMode() {
+        protectedMode = false;
+    }
+    public void disableDebuggingMode() {
+        debuggingMode = true;
     }
 }

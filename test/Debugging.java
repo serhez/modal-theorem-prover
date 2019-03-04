@@ -16,21 +16,22 @@ public class Debugging {
 
     @Test
     public void runCurrentInputFile() throws IncompatibleFrameConditionsException {
-        Prover prover = new Prover(false, false);
+        Prover prover = new Prover();
         prover.proveInputFile();
     }
 
     @Test
     public void debugCurrentInputFile() throws IncompatibleFrameConditionsException {
-        Prover prover = new Prover(true, false);
+        Prover prover = new Prover();
+        prover.enableDebuggingMode();
         prover.proveInputFile();
     }
 
     @Test
     public void runRandomInputFile() throws InvalidNumberOfPropositionsException, IncompatibleFrameConditionsException {
         InputGenerator inputGenerator = new InputGenerator();
-        inputGenerator.generateInputFile(1, 70000, 2, "K");
-        Prover prover = new Prover(false, false);
+        inputGenerator.generateInputFile(1, 1000, 2, "K");
+        Prover prover = new Prover();
         prover.proveInputFile();
     }
 
@@ -39,7 +40,7 @@ public class Debugging {
         InputGenerator inputGenerator = new InputGenerator();
         inputGenerator.generateInputFileAndMolleFile(10000, 50, 2, "K");
 
-        Prover prover = new Prover(false, false);
+        Prover prover = new Prover();
         prover.proveInputFile();
     }
 }

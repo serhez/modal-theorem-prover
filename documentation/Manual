@@ -46,12 +46,11 @@ L = Linear
 4 = Transitive
 
 In order to specify your frame conditions, you may include the following construct (a string of your frame conditions surrounded by colons):
-Also, some frame conditions imply other frame conditions. For example, linearity implies transitivity.
 
 :frame_conditions:
 
 Where frame_conditions is a string whose only characters are 'K', 'T', 'B', 'D' and '4', in any order but without repetition of any of them.
-Note that some frame conditions are incompatible. In this version of the program, only L is incompatible with B and D (as serial frames are anti-symmetric and cannot be serial).
+Note that some frame conditions are incompatible. In this version of the program, only L is incompatible with B and D (as serial frames are anti-symmetric and cannot be serial). Also, some frame conditions imply other frame conditions. For example, linearity implies transitivity.
 
 
 --------

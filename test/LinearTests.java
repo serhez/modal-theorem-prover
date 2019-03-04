@@ -7,7 +7,7 @@ public class LinearTests {
     // Same as with transitive frames
     @Test
     public void termination() throws IncompatibleFrameConditionsException {
-        Prover prover = new Prover(false, false);
+        Prover prover = new Prover();
         ModalSystem systemL = new ModalSystem("L");
         ArrayList<String> validFormulas = new ArrayList<>();
         ArrayList<String> invalidFormulas = new ArrayList<>();

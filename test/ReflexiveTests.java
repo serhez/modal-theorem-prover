@@ -8,7 +8,7 @@ public class ReflexiveTests {
 
     @Test
     public void correctness() throws IncompatibleFrameConditionsException {
-        Prover prover = new Prover(false, false);
+        Prover prover = new Prover();
         ModalSystem systemT = new ModalSystem("T");
         ModalSystem systemK = new ModalSystem("K");
         String validFormula = "~(~p & []p)";

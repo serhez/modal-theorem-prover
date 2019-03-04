@@ -2,7 +2,7 @@ import java.util.Random;
 
 public class FormulaGenerator {
 
-    public String generate(int maxLength, int maxPropositions) throws InvalidNumberOfPropositionsException {
+    public String generate(int size, int maxPropositions) throws InvalidNumberOfPropositionsException {
 
         if (maxPropositions < 1 || maxPropositions > 26) {
             throw new InvalidNumberOfPropositionsException();
@@ -13,40 +13,40 @@ public class FormulaGenerator {
         Random operator = new Random();
 
 
-        if (maxLength >= 5) {  // We count "->" and "<->" as 1 symbol each
-            switch (operator.nextInt(7)) {  // TODO: REMEMBER TO CHANGE BOUND WHEN CHANGING NUMBER OF OPERATORS
-                case 0:
-                    formula = appendNegation(maxLength, maxPropositions);
-                    break;
-                case 1:
-                    formula = appendOr(maxLength, maxPropositions);
-                    break;
-                case 2:
-                    formula = appendPossibly(maxLength, maxPropositions);
-                    break;
-                case 3:
-                    formula = appendNecessarily(maxLength, maxPropositions);
-                    break;
-                case 4:
-                    formula = appendAnd(maxLength, maxPropositions);
-                    break;
-                case 5:
-                    formula = appendCondition(maxLength, maxPropositions);
-                    break;
-                case 6:
-                    formula = appendBicondition(maxLength, maxPropositions);
-            }
-        } else if (maxLength >= 2) {  // We count "[]" and "<>" as 1 symbol each
+        if (size >= 5) {  // We count "->" and "<->" as 1 symbol each
             switch (operator.nextInt(3)) {  // TODO: REMEMBER TO CHANGE BOUND WHEN CHANGING NUMBER OF OPERATORS
                 case 0:
-                    formula = appendNegation(maxLength, maxPropositions);
+                    formula = appendNegation(size, maxPropositions);
                     break;
                 case 1:
-                    formula = appendPossibly(maxLength, maxPropositions);
+                    formula = appendOr(size, maxPropositions);
                     break;
                 case 2:
-                    formula = appendNecessarily(maxLength, maxPropositions);
+                    formula = appendPossibly(size, maxPropositions);
                     break;
+//                case 3:
+//                    formula = appendNecessarily(size, maxPropositions);
+//                    break;
+//                case 4:
+//                    formula = appendAnd(size, maxPropositions);
+//                    break;
+//                case 5:
+//                    formula = appendCondition(size, maxPropositions);
+//                    break;
+//                case 6:
+//                    formula = appendBicondition(size, maxPropositions);
+            }
+        } else if (size >= 2) {  // We count "[]" and "<>" as 1 symbol each
+            switch (operator.nextInt(2)) {  // TODO: REMEMBER TO CHANGE BOUND WHEN CHANGING NUMBER OF OPERATORS
+                case 0:
+                    formula = appendNegation(size, maxPropositions);
+                    break;
+                case 1:
+                    formula = appendPossibly(size, maxPropositions);
+                    break;
+//                case 2:
+//                    formula = appendNecessarily(size, maxPropositions);
+//                    break;
             }
         } else {
             formula = appendProposition(maxPropositions);
@@ -63,15 +63,15 @@ public class FormulaGenerator {
         return formula;
     }
 
-    private String appendNegation(int maxLength, int maxPropositions) throws InvalidNumberOfPropositionsException {
-        String subformula = generate(maxLength-1, maxPropositions);
+    private String appendNegation(int size, int maxPropositions) throws InvalidNumberOfPropositionsException {
+        String subformula = generate(size-1, maxPropositions);
         String formula = ("~" + subformula);
         return formula;
     }
 
-    private String appendOr(int maxLength, int maxPropositions) throws InvalidNumberOfPropositionsException {
+    private String appendOr(int size, int maxPropositions) throws InvalidNumberOfPropositionsException {
         Random number = new Random();
-        int subLength = maxLength-3;
+        int subLength = size-3;
         int length1 = number.nextInt(subLength-1) + 1; // At least length 1 and at most subLength-1
         int length2 = subLength - length1;
         String subformula1 = generate(length1, maxPropositions);
@@ -80,9 +80,9 @@ public class FormulaGenerator {
         return formula;
     }
 
-    private String appendAnd(int maxLength, int maxPropositions) throws InvalidNumberOfPropositionsException {
+    private String appendAnd(int size, int maxPropositions) throws InvalidNumberOfPropositionsException {
         Random number = new Random();
-        int subLength = maxLength-3;
+        int subLength = size-3;
         int length1 = number.nextInt(subLength-1) + 1; // At least length 1 and at most subLength-1
         int length2 = subLength - length1;
         String subformula1 = generate(length1, maxPropositions);
@@ -91,9 +91,9 @@ public class FormulaGenerator {
         return formula;
     }
 
-    private String appendCondition(int maxLength, int maxPropositions) throws InvalidNumberOfPropositionsException {
+    private String appendCondition(int size, int maxPropositions) throws InvalidNumberOfPropositionsException {
         Random number = new Random();
-        int subLength = maxLength-3;
+        int subLength = size-3;
         int length1 = number.nextInt(subLength-1) + 1; // At least length 1 and at most subLength-1
         int length2 = subLength - length1;
         String subformula1 = generate(length1, maxPropositions);
@@ -102,9 +102,9 @@ public class FormulaGenerator {
         return formula;
     }
 
-    private String appendBicondition(int maxLength, int maxPropositions) throws InvalidNumberOfPropositionsException {
+    private String appendBicondition(int size, int maxPropositions) throws InvalidNumberOfPropositionsException {
         Random number = new Random();
-        int subLength = maxLength-3;
+        int subLength = size-3;
         int length1 = number.nextInt(subLength-1) + 1; // At least length 1 and at most subLength-1
         int length2 = subLength - length1;
         String subformula1 = generate(length1, maxPropositions);
@@ -113,14 +113,14 @@ public class FormulaGenerator {
         return formula;
     }
 
-    private String appendNecessarily(int maxLength, int maxPropositions) throws InvalidNumberOfPropositionsException {
-        String subformula = generate(maxLength-1, maxPropositions);
+    private String appendNecessarily(int size, int maxPropositions) throws InvalidNumberOfPropositionsException {
+        String subformula = generate(size-1, maxPropositions);
         String formula = ("[]" + subformula);
         return formula;
     }
 
-    private String appendPossibly(int maxLength, int maxPropositions) throws InvalidNumberOfPropositionsException {
-        String subformula = generate(maxLength-1, maxPropositions);
+    private String appendPossibly(int size, int maxPropositions) throws InvalidNumberOfPropositionsException {
+        String subformula = generate(size-1, maxPropositions);
         String formula = ("<>" + subformula);
         return formula;
     }

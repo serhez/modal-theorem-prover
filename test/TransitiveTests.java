@@ -7,7 +7,7 @@ public class TransitiveTests {
 
     @Test
     public void termination() throws IncompatibleFrameConditionsException {
-        Prover prover = new Prover(false, false);
+        Prover prover = new Prover();
         ModalSystem system4 = new ModalSystem("4");
         ArrayList<String> validFormulas = new ArrayList<>();
         ArrayList<String> invalidFormulas = new ArrayList<>();
@@ -38,7 +38,7 @@ public class TransitiveTests {
 
     @Test
     public void correctness() throws IncompatibleFrameConditionsException {
-        Prover prover = new Prover(false, false);
+        Prover prover = new Prover();
         ModalSystem system4 = new ModalSystem("4");
         ModalSystem systemK = new ModalSystem("K");
         String validFormula = "~(<>p & ([]<>p & ([]q & [][]~q)))";

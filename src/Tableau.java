@@ -31,8 +31,8 @@ public class Tableau {
         while (fullyExpandedFrames != frames.size()) {
             if (prover.isProtected()) {
                 long now = System.currentTimeMillis();
-                // Time out after 3 seconds
-                if (now - startTime > prover.getTimeoutLimit()) {
+                // Time out
+                if (now - startTime > prover.getTimeout()) {
                     return null;
                 }
             }
