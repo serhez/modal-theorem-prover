@@ -11,13 +11,13 @@ public class PerformanceTests {
             UnrecognizableFormulaException, InvalidNumberOfPropositionsException, IOException {  // For system K and all connectives
         Prover prover = new Prover();
         prover.enableProtectedMode(10000);  // 10 seconds timeout
-        String outputPath = "test/formula_size_test_not_or_diamond.csv";
+        String outputPath = "test/formula_size_test_all.csv";
 
         // Variables
         int repetitions = 1;   // Useful if minSize = maxSize, for large sizes (default is 1)
-        int jumpSize = 1000;
-        int minSize = 2000;
-        int maxSize = 10000;
+        int jumpSize = 10;
+        int minSize = 10;
+        int maxSize = 100;
         int samples = 1000;
         int maxPropositions = 2;
         String system = "K";
