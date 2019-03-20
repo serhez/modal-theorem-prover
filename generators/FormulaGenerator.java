@@ -14,39 +14,39 @@ public class FormulaGenerator {
 
 
         if (size >= 5) {  // We count "->" and "<->" as 1 symbol each
-            switch (operator.nextInt(7)) {  // TODO: REMEMBER TO CHANGE BOUND WHEN CHANGING NUMBER OF OPERATORS
+            switch (operator.nextInt(2)) {  // TODO: REMEMBER TO CHANGE BOUND WHEN CHANGING NUMBER OF OPERATORS
                 case 0:
                     formula = appendNegation(size, maxPropositions);
                     break;
                 case 1:
                     formula = appendOr(size, maxPropositions);
                     break;
-                case 2:
-                    formula = appendPossibly(size, maxPropositions);
-                    break;
-                case 3:
-                    formula = appendNecessarily(size, maxPropositions);
-                    break;
-                case 4:
-                    formula = appendAnd(size, maxPropositions);
-                    break;
-                case 5:
-                    formula = appendCondition(size, maxPropositions);
-                    break;
-                case 6:
-                    formula = appendBicondition(size, maxPropositions);
+//                case 2:
+//                    formula = appendPossibly(size, maxPropositions);
+//                    break;
+//                case 3:
+//                    formula = appendNecessarily(size, maxPropositions);
+//                    break;
+//                case 4:
+//                    formula = appendAnd(size, maxPropositions);
+//                    break;
+//                case 5:
+//                    formula = appendCondition(size, maxPropositions);
+//                    break;
+//                case 6:
+//                    formula = appendBicondition(size, maxPropositions);
             }
         } else if (size >= 2) {  // We count "[]" and "<>" as 1 symbol each
-            switch (operator.nextInt(3)) {  // TODO: REMEMBER TO CHANGE BOUND WHEN CHANGING NUMBER OF OPERATORS
+            switch (operator.nextInt(1)) {  // TODO: REMEMBER TO CHANGE BOUND WHEN CHANGING NUMBER OF OPERATORS
                 case 0:
                     formula = appendNegation(size, maxPropositions);
                     break;
-                case 1:
-                    formula = appendPossibly(size, maxPropositions);
-                    break;
-                case 2:
-                    formula = appendNecessarily(size, maxPropositions);
-                    break;
+//                case 1:
+//                    formula = appendPossibly(size, maxPropositions);
+//                    break;
+//                case 2:
+//                    formula = appendNecessarily(size, maxPropositions);
+//                    break;
             }
         } else {
             formula = appendProposition(maxPropositions);
