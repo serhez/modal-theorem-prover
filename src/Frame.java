@@ -277,7 +277,9 @@ public class Frame {
                     // TODO: ... end of the "line" produces eventually a contradiction, but having it placed at some other
                     // TODO: ... valid position would have not, even if at such position the adjacent worlds did not have
                     // TODO: ... the necessary formulas within them?
-                    HashSet<World> futureWorlds = futureWorlds(world);
+                    HashSet<Integer> visitedWorlds = new HashSet<>();
+                    visitedWorlds.add(world.getId());
+                    HashSet<World> futureWorlds = futureWorlds(world, visitedWorlds);
                     HashSet<Formula> necessaryFormulas;
                     HashSet<Formula> newWorldDeltaFormulas;
                     World leftWorld = null;   // The world we will place at the left of the new world in the "line"
@@ -338,7 +340,9 @@ public class Frame {
         else if (type == FormulaType.NECESSARILY || type == FormulaType.NOTPOSSIBLY) {
             HashSet<World> deltaWorlds;
             if (system.isTransitive()) {
-                deltaWorlds = reachableWorlds(world);  // Necessary since we imply many transitions in transitive frames (not explicit)
+                HashSet<Integer> visitedWorlds = new HashSet<>();
+                visitedWorlds.add(world.getId());
+                deltaWorlds = reachableWorlds(world, visitedWorlds);  // Necessary since we imply many transitions in transitive frames (not explicit)
             } else {
                 deltaWorlds = getDeltaWorldsFor(world, formula);
             }
@@ -393,18 +397,16 @@ public class Frame {
         return null;
     }
 
-    private HashSet<World> reachableWorlds(World currentWorld) {
-
+    private HashSet<World> reachableWorlds(World currentWorld, HashSet<Integer> visitedWorlds) {
         HashSet<World> reachableWorlds = new HashSet<>();
 
         for (World world : worlds) {
             for (Transition transition : transitions) {
                 if (transition.from() == currentWorld.getId() && transition.to() == world.getId()) {
-                    if (currentWorld.getId() != world.getId()) {
+                    if (!visitedWorlds.contains(currentWorld.getId())) {
+                        visitedWorlds.add(currentWorld.getId());
                         reachableWorlds.add(world);
-                    } else {  // Do not make a recursive call for reflexive transitions (otherwise it loops forever)
-                        reachableWorlds.add(world);
-                        reachableWorlds.addAll(reachableWorlds(world));  // Take the union of both sets
+                        reachableWorlds.addAll(reachableWorlds(world, visitedWorlds));
                     }
                 }
             }
@@ -413,22 +415,12 @@ public class Frame {
         return reachableWorlds;
     }
 
-    private HashSet<World> futureWorlds(World currentWorld) {
+    private HashSet<World> futureWorlds(World currentWorld, HashSet<Integer> visitedWorlds) {
 
         HashSet<World> futureWorlds = new HashSet<>();
         futureWorlds.add(currentWorld);  // Difference with reachableWorlds() method is that the current world is always a future world
 
-        // If the frame was linear and also serial, this recursive for-loop could potentially never terminate
-        for (World world : worlds) {
-            for (Transition transition : transitions) {
-                if (transition.from() == currentWorld.getId() && transition.to() == world.getId()) {
-                    if (currentWorld.getId() != world.getId()) {  // Do not make a recursive call for reflexive transitions (otherwise it loops forever)
-                        futureWorlds.add(world);
-                        futureWorlds.addAll(futureWorlds(world));  // Take the union of both sets
-                    }
-                }
-            }
-        }
+        reachableWorlds(currentWorld, visitedWorlds);
 
         return futureWorlds;
     }
@@ -443,7 +435,9 @@ public class Frame {
     }
 
     private World worldLinearlyCompatible(HashSet<Formula> formulas, World currentWorld) {
-        HashSet<World> futureWorlds = futureWorlds(currentWorld);
+        HashSet<Integer> visitedWorlds = new HashSet<>();
+        visitedWorlds.add(currentWorld.getId());
+        HashSet<World> futureWorlds = futureWorlds(currentWorld, visitedWorlds);
         // The first world containing all given formulas is returned, if any
         worldsLoop:
         for (World world : futureWorlds) {

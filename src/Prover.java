@@ -156,7 +156,7 @@ public class Prover {
             end = System.currentTimeMillis();
             if (validity == null) {
                 abortedFormulas++;
-                //System.out.println("Aborted formula #" + (i+1));  // Uncomment for feedback; comment for better performance
+                System.out.println("Aborted formula #" + (i+1));  // Uncomment for feedback; comment for better performance
                 continue;
             }
             times.add(end-start);
@@ -165,7 +165,7 @@ public class Prover {
             } else {
                 proven.add(0);
             }
-            //System.out.println("Analysed " + (i+1) + " of " + n + " formulas");  // Uncomment for feedback; comment for better performance
+            System.out.println("Analysed " + (i+1) + " of " + n + " formulas");  // Uncomment for feedback; comment for better performance
         }
 
         double abortionRate = ((1-(((double)(n - abortedFormulas))/n))*100);
