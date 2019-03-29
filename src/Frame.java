@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class Frame {
@@ -58,132 +59,47 @@ public class Frame {
         // We prioritise expanding negated boolean formulas, then alpha, then beta, then delta and finally gamma
         World chosenWorld = null;
         Formula chosenFormula = null;
-        int seenFormulas;
-        int totalFormulas;
-        int seenWorlds = 0;
-        int totalWorlds = worlds.size();
+        int i, j, k, noFormulas;
+        int noWorlds = worlds.size();
 
-        // Negated Boolean
+        HashSet<FormulaType> types = new HashSet<>();
+
         outerLoop:
-        while (seenWorlds != totalWorlds) {
-            World world = worlds.getFirst();
-            LinkedList<Formula> formulas = world.getFormulas();
-            totalFormulas = formulas.size();
-            seenFormulas = 0;
-            seenWorlds++;
-            while (seenFormulas != totalFormulas) {
-                Formula formula = formulas.getFirst();
-                seenFormulas++;
-                if (formula.getType() == FormulaType.NOTTRUE || formula.getType() == FormulaType.NOTFALSE) {
-                    if (!formula.isTicked()) {
-                        currentWorldId = world.getId();
-                        chosenWorld = world;
-                        chosenFormula = formula;
-                        break outerLoop;
-                    }
-                }
-                formulas.add(formulas.removeFirst());
+        for (i=1; i<=5; i++) {
+            types.clear();
+            switch (i) {
+                case 1:
+                    types.add(FormulaType.NOTTRUE);
+                    types.add(FormulaType.NOTFALSE);
+                    break;
+                case 2:
+                    types.add(FormulaType.AND);
+                    types.add(FormulaType.NOTOR);
+                    types.add(FormulaType.BICONDITION);
+                    types.add(FormulaType.NOTCONDITION);
+                    break;
+                case 3:
+                    types.add(FormulaType.OR);
+                    types.add(FormulaType.NOTAND);
+                    types.add(FormulaType.CONDITION);
+                    types.add(FormulaType.NOTBICONDITION);
+                    break;
+                case 4:
+                    types.add(FormulaType.POSSIBLY);
+                    types.add(FormulaType.NOTNECESSARILY);
+                    break;
+                case 5:
+                    types.add(FormulaType.NECESSARILY);
+                    types.add(FormulaType.NOTPOSSIBLY);
+                    break;
             }
-            worlds.add(worlds.removeFirst());
-        }
-
-        seenWorlds = 0;
-
-        // Alpha
-        outerLoop:
-        while (seenWorlds != totalWorlds) {
-            World world = worlds.getFirst();
-            LinkedList<Formula> formulas = world.getFormulas();
-            totalFormulas = formulas.size();
-            seenFormulas = 0;
-            seenWorlds++;
-            while (seenFormulas != totalFormulas) {
-                Formula formula = formulas.getFirst();
-                seenFormulas++;
-                if (formula.getType() == FormulaType.AND || formula.getType() == FormulaType.BICONDITION || formula.getType() == FormulaType.NOTOR || formula.getType() == FormulaType.NOTCONDITION) {
-                    if (!formula.isTicked()) {
-                        currentWorldId = world.getId();
-                        chosenWorld = world;
-                        chosenFormula = formula;
-                        break outerLoop;
-                    }
-                }
-                formulas.add(formulas.removeFirst());
-            }
-            worlds.add(worlds.removeFirst());
-        }
-
-        seenWorlds = 0;
-
-        // Beta
-        if (chosenWorld == null || chosenFormula == null) {
-            outerLoop:
-            while (seenWorlds != totalWorlds) {
+            for (j=0; j<noWorlds; j++) {
                 World world = worlds.getFirst();
                 LinkedList<Formula> formulas = world.getFormulas();
-                totalFormulas = formulas.size();
-                seenFormulas = 0;
-                seenWorlds++;
-                while (seenFormulas != totalFormulas) {
+                noFormulas = formulas.size();
+                for (k=0; k<noFormulas; k++) {
                     Formula formula = formulas.getFirst();
-                    seenFormulas++;
-                    if (formula.getType() == FormulaType.OR || formula.getType() == FormulaType.NOTAND || formula.getType() == FormulaType.CONDITION || formula.getType() == FormulaType.NOTBICONDITION) {
-                        if (!formula.isTicked()) {
-                            currentWorldId = world.getId();
-                            chosenWorld = world;
-                            chosenFormula = formula;
-                            break outerLoop;
-                        }
-                    }
-                    formulas.add(formulas.removeFirst());
-                }
-                worlds.add(worlds.removeFirst());
-            }
-        }
-
-        seenWorlds = 0;
-
-        // Delta
-        if (chosenWorld == null || chosenFormula == null) {
-            outerLoop:
-            while (seenWorlds != totalWorlds) {
-                World world = worlds.getFirst();
-                LinkedList<Formula> formulas = world.getFormulas();
-                totalFormulas = formulas.size();
-                seenFormulas = 0;
-                seenWorlds++;
-                while (seenFormulas != totalFormulas) {
-                    Formula formula = formulas.getFirst();
-                    seenFormulas++;
-                    if (formula.getType() == FormulaType.POSSIBLY || formula.getType() == FormulaType.NOTNECESSARILY) {
-                        if (!formula.isTicked()) {
-                            currentWorldId = world.getId();
-                            chosenWorld = world;
-                            chosenFormula = formula;
-                            break outerLoop;
-                        }
-                    }
-                    formulas.add(formulas.removeFirst());
-                }
-                worlds.add(worlds.removeFirst());
-            }
-        }
-
-        seenWorlds = 0;
-
-        // Gamma
-        if (chosenWorld == null || chosenFormula == null) {
-            outerLoop:
-            while (seenWorlds != totalWorlds) {
-                World world = worlds.getFirst();
-                LinkedList<Formula> formulas = world.getFormulas();
-                totalFormulas = formulas.size();
-                seenFormulas = 0;
-                seenWorlds++;
-                while (seenFormulas != totalFormulas) {
-                    Formula formula = formulas.getFirst();
-                    seenFormulas++;
-                    if (formula.getType() == FormulaType.NECESSARILY || formula.getType() == FormulaType.NOTPOSSIBLY) {
+                    if (types.contains(formula.getType())) {
                         if (!formula.isTicked()) {
                             currentWorldId = world.getId();
                             chosenWorld = world;
@@ -198,7 +114,7 @@ public class Frame {
         }
 
         // Only booleans, propositions, negated propositions and ticked gamma-formulas remaining on the frame
-        if (chosenWorld == null || chosenFormula == null) {
+        if (chosenFormula == null) {
             isExpandable = false;
             return;
         }
@@ -362,7 +278,6 @@ public class Frame {
         HashSet<World> gammaWorlds;
         if (logic.isTransitive()) {
             HashSet<Integer> visitedWorlds = new HashSet<>();
-            visitedWorlds.add(world.getId());
             gammaWorlds = reachableWorlds(world, visitedWorlds);  // Necessary since we imply many transitions in transitive frames (not explicit)
         } else {
             gammaWorlds = getGammaWorldsFor(world, formula);
@@ -459,12 +374,10 @@ public class Frame {
         visitedWorlds.add(currentWorld.getId());
         HashSet<World> futureWorlds = futureWorlds(currentWorld, visitedWorlds);
         // The first world containing all given formulas is returned, if any
-        worldsLoop:
         for (World world : futureWorlds) {
             if (worldsAreLinearlyCompatible(formulas, world)) {
-                continue worldsLoop;
+                return world;
             }
-            return world;
         }
         return null;
     }

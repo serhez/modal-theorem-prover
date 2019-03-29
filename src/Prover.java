@@ -83,10 +83,10 @@ public class Prover {
 
         results += "\n--------  PARSING\n\n";
         if (unrecognisedTheorems.isEmpty()) {
-            results += "All formulaArrays are syntactically and grammatically correct.\n";
+            results += "All formulas are syntactically and grammatically correct.\n";
         }
         for (int i : unrecognisedTheorems) {
-            results += "There are formulas in the theorem number " + (i+1) + " which have not been recognized.\n";
+            results += "There are formulas in the list of formulas number " + (i+1) + " which have not been recognized.\n";
         }
 
         int n = formulaArrays.size();
@@ -101,11 +101,11 @@ public class Prover {
                 if (validity == null) {  // The tableau aborted in protected mode
                     results += "The proving process for theorem " + (i+1) + " was aborted in protected mode.\n";
                 } else if (validity.booleanValue()) {
-                    results += "FormulaArray " + (i+1) + " is valid.\n";
+                    results += "Formula " + (i+1) + " is valid.\n";
                 } else {
-                    results += "FormulaArray " + (i+1) + " is not valid.\n";
+                    results += "Formula " + (i+1) + " is not valid.\n";
                 }
-                System.out.println("Done " + (i+1) + " of " + n + " formulaArrays");
+                System.out.println("Done " + (i+1) + " of " + n + " formulas");
             }
         }
 

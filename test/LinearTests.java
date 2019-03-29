@@ -9,7 +9,7 @@ public class LinearTests {
         Prover prover = new Prover();
         ModalLogic logicL = new ModalLogic("L");
         ModalLogic logicK = new ModalLogic("K");
-        String validFormula = "~(<>T & <>[]F)";
+        String validFormula = "~(<>(p & []p) & <>(~p & []~p))";
 
         try {
             Assertions.assertTrue(prover.proveFormula(validFormula, logicL));   // Should be valid on logic L

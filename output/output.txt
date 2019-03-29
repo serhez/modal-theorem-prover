@@ -1,9 +1,9 @@
 
 --------  PARSING
 
-All formulaArrays are syntactically and grammatically correct.
+All formulas are syntactically and grammatically correct.
 
 
 --------  PROVING
 
-FormulaArray 1 is not valid.
+Formula 1 is valid.
