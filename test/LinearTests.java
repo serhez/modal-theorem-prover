@@ -8,7 +8,7 @@ public class LinearTests {
     @Test
     public void termination() throws IncompatibleFrameConditionsException {
         Prover prover = new Prover();
-        ModalSystem systemL = new ModalSystem("L");
+        ModalLogic logicL = new ModalLogic("L");
         ArrayList<String> validFormulas = new ArrayList<>();
         ArrayList<String> invalidFormulas = new ArrayList<>();
 
@@ -26,10 +26,10 @@ public class LinearTests {
 
         try {
             for (String validFormula : validFormulas) {
-                prover.proveFormula(validFormula, systemL);
+                prover.proveFormula(validFormula, logicL);
             }
             for (String invalidFormula : invalidFormulas) {
-                prover.proveFormula(invalidFormula, systemL);
+                prover.proveFormula(invalidFormula, logicL);
             }
         } catch (UnrecognizableFormulaException e) {
             e.printStackTrace();

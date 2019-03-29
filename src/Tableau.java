@@ -2,17 +2,17 @@ import java.util.LinkedList;
 
 public class Tableau {
 
-    private final Theorem theorem;
-    private final ModalSystem system;
+    private final FormulaArray formulaArray;
+    private final ModalLogic logic;
     private LinkedList<Frame> frames;
     private int frameIdCount;
     private Prover prover;
     private long startTime;
 
-    public Tableau(Prover prover, Theorem theorem, ModalSystem system) {
+    public Tableau(Prover prover, FormulaArray formulaArray, ModalLogic logic) {
         this.prover = prover;
-        this.system = system;
-        this.theorem = theorem;
+        this.logic = logic;
+        this.formulaArray = formulaArray;
         this.frames = new LinkedList<>();
         this.frameIdCount = 1;
         if (prover.isProtected()) {
@@ -20,15 +20,14 @@ public class Tableau {
         }
     }
 
-    // Returns true if the theorem is valid, false otherwise; if in protected mode, it may return null if it times out
+    // Returns true if the formulaArray is valid, false otherwise; if in protected mode, it may return null if it times out
     public Boolean run() {
 
-        frames.add(new Frame(theorem.getFormulas(), this, frameIdCount, system));
+        frames.add(new Frame(formulaArray.getFormulas(), this, frameIdCount, logic));
         frameIdCount++;
 
         int step = 1;
-        int fullyExpandedFrames = 0;   // TODO: DON'T NEED THIS
-        while (fullyExpandedFrames != frames.size()) {
+        while (!frames.isEmpty()) {
             if (prover.isProtected()) {
                 long now = System.currentTimeMillis();
                 // Time out
@@ -38,18 +37,12 @@ public class Tableau {
             }
             if (!frames.isEmpty()) {
                 Frame frame = frames.getFirst();
-                frame.expandNextFormula();
-                if (!frame.isExpandable()) {
-                    fullyExpandedFrames++;
-                }
+                frame.scheduleNextExpansion();
                 if (frame.hasContradiction()) {
                     frames.removeFirst();
-                    if (!frame.isExpandable()) {
-                        fullyExpandedFrames--;
-                    }
                 } else {
                     if (!frame.isExpandable()) {
-                        return Boolean.FALSE;  // If there is a non-expandable frame which contains no contradictions, we can finish
+                        return Boolean.FALSE;  // Found a frame which satisfies the formula
                     }
                     frames.add(frames.removeFirst());
                 }
@@ -72,11 +65,7 @@ public class Tableau {
             step++;
         }
 
-        if (frames.isEmpty()) {
-            return Boolean.TRUE;
-        }
-
-        return Boolean.FALSE;
+        return Boolean.TRUE;  // No frame which satisfies the formula was found
     }
 
     public void addFrame(Frame frame) {

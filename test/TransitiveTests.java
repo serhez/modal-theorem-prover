@@ -8,7 +8,7 @@ public class TransitiveTests {
     @Test
     public void termination() throws IncompatibleFrameConditionsException {
         Prover prover = new Prover();
-        ModalSystem system4 = new ModalSystem("4");
+        ModalLogic logic4 = new ModalLogic("4");
         ArrayList<String> validFormulas = new ArrayList<>();
         ArrayList<String> invalidFormulas = new ArrayList<>();
 
@@ -26,10 +26,10 @@ public class TransitiveTests {
 
         try {
             for (String validFormula : validFormulas) {
-                Assertions.assertTrue(prover.proveFormula(validFormula, system4));
+                Assertions.assertTrue(prover.proveFormula(validFormula, logic4));
             }
             for (String invalidFormula : invalidFormulas) {
-                Assertions.assertFalse(prover.proveFormula(invalidFormula, system4));
+                Assertions.assertFalse(prover.proveFormula(invalidFormula, logic4));
             }
         } catch (UnrecognizableFormulaException e) {
             e.printStackTrace();
@@ -39,13 +39,13 @@ public class TransitiveTests {
     @Test
     public void correctness() throws IncompatibleFrameConditionsException {
         Prover prover = new Prover();
-        ModalSystem system4 = new ModalSystem("4");
-        ModalSystem systemK = new ModalSystem("K");
+        ModalLogic logic4 = new ModalLogic("4");
+        ModalLogic logicK = new ModalLogic("K");
         String validFormula = "~(<>p & ([]<>p & ([]q & [][]~q)))";
 
         try {
-            Assertions.assertTrue(prover.proveFormula(validFormula, system4));   // Should be valid on System 4
-            Assertions.assertFalse(prover.proveFormula(validFormula, systemK));  // ... but invalid on System K
+            Assertions.assertTrue(prover.proveFormula(validFormula, logic4));   // Should be valid on logic 4
+            Assertions.assertFalse(prover.proveFormula(validFormula, logicK));  // ... but invalid on logic K
         } catch (UnrecognizableFormulaException e) {
             e.printStackTrace();
         }

@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
 
 public class InputGenerator {
 
-    public String generateInputFile(int n, int size, int maxPropositions, String systemString) throws InvalidNumberOfPropositionsException {
+    public String generateInputFile(int n, int size, int maxPropositions, String logicString) throws InvalidNumberOfPropositionsException {
 
-        String inputString = generateInput(n, size, maxPropositions, systemString);
+        String inputString = generateInput(n, size, maxPropositions, logicString);
 
         try {
             write(inputString);
@@ -24,9 +24,9 @@ public class InputGenerator {
         return inputString;
     }
 
-    public void generateInputFileAndMolleFile(int n, int size, int maxPropositions, String systemString) throws InvalidNumberOfPropositionsException {
+    public void generateInputFileAndMolleFile(int n, int size, int maxPropositions, String logicString) throws InvalidNumberOfPropositionsException {
 
-        String inputString = generateInputFile(n, size, maxPropositions, systemString);
+        String inputString = generateInputFile(n, size, maxPropositions, logicString);
         String molleInputString = translateInputToMolle(inputString);
 
         try {
@@ -37,10 +37,10 @@ public class InputGenerator {
         }
     }
 
-    // Generates an input for the Theorem Prover
-    private String generateInput(int n, int size, int maxPropositions, String systemString) throws InvalidNumberOfPropositionsException {
+    // Generates an input for the FormulaArray Prover
+    private String generateInput(int n, int size, int maxPropositions, String logicString) throws InvalidNumberOfPropositionsException {
 
-        String inputString = ":" + systemString + ":\n";
+        String inputString = ":" + logicString + ":\n";
         FormulaGenerator formulaGenerator = new FormulaGenerator();
 
         for (int i=0; i < n; i++) {
@@ -56,7 +56,7 @@ public class InputGenerator {
 
         String inputString = generateInput(n, size, maxPropositions, "");
 
-        // Delete the modal system specification from the input string
+        // Delete the modal logic specification from the input string
         if(inputString.charAt(0) == ':') {
             inputString = inputString.substring(1, inputString.length());
             int i = 0;

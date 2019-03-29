@@ -1,12 +1,12 @@
 import java.util.Arrays;
 import java.util.LinkedList;
 
-public class Theorem {
+public class FormulaArray {
 
     private final String theoremString;
     private final LinkedList<Formula> formulas;
 
-    public Theorem(String theoremString) {
+    public FormulaArray(String theoremString) {
         this.theoremString = theoremString;
         this.formulas = new LinkedList<>();
     }

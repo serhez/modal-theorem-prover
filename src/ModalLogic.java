@@ -1,11 +1,11 @@
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class ModalSystem {
+public class ModalLogic {
 
     private HashSet<FrameCondition> frameConditions;
 
-    public ModalSystem(String frameConditionsString) throws IncompatibleFrameConditionsException {
+    public ModalLogic(String frameConditionsString) throws IncompatibleFrameConditionsException {
         this.frameConditions = new HashSet<>();
         this.frameConditions.add(FrameCondition.K);  // All frames must conform to K
         parseFrameConditions(frameConditionsString);
@@ -14,18 +14,18 @@ public class ModalSystem {
     }
 
     private void addNecessaryConditions() {
-        if (isLinear() && !isTransitive()) {  // Linear systems must also be transitive
+        if (isLinear() && !isTransitive()) {  // Linear logics must also be transitive
             frameConditions.add(FrameCondition.FOUR);
         }
     }
 
     private void findIncompatibilities() throws IncompatibleFrameConditionsException {
-        if (isLinear() && isSymmetric()) {  // Linear systems are anti-symmetric
+        if (isLinear() && isSymmetric()) {  // Linear logics are anti-symmetric
             ArrayList<String> incompatibleConditions = new ArrayList<>();
             incompatibleConditions.add("L");
             incompatibleConditions.add("B");
             throw new IncompatibleFrameConditionsException(incompatibleConditions);
-        } else if (isLinear() && isSerial()) {  // Linear systems cannot be serial (at least in this implementations; it would imply cyclic flow of time, for example)
+        } else if (isLinear() && isSerial()) {  // Linear logics cannot be serial (at least in this implementations; it would imply cyclic flow of time, for example)
             ArrayList<String> incompatibleConditions = new ArrayList<>();
             incompatibleConditions.add("L");
             incompatibleConditions.add("D");

@@ -39,7 +39,7 @@ public class World {
         return false;
     }
 
-    public void allCurrentDeltaFormulasExpandedTo(int worldId) {
+    public void allCurrentGammaFormulasExpandedTo(int worldId) {
         for (Formula formula : formulas) {
             if (formula.getType() == FormulaType.NECESSARILY || formula.getType() == FormulaType.NOTPOSSIBLY) {
                 formula.addWorldExpandedTo(worldId);
@@ -108,9 +108,9 @@ public class World {
         return formulas;
     }
 
-    public HashSet<Formula> getTransitiveGammaExpansionFormulas(Formula gammaFormula) {
+    public HashSet<Formula> getTransitiveDeltaExpansionFormulas(Formula deltaFormula) {
         HashSet<Formula> transitiveFormulas = new HashSet<>();
-        transitiveFormulas.add(gammaFormula.getSubformulas().get(0));
+        transitiveFormulas.add(deltaFormula.getSubformulas().get(0));
         for (Formula formula : formulas) {
             if (formula.getType() == FormulaType.NECESSARILY || formula.getType() == FormulaType.NOTPOSSIBLY) {
                 transitiveFormulas.add(formula);
@@ -121,9 +121,9 @@ public class World {
         return transitiveFormulas;
     }
 
-    public HashSet<Formula> getKripkeGammaExpansionFormulas(Formula gammaFormula) {
+    public HashSet<Formula> getKripkeDeltaExpansionFormulas(Formula deltaFormula) {
         HashSet<Formula> kripkeFormulas = new HashSet<>();
-        kripkeFormulas.add(gammaFormula.getSubformulas().get(0));
+        kripkeFormulas.add(deltaFormula.getSubformulas().get(0));
         for (Formula formula : formulas) {
             if (formula.getType() == FormulaType.NECESSARILY || formula.getType() == FormulaType.NOTPOSSIBLY) {
                 kripkeFormulas.add(formula.getSubformulas().get(0));
@@ -133,18 +133,18 @@ public class World {
         return kripkeFormulas;
     }
 
-    public HashSet<Formula> getDeltaExpansionFormulas(ModalSystem system) {
-        HashSet<Formula> deltaFormulas = new HashSet<>();
+    public HashSet<Formula> getGammaExpansionFormulas(ModalLogic logic) {
+        HashSet<Formula> gammaFormulas = new HashSet<>();
         for (Formula formula : formulas) {
             if (formula.getType() == FormulaType.NECESSARILY || formula.getType() == FormulaType.NOTPOSSIBLY) {
-                if (system.isTransitive()) {
-                    deltaFormulas.add(formula);
+                if (logic.isTransitive()) {
+                    gammaFormulas.add(formula);
                 }
-                deltaFormulas.add(formula.getSubformulas().get(0));
+                gammaFormulas.add(formula.getSubformulas().get(0));
             }
         }
 
-        return deltaFormulas;
+        return gammaFormulas;
     }
 
     public int getId() {

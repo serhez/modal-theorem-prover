@@ -2,7 +2,7 @@
   GRAMMAR
 ------------
 
-This theorem prover uses standard Modal Logic syntax. It is recursively defined as the following:
+This formulaArray prover uses standard Modal Logic syntax. It is recursively defined as the following:
 
  prop = {a : a is a string} \ {b: b is "T" or "F" or a string such that any of its substrings are "~", "[]", "<>", "&", "|", "->", "<->", ";", ":", ",", ")" or "("}
  fmla = "T" | "F" | prop | ¬fmla | (fmla ∧ fmla) | (fmla ∨ fmla) | (fmla → fmla) | (fmla ↔ fmla) | □fmla | ◊fmla
@@ -25,8 +25,8 @@ The syntax you must use when writing your formulas is the following (format: "wh
  (A → B) = (A -> B)
  (A ↔ B) = (A <-> B)
 
-You must also note that formulas in a theorem are separated by commas (",") and different theorems to prove are separated by semicolons (";").
-The last formula in a given theorem will be considered as the formula intended to be proven, and all previous formulas of the theorem will be considered as axioms.
+You must also note that formulas in a formulaArray are separated by commas (",") and different formulaArrays to prove are separated by semicolons (";").
+The last formula in a given formulaArray will be considered as the formula intended to be proven, and all previous formulas of the formulaArray will be considered as axioms.
 Also, the use of spaces, new tabs, new lines, etc. is irrelevant (but surely helpful for the reader).
 
 
@@ -35,8 +35,8 @@ Also, the use of spaces, new tabs, new lines, etc. is irrelevant (but surely hel
  CONDITIONS
 ------------
 
-At the beginning of the input file, before any theorem has been defined, you may include a Modal System specified by a set of frame conditions which will be applied to the theorems in such input file. If not such system is specified, only the frame condition K will be applied.
-The frame conditions currently supported by this Theorem Prover are the following:
+At the beginning of the input file, before any formulaArray has been defined, you may include a Modal System specified by a set of frame conditions which will be applied to the formulaArrays in such input file. If not such system is specified, only the frame condition K will be applied.
+The frame conditions currently supported by this FormulaArray Prover are the following:
 
 K = Kripke (no special conditions)
 T = Reflexive
@@ -57,5 +57,5 @@ Note that some frame conditions are incompatible. In this version of the program
   USE
 --------
 
-Create a file called "input.txt" and locate it within the folder "input". In it, write your theorems as specified above. Next, run the Java program. Finally, find your results in the file "output.txt" in the folder named "output".
+Create a file called "input.txt" and locate it within the folder "input". In it, write your formulaArrays as specified above. Next, run the Java program. Finally, find your results in the file "output.txt" in the folder named "output".
 If a formula is deemed as "not recognized", you should check that particular formula as it is not following the syntax and/or grammar specified above. If you are confident your formula is correct, please report any bugs.

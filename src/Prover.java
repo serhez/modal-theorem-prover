@@ -1,7 +1,6 @@
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -49,9 +48,9 @@ public class Prover {
     public void proveInputFile() throws IncompatibleFrameConditionsException {
 
         // Core variables
-        ArrayList<Theorem> theorems;
+        ArrayList<FormulaArray> formulaArrays;
         ArrayList<Integer> unrecognisedTheorems;
-        ModalSystem system;
+        ModalLogic logic;
         String inputString;
         String results = "";
 
@@ -78,35 +77,35 @@ public class Prover {
         // Parse
         Parser parser = new Parser();
         parser.parseInput(inputString);
-        theorems = parser.getTheorems();
+        formulaArrays = parser.getFormulaArrays();
         unrecognisedTheorems = parser.getUnrecognisedTheorems();
-        system = parser.getSystem();
+        logic = parser.getLogic();
 
         results += "\n--------  PARSING\n\n";
         if (unrecognisedTheorems.isEmpty()) {
-            results += "All theorems are syntactically and grammatically correct.\n";
+            results += "All formulaArrays are syntactically and grammatically correct.\n";
         }
         for (int i : unrecognisedTheorems) {
             results += "There are formulas in the theorem number " + (i+1) + " which have not been recognized.\n";
         }
 
-        int n = theorems.size();
+        int n = formulaArrays.size();
         Tableau tableau;
 
         // Prove
         results += "\n\n--------  PROVING\n\n";
         for (int i=0; i < n; i++) {
             if (!unrecognisedTheorems.contains(i)) {
-                tableau = new Tableau(this, theorems.get(i), system);
+                tableau = new Tableau(this, formulaArrays.get(i), logic);
                 Boolean validity = tableau.run();
                 if (validity == null) {  // The tableau aborted in protected mode
                     results += "The proving process for theorem " + (i+1) + " was aborted in protected mode.\n";
                 } else if (validity.booleanValue()) {
-                    results += "Theorem " + (i+1) + " is valid.\n";
+                    results += "FormulaArray " + (i+1) + " is valid.\n";
                 } else {
-                    results += "Theorem " + (i+1) + " is not valid.\n";
+                    results += "FormulaArray " + (i+1) + " is not valid.\n";
                 }
-                System.out.println("Done " + (i+1) + " of " + n + " theorems");
+                System.out.println("Done " + (i+1) + " of " + n + " formulaArrays");
             }
         }
 
@@ -123,7 +122,7 @@ public class Prover {
     // Returns a list of integers, where 1 represents validity and 0 represents invalidity
     // This method can be used to study validity rates and the time-space performance of the prover
     // It employs the protected mode of the prover, due to generally being used with large formula sizes
-    public Results proveRandomFormulas(int n, int size, int maxPropositions, ModalSystem system, boolean debugging) throws InvalidNumberOfPropositionsException, UnrecognizableFormulaException, IncompatibleFrameConditionsException {
+    public Results proveRandomFormulas(int n, int size, int maxPropositions, ModalLogic logic, boolean debugging) throws InvalidNumberOfPropositionsException, UnrecognizableFormulaException, IncompatibleFrameConditionsException {
 
         long start, end;
         ArrayList<Long> times = new ArrayList<>();
@@ -152,11 +151,11 @@ public class Prover {
 
         for (int i = 0; i < n; i++) {
             start = System.currentTimeMillis();
-            Boolean validity = proveFormula(formulas.get(i), system);
+            Boolean validity = proveFormula(formulas.get(i), logic);
             end = System.currentTimeMillis();
             if (validity == null) {
                 abortedFormulas++;
-                System.out.println("Aborted formula #" + (i+1));  // Uncomment for feedback; comment for better performance
+//                System.out.println("Aborted formula #" + (i+1));  // Uncomment for feedback; comment for better performance
                 continue;
             }
             times.add(end-start);
@@ -165,7 +164,7 @@ public class Prover {
             } else {
                 proven.add(0);
             }
-            System.out.println("Analysed " + (i+1) + " of " + n + " formulas");  // Uncomment for feedback; comment for better performance
+//            System.out.println("Analysed " + (i+1) + " of " + n + " formulas");  // Uncomment for feedback; comment for better performance
         }
 
         double abortionRate = ((1-(((double)(n - abortedFormulas))/n))*100);
@@ -179,13 +178,13 @@ public class Prover {
         return results;
     }
 
-    public Boolean proveFormula(String formulaString, ModalSystem system) throws UnrecognizableFormulaException, IncompatibleFrameConditionsException {
+    public Boolean proveFormula(String formulaString, ModalLogic logic) throws UnrecognizableFormulaException, IncompatibleFrameConditionsException {
         Parser parser = new Parser();
         if (!parser.parseFormula(formulaString)) {
             throw new UnrecognizableFormulaException(formulaString);
         }
 
-        Tableau tableau = new Tableau(this, parser.getTheorems().get(0), system);
+        Tableau tableau = new Tableau(this, parser.getFormulaArrays().get(0), logic);
         Boolean validity = tableau.run();
         // TODO: "return tableau.run();" instead. This was only done to be able to do system.gc()
         if (validity == null) {

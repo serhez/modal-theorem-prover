@@ -8,7 +8,7 @@ public class KripkeTests {
     public void acceptsValidFormulas() throws IncompatibleFrameConditionsException {
 
         Prover prover = new Prover();
-        ModalSystem system = new ModalSystem("K");
+        ModalLogic logic = new ModalLogic("K");
         ArrayList<String> formulas = new ArrayList<>();
 
         // Examples of valid formulas
@@ -23,7 +23,7 @@ public class KripkeTests {
 
         for (String formula : formulas) {
             try {
-                Assertions.assertTrue(prover.proveFormula(formula, system), ("The prover cannot validate " + formula));
+                Assertions.assertTrue(prover.proveFormula(formula, logic), ("The prover cannot validate " + formula));
             } catch (UnrecognizableFormulaException e) {
                 e.printStackTrace();
             }
@@ -34,7 +34,7 @@ public class KripkeTests {
     public void rejectsInvalidFormulas() throws IncompatibleFrameConditionsException {
 
         Prover prover = new Prover();
-        ModalSystem system = new ModalSystem("K");
+        ModalLogic logic = new ModalLogic("K");
         ArrayList<String> formulas = new ArrayList<>();
 
         // Examples of invalid formulas
@@ -49,7 +49,7 @@ public class KripkeTests {
 
         for (String formula : formulas) {
             try {
-                Assertions.assertFalse(prover.proveFormula(formula, system), ("The prover cannot invalidate " + formula));
+                Assertions.assertFalse(prover.proveFormula(formula, logic), ("The prover cannot invalidate " + formula));
             } catch (UnrecognizableFormulaException e) {
                 e.printStackTrace();
             }

@@ -5,7 +5,7 @@ import java.util.LinkedList;
 public class Frame {
 
     private final int id;
-    private final ModalSystem system;
+    private final ModalLogic logic;
     private final Tableau tableau;
     private LinkedList<World> worlds;
     private int currentWorldId;
@@ -13,29 +13,33 @@ public class Frame {
     private int worldIdCount;
     private boolean isExpandable;
 
-    public Frame(LinkedList<Formula> initialFormulas, Tableau tableau, int id, ModalSystem system) {
+    public Frame(LinkedList<Formula> initialFormulas, Tableau tableau, int id, ModalLogic logic) {
         this.id = id;
-        this.system = system;
+        this.logic = logic;
         this.isExpandable = true;
         this.tableau = tableau;
         this.worlds = new LinkedList<>();
         this.currentWorldId = 0;
         worldIdCount = 1;
         World initialWorld = new World(initialFormulas, worldIdCount);
-        if (system.isSerial()) {
-            initialWorld.addFormula(new Formula("T"));
-            initialWorld.addFormula(new Formula("<>T"));
+        if (logic.isSerial()) {
+            Formula fmla1 = new Formula("T");
+            Formula fmla2 = new Formula("<>T");
+            fmla1.parse();
+            fmla2.parse();
+            initialWorld.addFormula(fmla1);
+            initialWorld.addFormula(fmla2);
         }
         this.worlds.add(initialWorld);
         this.transitions = new HashSet<>();
-        if (system.isReflexive()) {
+        if (logic.isReflexive()) {
             this.addTransition(new Transition(1, 1));
         }
     }
 
-    public Frame(Frame originalFrame, Tableau tableau, int id, ModalSystem specification) {
+    public Frame(Frame originalFrame, Tableau tableau, int id, ModalLogic specification) {
         this.id = id;
-        this.system = specification;
+        this.logic = specification;
         this.isExpandable = true;
         this.tableau = tableau;
         this.worldIdCount = originalFrame.getWorldIdCount();
@@ -44,14 +48,14 @@ public class Frame {
         this.transitions = originalFrame.cloneTransitions();
     }
 
-    public void expandNextFormula() {
+    public void scheduleNextExpansion() {
 
         if (hasContradiction()) {
             isExpandable = false;
             return;
         }
 
-        // We prioritise expanding negated boolean formulas, then alpha, then beta, then gamma and finally delta
+        // We prioritise expanding negated boolean formulas, then alpha, then beta, then delta and finally gamma
         World chosenWorld = null;
         Formula chosenFormula = null;
         int seenFormulas;
@@ -139,7 +143,7 @@ public class Frame {
 
         seenWorlds = 0;
 
-        // Gamma
+        // Delta
         if (chosenWorld == null || chosenFormula == null) {
             outerLoop:
             while (seenWorlds != totalWorlds) {
@@ -167,7 +171,7 @@ public class Frame {
 
         seenWorlds = 0;
 
-        // Delta
+        // Gamma
         if (chosenWorld == null || chosenFormula == null) {
             outerLoop:
             while (seenWorlds != totalWorlds) {
@@ -193,7 +197,7 @@ public class Frame {
             }
         }
 
-        // Only booleans, propositions, negated propositions and ticked delta-formulas remaining on the frame
+        // Only booleans, propositions, negated propositions and ticked gamma-formulas remaining on the frame
         if (chosenWorld == null || chosenFormula == null) {
             isExpandable = false;
             return;
@@ -204,156 +208,172 @@ public class Frame {
 
     private void expand(Formula formula, World world) {
 
-        FormulaType type = formula.getType();
+        switch (formula.getType()) {
 
-        // Negated Boolean Rule
-        if (type == FormulaType.NOTTRUE || type == FormulaType.NOTFALSE) {
-            world.addFormula(formula.getSubformulas().get(0));
-            formula.tick();
+            // Negated Boolean Rule
+            case NOTTRUE:
+            case NOTFALSE:
+                expandNegatedBoolean(formula, world);
+                break;
+
+            // Alpha Rule
+            case AND:
+            case NOTOR:
+            case NOTCONDITION:
+            case BICONDITION:
+                expandAlpha(formula, world);
+                break;
+
+            // Beta Rule
+            case OR:
+            case NOTAND:
+            case CONDITION:
+            case NOTBICONDITION:
+                expandBeta(formula, world);
+                break;
+
+            // Delta Rule
+            case POSSIBLY:
+            case NOTNECESSARILY:
+                expandDelta(formula, world);
+                break;
+
+            // Gamma Rule
+            case NECESSARILY:
+            case NOTPOSSIBLY:
+                expandGamma(formula, world);
+                break;
+        }
+    }
+
+    private void expandNegatedBoolean(Formula formula, World world) {
+        world.addFormula(formula.getSubformulas().get(0));
+        formula.tick();
+    }
+
+    private void expandAlpha(Formula formula, World world) {
+        world.addFormula(formula.getSubformulas().get(0));
+        world.addFormula(formula.getSubformulas().get(1));
+        formula.tick();
+    }
+
+    private void expandBeta(Formula formula, World world) {
+        Formula subformula1 = formula.getSubformulas().get(0);
+        Formula subformula2 = formula.getSubformulas().get(1);
+        formula.tick();
+        Frame disjunctiveFrame = new Frame(this, tableau, tableau.getNewFrameId(), logic);
+        world.addFormula(subformula1);
+        disjunctiveFrame.addFormula(subformula2);
+        tableau.addFrame(disjunctiveFrame);
+    }
+
+    private void expandDelta(Formula formula, World world) {
+        formula.tick();
+        HashSet<Formula> expandingFormulas;
+        if (logic.isTransitive()) {  // Also applies to linearity
+            expandingFormulas = world.getTransitiveDeltaExpansionFormulas(formula);
+        } else {
+            expandingFormulas = world.getKripkeDeltaExpansionFormulas(formula);
         }
 
-        // Alpha Rule
-        if (type == FormulaType.AND || type == FormulaType.BICONDITION || type == FormulaType.NOTOR || type == FormulaType.NOTCONDITION) {
-            world.addFormula(formula.getSubformulas().get(0));
-            world.addFormula(formula.getSubformulas().get(1));
-            formula.tick();
+        World existingWorld;
+        if (logic.isSymmetric()) {  // Need to also check that the "to" world will not introduce a contradiction in the "from" world when applying symmetry
+            existingWorld = worldSymmetricallyCompatible(expandingFormulas, world);
+        } else if (logic.isLinear()) {  // Need to also check that the "to" world will be in the future
+            existingWorld = worldLinearlyCompatible(expandingFormulas, world);
+        } else {
+            existingWorld = worldContainingFormulas(expandingFormulas);
         }
-
-        // Beta Rule
-        else if (type == FormulaType.OR || type == FormulaType.NOTAND || type == FormulaType.NOTBICONDITION || type == FormulaType.CONDITION) {
-            Formula subformula1 = formula.getSubformulas().get(0);
-            Formula subformula2 = formula.getSubformulas().get(1);
-            formula.tick();
-            Frame disjunctiveFrame = new Frame(this, tableau, tableau.getNewFrameId(), system);
-            world.addFormula(subformula1);
-            disjunctiveFrame.addFormula(subformula2);
-            tableau.addFrame(disjunctiveFrame);
-        }
-
-        // Gamma Rule
-        else if (type == FormulaType.POSSIBLY || type == FormulaType.NOTNECESSARILY) {
-
-            formula.tick();
-
-            // The reason this works is because you always choose <> after & and |. Hence, when expanding a <> formula,
-            // you only have props, neg props, <> and [] remaining in the frame. Thus, it's not possible that by expanding
-            // <>p, you create a world with p and (e.g.) (q&~p), and then you expand the later formula and found a contradiction
-            // that if you would have created a new world, you would not have found. BUT: what happens if you expand
-            // <>(q&~p) into a world with p? YOU CAN'T, because in order to do that, (q&~p) would need to be in that world
-            // already (so they would have been expanded before and found the contradiction anyway) NICE!
-
-            // NO! What if you had a world w with a ticked formula ~(~p->q) (hence also formulas ~p and ~q) and you expand
-            // the gamma formula <>p into w? STILL OK, because in order to expand <>p to w, w needs to have p (and possibly other formulas),
-            // hence the contradiction introduced by ~p and p would have already existed (and likely been found) in w before.
-
-            HashSet<Formula> expandingFormulas;
-            if (system.isTransitive()) {  // Also applies to linearity
-                expandingFormulas = world.getTransitiveGammaExpansionFormulas(formula);
-            } else {
-                expandingFormulas = world.getKripkeGammaExpansionFormulas(formula);
+        if (existingWorld == null) {
+            LinkedList<Formula> formulas = new LinkedList<>(expandingFormulas);
+            worldIdCount++;
+            World newWorld = new World(formulas, worldIdCount);
+            if (logic.isSerial()) {
+                Formula fmla1 = new Formula("T");
+                Formula fmla2 = new Formula("<>T");
+                fmla1.parse();
+                fmla2.parse();
+                newWorld.addFormula(fmla1);
+                newWorld.addFormula(fmla2);
             }
-
-            World existingWorld;
-            if (system.isSymmetric()) {  // Need to also check that the "to" world will not introduce a contradiction in the "from" world when applying symmetry
-                existingWorld = worldSymmetricallyCompatible(expandingFormulas, world);
-            } else if (system.isLinear()) {  // Need to also check that the "to" world will be in the future
-                existingWorld = worldLinearlyCompatible(expandingFormulas, world);
-            } else {
-                existingWorld = worldContainingFormulas(expandingFormulas);
-            }
-            if (existingWorld == null) {
-                LinkedList<Formula> formulas = new LinkedList<>(expandingFormulas);
-                worldIdCount++;
-                World newWorld = new World(formulas, worldIdCount);
-                if (system.isSerial()) {
-                    newWorld.addFormula(new Formula("T"));
-                    newWorld.addFormula(new Formula("<>T"));
-                }
-                worlds.add(newWorld);
-                world.allCurrentDeltaFormulasExpandedTo(newWorld.getId());
-                if (system.isLinear()) {
-                    // TODO: If none of the future worlds have the necessary formulas, then the new world will be placed
-                    // TODO: ... at the end of the "line". However, is it possible that, in some frame, placing it at the
-                    // TODO: ... end of the "line" produces eventually a contradiction, but having it placed at some other
-                    // TODO: ... valid position would have not, even if at such position the adjacent worlds did not have
-                    // TODO: ... the necessary formulas within them?
-                    HashSet<Integer> visitedWorlds = new HashSet<>();
-                    visitedWorlds.add(world.getId());
-                    HashSet<World> futureWorlds = futureWorlds(world, visitedWorlds);
-                    HashSet<Formula> necessaryFormulas;
-                    HashSet<Formula> newWorldDeltaFormulas;
-                    World leftWorld = null;   // The world we will place at the left of the new world in the "line"
-                    World rightWorld = null;  // The world we will place at the right of the new world in the "line"
-                    positionSearch:
-                    for (World fromWorld : futureWorlds) {
-                        necessaryFormulas = fromWorld.getDeltaExpansionFormulas(system);
-                        if (!newWorld.containsFormulas(necessaryFormulas)) {
-                            continue positionSearch;
-                        }
-                        World toWorld = linearlyAdjacentWorld(fromWorld);  // Can be null if it is the last world in the "line"
-                        newWorldDeltaFormulas = newWorld.getDeltaExpansionFormulas(system);
-                        if (toWorld == null || !toWorld.containsFormulas(newWorldDeltaFormulas)) { // If toWorld == null then it is the last world in the "line"
-                            continue positionSearch;
-                        }
-                        leftWorld = fromWorld;
-                        rightWorld = toWorld;
-                    }
-                    if (!(leftWorld == null)) {
-                        // Remove previous transition
-                        removeTransition(leftWorld.getId(), rightWorld.getId());
-                        // Create new transitions
-                        transitions.add(new Transition(leftWorld.getId(), newWorld.getId()));
-                        transitions.add(new Transition(newWorld.getId(), rightWorld.getId()));
-                    } else {
-                        // We find the last world in the "line"
-                        World lastWorld = null;  // We assume we will always find a last world
-                        lastWorldSearch:
-                        for (World futureWorld : futureWorlds) {
-                            for (Transition transition : transitions) {
-                                if (transition.from() == futureWorld.getId() && transition.to() != world.getId()) {  // We don't consider loop transitions
-                                    continue lastWorldSearch;
-                                }
-                            }
-                            lastWorld = futureWorld;
-                            break lastWorldSearch;
-                        }
-                        // We place the new world at the end of the "line"
-                        transitions.add(new Transition(lastWorld.getId(), newWorld.getId()));
-                    }
-                } else {
-                    addTransition(new Transition(world.getId(), newWorld.getId()));
-                }
-                if (system.isSymmetric()) {
-                    this.addTransition(new Transition(newWorld.getId(), world.getId()));
-                }
-                if (system.isReflexive()) {
-                    this.addTransition(new Transition(newWorld.getId(), newWorld.getId()));
-                }
-            } else {
-                if (!system.isTransitive()) {  // We avoid creating transitions to non-adjacent future worlds since we imply many transitions
-                    addTransition(new Transition(world.getId(), existingWorld.getId()));
-                }
-            }
-        }
-
-        // Delta Rule
-        else if (type == FormulaType.NECESSARILY || type == FormulaType.NOTPOSSIBLY) {
-            HashSet<World> deltaWorlds;
-            if (system.isTransitive()) {
+            worlds.add(newWorld);
+            world.allCurrentGammaFormulasExpandedTo(newWorld.getId());
+            if (logic.isLinear()) {
                 HashSet<Integer> visitedWorlds = new HashSet<>();
                 visitedWorlds.add(world.getId());
-                deltaWorlds = reachableWorlds(world, visitedWorlds);  // Necessary since we imply many transitions in transitive frames (not explicit)
+                HashSet<World> futureWorlds = futureWorlds(world, visitedWorlds);
+                HashSet<Formula> necessaryFormulas;
+                HashSet<Formula> newWorldGammaFormulas;
+                World leftWorld = null;   // The world we will place at the left of the new world in the "line"
+                World rightWorld = null;  // The world we will place at the right of the new world in the "line"
+                positionSearch:
+                for (World fromWorld : futureWorlds) {
+                    necessaryFormulas = fromWorld.getGammaExpansionFormulas(logic);
+                    if (!newWorld.containsFormulas(necessaryFormulas)) {
+                        continue positionSearch;
+                    }
+                    World toWorld = linearlyAdjacentWorld(fromWorld);  // Can be null if it is the last world in the "line"
+                    newWorldGammaFormulas = newWorld.getGammaExpansionFormulas(logic);
+                    if (toWorld == null || !toWorld.containsFormulas(newWorldGammaFormulas)) { // If toWorld == null then it is the last world in the "line"
+                        continue positionSearch;
+                    }
+                    leftWorld = fromWorld;
+                    rightWorld = toWorld;
+                }
+                if (!(leftWorld == null)) {
+                    // Remove previous transition
+                    removeTransition(leftWorld.getId(), rightWorld.getId());
+                    // Create new transitions
+                    transitions.add(new Transition(leftWorld.getId(), newWorld.getId()));
+                    transitions.add(new Transition(newWorld.getId(), rightWorld.getId()));
+                } else {
+                    // We find the last world in the "line"
+                    World lastWorld = null;  // We assume we will always find a last world
+                    lastWorldSearch:
+                    for (World futureWorld : futureWorlds) {
+                        for (Transition transition : transitions) {
+                            if (transition.from() == futureWorld.getId() && transition.to() != world.getId()) {  // We don't consider loop transitions
+                                continue lastWorldSearch;
+                            }
+                        }
+                        lastWorld = futureWorld;
+                        break lastWorldSearch;
+                    }
+                    // We place the new world at the end of the "line"
+                    transitions.add(new Transition(lastWorld.getId(), newWorld.getId()));
+                }
             } else {
-                deltaWorlds = getDeltaWorldsFor(world, formula);
+                addTransition(new Transition(world.getId(), newWorld.getId()));
             }
-            for (World deltaWorld : deltaWorlds) {
-                deltaWorld.addFormula(formula.getSubformulas().get(0));
+            if (logic.isSymmetric()) {
+                this.addTransition(new Transition(newWorld.getId(), world.getId()));
             }
-            if (!expandable()) {
-                formula.tick();
-            } else {
-                untickAllDeltaFormulas();
+            if (logic.isReflexive()) {
+                this.addTransition(new Transition(newWorld.getId(), newWorld.getId()));
             }
+        } else {
+            if (!logic.isTransitive()) {  // We avoid creating transitions to non-adjacent future worlds since we imply many transitions
+                addTransition(new Transition(world.getId(), existingWorld.getId()));
+            }
+        }
+    }
+
+    private void expandGamma(Formula formula, World world) {
+        HashSet<World> gammaWorlds;
+        if (logic.isTransitive()) {
+            HashSet<Integer> visitedWorlds = new HashSet<>();
+            visitedWorlds.add(world.getId());
+            gammaWorlds = reachableWorlds(world, visitedWorlds);  // Necessary since we imply many transitions in transitive frames (not explicit)
+        } else {
+            gammaWorlds = getGammaWorldsFor(world, formula);
+        }
+        for (World gammaWorld : gammaWorlds) {
+            gammaWorld.addFormula(formula.getSubformulas().get(0));
+        }
+        if (!expandable()) {
+            formula.tick();
+        } else {
+            untickAllGammaFormulas();
         }
     }
 
@@ -385,7 +405,7 @@ public class Frame {
                     continue worldsLoop;
                 }
             }
-            HashSet<Formula> newWorldFormulas = newWorld.getDeltaExpansionFormulas(system);
+            HashSet<Formula> newWorldFormulas = newWorld.getGammaExpansionFormulas(logic);
             for (Formula newWorldFormula : newWorldFormulas) {
                 if (!currentWorld.containsFormula(newWorldFormula)) {
                     continue worldsLoop;
@@ -463,7 +483,7 @@ public class Frame {
         return null;
     }
 
-    private void untickAllDeltaFormulas() {
+    private void untickAllGammaFormulas() {
         for (World world : worlds) {
             for (Formula formula : world.getFormulas()) {
                 if (formula.getType() == FormulaType.NECESSARILY || formula.getType() == FormulaType.NOTPOSSIBLY) {
@@ -488,15 +508,15 @@ public class Frame {
         return false;
     }
 
-    private HashSet<World> getDeltaWorldsFor(World world, Formula formula) {
-        HashSet<World> deltaWorlds = new HashSet<>();
+    private HashSet<World> getGammaWorldsFor(World world, Formula formula) {
+        HashSet<World> gammaWorlds = new HashSet<>();
         for (Transition transition : transitions) {
             if (transition.from() == world.getId() && !formula.getWorldsExpandedTo().contains(transition.to())) {
-                deltaWorlds.add(getWorldWithId(transition.to()));
+                gammaWorlds.add(getWorldWithId(transition.to()));
                 formula.addWorldExpandedTo(transition.to());
             }
         }
-        return deltaWorlds;
+        return gammaWorlds;
     }
 
     public boolean hasContradiction() {

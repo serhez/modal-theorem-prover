@@ -1,9 +1,9 @@
 
 --------  PARSING
 
-All theorems are syntactically and grammatically correct.
+All formulaArrays are syntactically and grammatically correct.
 
 
 --------  PROVING
 
-Theorem 1 is not valid.
+FormulaArray 1 is not valid.
