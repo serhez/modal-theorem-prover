@@ -14,7 +14,7 @@ public class FormulaGenerator {
 
 
         if (size >= 5) {  // We count "->" and "<->" as 1 symbol each
-            switch (operator.nextInt(7)) {  // TODO: REMEMBER TO CHANGE BOUND WHEN CHANGING NUMBER OF OPERATORS
+            switch (operator.nextInt(7)) {  // REMEMBER TO CHANGE BOUND WHEN CHANGING NUMBER OF OPERATORS
                 case 0:
                     formula = appendNegation(size, maxPropositions);
                     break;
@@ -37,7 +37,7 @@ public class FormulaGenerator {
                     formula = appendBicondition(size, maxPropositions);
             }
         } else if (size >= 2) {  // We count "[]" and "<>" as 1 symbol each
-            switch (operator.nextInt(3)) {  // TODO: REMEMBER TO CHANGE BOUND WHEN CHANGING NUMBER OF OPERATORS
+            switch (operator.nextInt(3)) {  // REMEMBER TO CHANGE BOUND WHEN CHANGING NUMBER OF OPERATORS
                 case 0:
                     formula = appendNegation(size, maxPropositions);
                     break;

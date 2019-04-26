@@ -3,7 +3,7 @@ import java.util.Arrays;
 
 public class Parser {
 
-    private ArrayList<FormulaArray> formulaArrays;      // TODO: THESE TWO VARIABLES ARE BAD, RETURN EVERYTHING IN parseInput() CALL
+    private ArrayList<FormulaArray> formulaArrays;
     private ArrayList<Integer> unrecognisedTheorems;
     private ModalLogic logic;
 

@@ -1,9 +1,1 @@
 
---------  PARSING
-
-All formulas are syntactically and grammatically correct.
-
-
---------  PROVING
-
-Formula 1 is valid.

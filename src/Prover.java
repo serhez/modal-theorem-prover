@@ -186,11 +186,10 @@ public class Prover {
 
         Tableau tableau = new Tableau(this, parser.getFormulaArrays().get(0), logic);
         Boolean validity = tableau.run();
-        // TODO: "return tableau.run();" instead. This was only done to be able to do system.gc()
         if (validity == null) {
             return null;
         } else if (validity.booleanValue()) {
-            tableau = null; // To free memory // TODO: check this works with VisualVM; if not, delete
+            tableau = null; // To free memory
             System.gc();
             return Boolean.TRUE;    // Valid
         } else {
