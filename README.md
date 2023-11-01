@@ -10,7 +10,7 @@ You will find the my **thesis paper** at `paper.pdf`, which includes the report 
 
 This `formulaArray` prover uses standard Modal Logic syntax. It is recursively defined as the following:
 
-- $\text{prop} = \{a : a \text{ is a string }\}$ \ $\{b : b \text{ is "T" or "F" or a string such that any of its substrings are ~, [], <>, \&, |, ->, <->$, $";", ":", ",", ")" or "(" }\}$
+- $\text{prop} = \{a : a \text{ is a string }\}$ \\ $\{ b : b \text{ is "T" or "F" or a string such that any of its substrings are ~, [], <>, \&, |, ->, <->, ";", ":", ",", ")" or "("}\}$
 - $\text{fmla} = \text{T | F | prop | ¬fmla | (fmla ∧ fmla) | (fmla ∨ fmla) | (fmla → fmla) | (fmla ↔ fmla) | □fmla | ◊fmla}$
 
 Please, make sure you are making use of parentheses correctly, as specified above.
